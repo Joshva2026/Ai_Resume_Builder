@@ -30,10 +30,10 @@ const PORT = process.env.PORT || 5000;
 
 // Initial connection without database to create it if it doesn't exist
 const adminPool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 4000),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   ssl: {
     minVersion: 'TLSv1.2',
     rejectUnauthorized: true
@@ -42,11 +42,11 @@ const adminPool = mysql.createPool({
 
 // Main database connection pool
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'resume_builder',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 4000),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   ssl: {
     minVersion: 'TLSv1.2',
     rejectUnauthorized: true
