@@ -1041,6 +1041,9 @@ app.post('/api/ai/rewrite', authenticateToken, async (req, res) => {
     res.json({ message: 'Text enhanced', improvements: { original: improvements.original, enhanced: improvements.rewritten } });
   } catch (error) {
     console.error('AI rewrite error:', error);
+    if (error.message === 'AI service is not configured.') {
+      return res.status(503).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Enhancement failed' });
   }
 });
@@ -1054,6 +1057,9 @@ app.post('/api/ai/summary', authenticateToken, async (req, res) => {
     res.json({ message: 'Summary enhanced', enhanced: result.suggestion });
   } catch (error) {
     console.error('AI summary error:', error);
+    if (error.message === 'AI service is not configured.') {
+      return res.status(503).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Summary enhancement failed' });
   }
 });
@@ -1067,6 +1073,9 @@ app.post('/api/ai/keywords', authenticateToken, async (req, res) => {
     res.json({ message: 'Keywords suggested', keywords: result.keywords });
   } catch (error) {
     console.error('AI keywords error:', error);
+    if (error.message === 'AI service is not configured.') {
+      return res.status(503).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Keyword suggestion failed' });
   }
 });
@@ -1090,6 +1099,9 @@ app.post('/api/ai/cover-letter', authenticateToken, async (req, res) => {
     res.json({ message: 'Cover letter generated', coverLetter: result.coverLetter });
   } catch (error) {
     console.error('Cover letter error:', error);
+    if (error.message === 'AI service is not configured.') {
+      return res.status(503).json({ error: error.message });
+    }
     res.status(500).json({ error: 'Cover letter generation failed' });
   }
 });

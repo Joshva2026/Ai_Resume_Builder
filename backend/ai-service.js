@@ -11,13 +11,7 @@ const ACTION_VERBS = [
 
 async function rewriteText(text) {
   if (!process.env.GEMINI_API_KEY) {
-    // Fallback if no key is provided
-    const hasActionVerb = ACTION_VERBS.some(v => text.toLowerCase().startsWith(v.toLowerCase()));
-    const verb = ACTION_VERBS[Math.floor(Math.random() * 8)];
-    const rewritten = hasActionVerb
-      ? text.replace(/\b(i |we )/gi, '').trim()
-      : `${verb} ${text.charAt(0).toLowerCase()}${text.slice(1)}`.replace(/\b(i |we )/gi, '');
-    return { original: text, rewritten, improvements: ['Stronger action verb', 'Removed first-person pronoun'] };
+    throw new Error('AI service is not configured.');
   }
 
   try {
@@ -39,7 +33,7 @@ async function rewriteText(text) {
 
 async function generateSummary(careerSummary) {
   if (!process.env.GEMINI_API_KEY) {
-    return { suggestion: `Results-driven professional with ${careerSummary || 'extensive experience'}, delivering measurable impact through technical expertise and collaborative leadership.` };
+    throw new Error('AI service is not configured.');
   }
 
   try {
@@ -63,15 +57,7 @@ async function getKeywords(jobRole) {
   const role = (jobRole || '').toLowerCase();
   
   if (!process.env.GEMINI_API_KEY) {
-    const keywords = {
-      'software engineer': ['TypeScript','React','Node.js','CI/CD','REST APIs','Agile','Docker'],
-      'product manager':   ['Roadmap','OKRs','Stakeholder Management','Agile','User Research','KPIs'],
-      'data analyst':      ['SQL','Python','Tableau','Power BI','A/B Testing','Data Modeling'],
-      'ux designer':       ['Figma','User Research','Wireframing','Prototyping','Design Systems'],
-      'default':           ['Leadership','Communication','Problem-Solving','Teamwork','Project Management'],
-    };
-    const matched = Object.keys(keywords).find(k => role.includes(k)) || 'default';
-    return { keywords: keywords[matched] };
+    throw new Error('AI service is not configured.');
   }
 
   try {
@@ -93,7 +79,7 @@ async function getKeywords(jobRole) {
 
 async function generateCoverLetter(jobTitle, companyName, resumeContext = '') {
   if (!process.env.GEMINI_API_KEY) {
-    return { coverLetter: `Dear Hiring Manager,\n\nI am excited to apply for the ${jobTitle || 'position'} at ${companyName || 'your company'}. My background aligns strongly with your requirements, and I am confident I can deliver meaningful results from day one.\n\nThank you for your consideration.\n\nSincerely,\n[Your Name]` };
+    throw new Error('AI service is not configured.');
   }
 
   try {
@@ -119,7 +105,7 @@ async function generateCoverLetter(jobTitle, companyName, resumeContext = '') {
 
 async function getAtsQualitativeFeedback(jobDescription, resumeText, missingKeywords) {
   if (!process.env.GEMINI_API_KEY) {
-    throw new Error('Gemini API key is not configured.');
+    throw new Error('AI service is not configured.');
   }
 
   try {
