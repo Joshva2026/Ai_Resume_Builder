@@ -1,16 +1,6 @@
 {
   "version": 2,
   "name": "ai-resume-builder-frontend",
-  "builds": [
-    {
-      "src": "**/*.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ]
+  "cleanUrls": true,
+  "trailingSlash": false
 }
