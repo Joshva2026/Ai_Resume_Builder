@@ -11,20 +11,20 @@ const ApiService = (() => {
   // Production vs Local API URL configuration
   const IS_PROD = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
   // Fallback to a placeholder that should be replaced during actual deployment or via env vars in build step
-  const PROD_API_URL = 'https://your-backend-domain.onrender.com/api';
+  const PROD_API_URL = "https://ai-resume-builder-rb1m.onrender.com/api";
   const BASE_URL = IS_PROD ? PROD_API_URL : `http://${window.location.hostname}:5000/api`;
 
-  const TOKEN_KEY   = 'rf_access_token';
+  const TOKEN_KEY = 'rf_access_token';
   const REFRESH_KEY = 'rf_refresh_token';
-  const USER_KEY    = 'rf_user';
+  const USER_KEY = 'rf_user';
 
   // ── Token helpers ─────────────────────────────────────────────────────
   function getToken() { return localStorage.getItem(TOKEN_KEY); }
 
   function setTokens({ accessToken, refreshToken, user }) {
-    if (accessToken)  localStorage.setItem(TOKEN_KEY, accessToken);
+    if (accessToken) localStorage.setItem(TOKEN_KEY, accessToken);
     if (refreshToken) localStorage.setItem(REFRESH_KEY, refreshToken);
-    if (user)         localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   function clearTokens() {
@@ -171,7 +171,7 @@ const ApiService = (() => {
   class ApiError extends Error {
     constructor(message, status, payload) {
       super(message);
-      this.status  = status;
+      this.status = status;
       this.payload = payload;
     }
   }
@@ -200,25 +200,25 @@ const ApiService = (() => {
       finally { clearTokens(); }
     },
 
-    forgotPassword:  (email) => request('/auth/forgot-password', { method: 'POST', auth: false, body: { email } }),
-    resetPassword:   (token, newPassword) => request('/auth/reset-password', { method: 'POST', auth: false, body: { token, newPassword } }),
-    me:              () => request('/auth/me'),
+    forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', auth: false, body: { email } }),
+    resetPassword: (token, newPassword) => request('/auth/reset-password', { method: 'POST', auth: false, body: { token, newPassword } }),
+    me: () => request('/auth/me'),
   };
 
   // ── PROFILE ──────────────────────────────────────────────────────────
   const profile = {
-    get:    ()     => request('/profile'),
+    get: () => request('/profile'),
     update: (data) => request('/profile', { method: 'PUT', body: data }),
   };
 
   // ── RESUMES ──────────────────────────────────────────────────────────
   const resumes = {
-    list:      ()          => request('/resumes'),
-    get:       (id)        => request(`/resumes/${id}`),
-    create:    (data)      => request('/resumes', { method: 'POST', body: data }),
-    update:    (id, data)  => request(`/resumes/${id}`, { method: 'PUT', body: data }),
-    remove:    (id)        => request(`/resumes/${id}`, { method: 'DELETE' }),
-    duplicate: (id)        => request(`/resumes/${id}/duplicate`, { method: 'POST' }),
+    list: () => request('/resumes'),
+    get: (id) => request(`/resumes/${id}`),
+    create: (data) => request('/resumes', { method: 'POST', body: data }),
+    update: (id, data) => request(`/resumes/${id}`, { method: 'PUT', body: data }),
+    remove: (id) => request(`/resumes/${id}`, { method: 'DELETE' }),
+    duplicate: (id) => request(`/resumes/${id}/duplicate`, { method: 'POST' }),
   };
 
   // ── ATS ──────────────────────────────────────────────────────────────
@@ -226,29 +226,29 @@ const ApiService = (() => {
     analyze: (resumeId, jobDescription) =>
       request('/ats/analyze', { method: 'POST', body: { resumeId, jobDescription } }),
     history: () => request('/ats/history'),
-    report:  (id) => request(`/ats/report/${id}`),
+    report: (id) => request(`/ats/report/${id}`),
   };
 
   // ── AI ───────────────────────────────────────────────────────────────
   const ai = {
-    rewrite:     (text)                               => request('/ai/rewrite',      { method: 'POST', body: { text } }),
-    summary:     (careerSummary)                      => request('/ai/summary',       { method: 'POST', body: { careerSummary } }),
-    keywords:    (jobRole)                            => request('/ai/keywords',      { method: 'POST', body: { jobRole } }),
-    actionVerbs: ()                                    => request('/ai/action-verbs', { method: 'POST' }),
-    coverLetter: (resumeData, jobTitle, companyName) => request('/ai/cover-letter',  { method: 'POST', body: { resumeData, jobTitle, companyName } }),
+    rewrite: (text) => request('/ai/rewrite', { method: 'POST', body: { text } }),
+    summary: (careerSummary) => request('/ai/summary', { method: 'POST', body: { careerSummary } }),
+    keywords: (jobRole) => request('/ai/keywords', { method: 'POST', body: { jobRole } }),
+    actionVerbs: () => request('/ai/action-verbs', { method: 'POST' }),
+    coverLetter: (resumeData, jobTitle, companyName) => request('/ai/cover-letter', { method: 'POST', body: { resumeData, jobTitle, companyName } }),
   };
 
   // ── TEMPLATES ─────────────────────────────────────────────────────────
   const templates = {
     list: () => request('/templates', { auth: false }),
-    get:  (id) => request(`/templates/${id}`, { auth: false }),
+    get: (id) => request(`/templates/${id}`, { auth: false }),
   };
 
   // ── DOWNLOADS ─────────────────────────────────────────────────────────
   const downloads = {
-    pdf:     (resumeId) => request('/download/pdf',  { method: 'POST', body: { resumeId } }),
-    docx:    (resumeId) => request('/download/docx', { method: 'POST', body: { resumeId } }),
-    history: ()         => request('/download/history'),
+    pdf: (resumeId) => request('/download/pdf', { method: 'POST', body: { resumeId } }),
+    docx: (resumeId) => request('/download/docx', { method: 'POST', body: { resumeId } }),
+    history: () => request('/download/history'),
   };
 
   return {
