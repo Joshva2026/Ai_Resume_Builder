@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeForge — AI Resume Builder with Real-Time ATS Scoring</title>
+<meta name="description" content="Build a resume that passes the bots and impresses the humans. Live ATS scoring, AI writing assistance, and recruiter-approved templates — built only from what you actually did.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- AOS — scroll animations (CSS + JS) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.1/aos.css">
+
+<!-- Styles -->
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/nav-hero.css">
+<link rel="stylesheet" href="css/sections.css">
+<link rel="stylesheet" href="css/sections2.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<!-- ============================= NAVIGATION ============================= -->
+<header class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">RF</span>
+      ResumeForge
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html" class="active">Home</a>
+      <a href="index.html#features">Features</a>
+      <a href="pages/resume-builder.html">Resume Builder</a>
+      <a href="pages/ats-checker.html">ATS Checker</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="pages/about.html">About</a>
+      <a href="pages/contact.html">Contact</a>
+    </nav>
+
+    <div class="nav-actions" id="desktopNavActions">
+      <div id="navGuestActions" style="display: flex; gap: 1rem;">
+        <a href="pages/login.html" class="btn btn-ghost">Login</a>
+        <a href="pages/register.html" class="btn btn-primary js-cta" data-cta="nav_get_started">Get Started</a>
+      </div>
+      <div id="navUserActions" style="display: none; align-items: center; gap: 1rem;">
+        <span id="navUserName" style="font-weight: 500;"></span>
+        <a href="pages/dashboard.html" class="btn btn-primary">Dashboard</a>
+        <button id="navLogoutBtn" class="btn btn-ghost">Logout</button>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-head">
+    <a href="index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
+    <button class="nav-toggle" id="navClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <nav class="nav-links" aria-label="Mobile">
+    <a href="index.html">Home</a>
+    <a href="index.html#features">Features</a>
+    <a href="pages/resume-builder.html">Resume Builder</a>
+    <a href="pages/ats-checker.html">ATS Checker</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="pages/about.html">About</a>
+    <a href="pages/contact.html">Contact</a>
+  </nav>
+  <div class="nav-actions" id="mobileNavActions">
+    <div id="mobileGuestActions" style="display: flex; flex-direction: column; gap: 1rem;">
+      <a href="pages/login.html" class="btn btn-ghost btn-block">Login</a>
+      <a href="pages/register.html" class="btn btn-primary btn-block">Get Started Free</a>
+    </div>
+    <div id="mobileUserActions" style="display: none; flex-direction: column; gap: 1rem;">
+      <span id="mobileUserName" style="text-align: center; font-weight: 500;"></span>
+      <a href="pages/dashboard.html" class="btn btn-primary btn-block">Dashboard</a>
+      <button id="mobileLogoutBtn" class="btn btn-ghost btn-block">Logout</button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+<!-- ============================= HERO ============================= -->
+<section class="hero">
+  <!-- Animated particle canvas -->
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <!-- Animated gradient mesh -->
+  <div class="hero-mesh" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="hero-copy" data-aos="fade-up" data-aos-duration="1000">
+      <div class="eyebrow"><span class="live-ping"></span>Live ATS Engine · v2</div>
+      <h1>Write the resume. <br>Let the <span class="accent">score</span> prove it works.</h1>
+      <p>ResumeForge builds your resume from what you actually did — nothing invented — then scores it against real applicant-tracking systems in real time, so you know it'll clear the filter before you hit send.</p>
+      <div class="hero-actions">
+        <a href="pages/register.html" class="btn btn-accent btn-lg js-cta" data-cta="hero_build_resume">
+          Build My Resume Free <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="pages/ats-checker.html" class="btn btn-ghost btn-lg">
+          <i class="fa-solid fa-gauge-high"></i> Check My ATS Score
+        </a>
+      </div>
+      <div class="hero-proof">
+        <div class="avatars"><span>JK</span><span>MT</span><span>AR</span><span>+</span></div>
+        <p class="hero-proof-text"><strong>28,400+</strong> resumes scored this month<br>Average ATS pass rate: <strong>91%</strong></p>
+      </div>
+    </div>
+
+    <div class="hero-visual" data-aos="fade-left" data-aos-duration="1200" data-aos-delay="400">
+      <div class="hero-visual-card">
+        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1000&q=80" alt="Recruiter reviewing a polished resume on a laptop" />
+        <div class="hero-floating-metrics">
+          <span class="hero-graphic-pill">ATS ready 92%</span>
+          <span class="hero-graphic-pill accent">+6 keywords found</span>
+        </div>
+        <div class="hero-overlay-card">
+          <p class="hero-overlay-label">Live review</p>
+          <div class="hero-overlay-row"><span>Keywords</span><strong>88</strong></div>
+          <div class="hero-overlay-row"><span>Formatting</span><strong>95</strong></div>
+          <div class="hero-overlay-row"><span>Readability</span><strong>90</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hero-logos">
+    <p class="label">Candidates hired at</p>
+    <div class="logo-strip" data-aos="fade-up" data-aos-delay="800">
+      <span>Northwind</span><span>Vertex</span><span>Aurora Labs</span><span>Fieldstone</span><span>Halcyon</span><span>Pinnacle</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= RESUME BUILDER SHOWCASE ============================= -->
+<section class="section showcase" id="resume-builder" style="position: relative; overflow: hidden;">
+  <div class="floating-chip chip-1" style="position: absolute; top: 10%; left: 5%; padding: 10px 20px; background: var(--signal-100); color: var(--signal-600); border-radius: 20px; font-weight: 600; box-shadow: var(--shadow-sm); z-index: -1;">Clean formatting</div>
+  <div class="floating-chip chip-2" style="position: absolute; bottom: 15%; right: 4%; padding: 8px 16px; background: var(--score-high-bg); color: var(--score-high); border-radius: 20px; font-weight: 600; box-shadow: var(--shadow-sm); z-index: -1;">Auto-save active</div>
+
+  <div class="container">
+    <div class="showcase-copy" data-reveal="left">
+      <div class="eyebrow">Resume Builder</div>
+      <h2 style="font-size:var(--fs-2xl); margin-bottom:var(--sp-4)">Structured sections. Zero fabrication.</h2>
+      <p style="color:var(--ink-600); font-size:var(--fs-md)">Drag sections into place, autosave as you type, and keep every past version. ResumeForge only ever writes with what you give it — your roles, your numbers, your words, sharpened.</p>
+      <ul class="feature-list">
+        <li data-aos="fade-right" data-aos-delay="100"><span class="check">✓</span> Auto-save every few seconds, no lost drafts</li>
+        <li data-aos="fade-right" data-aos-delay="200"><span class="check">✓</span> Live preview beside the editor, always in sync</li>
+        <li data-aos="fade-right" data-aos-delay="300"><span class="check">✓</span> Drag-and-drop section reordering</li>
+        <li data-aos="fade-right" data-aos-delay="400"><span class="check">✓</span> Full version history — restore any past draft</li>
+      </ul>
+      <a href="pages/resume-builder.html" class="btn btn-primary" style="margin-top:var(--sp-6)">Open the Builder <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="showcase-panel" data-reveal="right">
+      <div class="panel-window">
+        <div class="window-dots"><span></span><span></span><span></span></div>
+        <div class="mock-line w-40 accent"></div>
+        <div class="mock-line w-90"></div>
+        <div class="mock-line w-70"></div>
+        <div class="mock-chip-row">
+          <span class="mock-chip on">Experience</span>
+          <span class="mock-chip">Education</span>
+          <span class="mock-chip">Projects</span>
+          <span class="mock-chip">Skills</span>
+        </div>
+        <div class="mock-line w-90"></div>
+        <div class="mock-line w-50"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= ATS SCORE SHOWCASE ============================= -->
+<section class="section showcase reverse" style="background:var(--paper-50); position: relative; overflow: hidden;" id="ats">
+  <div class="floating-chip chip-2" style="position: absolute; top: 20%; right: 5%; padding: 10px 20px; background: #ffebee; color: #d32f2f; border-radius: 20px; font-weight: 600; box-shadow: var(--shadow-sm); z-index: 1;">Missing keyword</div>
+
+  <div class="container">
+    <div class="showcase-panel" data-reveal="left">
+      <div class="panel-window">
+        <div class="window-dots"><span></span><span></span><span></span></div>
+        <div class="mini-gauge">
+          <div class="ring"></div>
+          <div class="txt"><strong>85 / 100 · Strong Match</strong>Beats 82% of applicants for this role</div>
+        </div>
+        <div class="mock-line w-90" style="margin-top:16px"></div>
+        <div class="mock-line w-60"></div>
+        <div class="mock-chip-row">
+          <span class="mock-chip on">Kubernetes ✓</span>
+          <span class="mock-chip">Docker — missing</span>
+        </div>
+      </div>
+    </div>
+    <div class="showcase-copy" data-reveal="right">
+      <div class="eyebrow">ATS Score Checker</div>
+      <h2 style="font-size:var(--fs-2xl); margin-bottom:var(--sp-4)">See exactly what the bots see.</h2>
+      <p style="color:var(--ink-600); font-size:var(--fs-md)">Paste a job description and get an instant breakdown: keyword match, formatting risk, grammar, and readability — plus the exact terms you're missing.</p>
+      <ul class="feature-list">
+        <li data-aos="fade-left" data-aos-delay="100"><span class="check">✓</span> Overall ATS score with category breakdown</li>
+        <li data-aos="fade-left" data-aos-delay="200"><span class="check">✓</span> Missing-keyword detection against the job post</li>
+        <li data-aos="fade-left" data-aos-delay="300"><span class="check">✓</span> Formatting checks that catch parser traps</li>
+        <li data-aos="fade-left" data-aos-delay="400"><span class="check">✓</span> Visual charts you can track over time</li>
+      </ul>
+      <a href="pages/ats-checker.html" class="btn btn-primary" style="margin-top:var(--sp-6)">Run a Free Scan <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= AI ASSISTANT SHOWCASE ============================= -->
+<section class="section showcase" id="ai-assistant">
+  <div class="container">
+    <div class="showcase-copy" data-reveal="left">
+      <div class="eyebrow">AI Assistant</div>
+      <h2 style="font-size:var(--fs-2xl); margin-bottom:var(--sp-4)">Sharper wording. Same facts.</h2>
+      <p style="color:var(--ink-600); font-size:var(--fs-md)">The assistant improves grammar, tightens phrasing, and suggests stronger action verbs and ATS keywords — but it never invents a title, a company, or a number you didn't give it.</p>
+      <ul class="feature-list">
+        <li><span class="check">✓</span> Rewrites experience bullets professionally</li>
+        <li><span class="check">✓</span> Suggests role-specific ATS keywords</li>
+        <li><span class="check">✓</span> Generates a cover letter from your resume only</li>
+        <li><span class="check">✓</span> Strengthens summaries without embellishing</li>
+      </ul>
+      <a href="pages/ats-checker.html" class="btn btn-primary" style="margin-top:var(--sp-6)">Try the Assistant <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="showcase-panel" data-reveal="right">
+      <div class="panel-window">
+        <div class="window-dots"><span></span><span></span><span></span></div>
+        <div class="mock-line w-40"></div>
+        <div class="ai-bubble">
+          <span class="tag"><i class="fa-solid fa-wand-magic-sparkles"></i> Suggested rewrite</span>
+          <p>"Led a 5-person team to cut deployment time 40% by redesigning the CI pipeline."</p>
+        </div>
+        <div class="mock-chip-row" style="margin-top:14px">
+          <span class="mock-chip on">+ "spearheaded"</span>
+          <span class="mock-chip on">+ "CI/CD"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= TEMPLATES ============================= -->
+<section class="section" id="templates" style="background:var(--paper-50)">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <div class="eyebrow" style="justify-content:center">Templates</div>
+      <h2>Recruiter-tested layouts</h2>
+      <p>Every template is parser-friendly by design — the formatting that looks clean to a human parses cleanly to a bot too.</p>
+    </div>
+    <div class="templates-grid" data-reveal-group>
+      <div class="template-card"><div class="template-thumb"><img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80" alt="Professional resume layout preview"><div class="template-badge">Professional</div></div><div class="template-meta"><h4>Professional</h4><span>ATS 98%</span></div></div>
+      <div class="template-card"><div class="template-thumb"><img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="Modern resume layout preview"><div class="template-badge">Modern</div></div><div class="template-meta"><h4>Modern</h4><span>ATS 95%</span></div></div>
+      <div class="template-card"><div class="template-thumb"><img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80" alt="Creative resume layout preview"><div class="template-badge">Creative</div></div><div class="template-meta"><h4>Creative</h4><span>ATS 90%</span></div></div>
+      <div class="template-card"><div class="template-thumb"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="Academic resume layout preview"><div class="template-badge">Academic</div></div><div class="template-meta"><h4>Academic</h4><span>ATS 97%</span></div></div>
+    </div>
+    <div style="text-align:center; margin-top:var(--sp-7)" data-reveal>
+      <a href="pages/resume-builder.html" class="btn btn-ghost">Browse All Templates</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= FEATURES ============================= -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <div class="eyebrow" style="justify-content:center">Features</div>
+      <h2>Everything the job hunt actually needs</h2>
+      <p>No filler features. Every tool here exists because it changes whether your resume gets read.</p>
+    </div>
+    <div class="features-grid" data-reveal-group>
+      <div class="feature-card"><div class="feature-icon"><i class="fa-solid fa-gauge-high"></i></div><h3>Real-time ATS scoring</h3><p>Know your pass odds before you apply, not after the rejection email.</p></div>
+      <div class="feature-card"><div class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><h3>AI writing assistant</h3><p>Sharper verbs and cleaner grammar — grounded only in what you wrote.</p></div>
+      <div class="feature-card"><div class="feature-icon"><i class="fa-solid fa-swatchbook"></i></div><h3>Parser-safe templates</h3><p>Layouts that look sharp to a recruiter and parse cleanly to a bot.</p></div>
+      <div class="feature-card"><div class="feature-icon"><i class="fa-solid fa-clock-rotate-left"></i></div><h3>Version history</h3><p>Every save is kept. Roll back to any earlier draft in one click.</p></div>
+      <div class="feature-card"><div class="feature-icon"><i class="fa-solid fa-file-export"></i></div><h3>PDF &amp; DOCX export</h3><p>Download in the format the application system actually wants.</p></div>
+      <div class="feature-card"><div class="feature-icon"><i class="fa-solid fa-envelope-open-text"></i></div><h3>Matching cover letters</h3><p>Generated from your resume details only — never fabricated.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= STATS ============================= -->
+<section class="stats-band">
+  <div class="container stats-grid">
+    <div data-reveal="scale">
+      <div class="stat-num" data-count="28" data-suffix="K+">28K+</div>
+      <div class="stat-label">Resumes scored monthly</div>
+    </div>
+    <div data-reveal="scale">
+      <div class="stat-num" data-count="91" data-suffix="%">91%</div>
+      <div class="stat-label">Average ATS pass rate</div>
+    </div>
+    <div data-reveal="scale">
+      <div class="stat-num" data-count="4.8" data-suffix="/5">4.8/5</div>
+      <div class="stat-label">Average user rating</div>
+    </div>
+    <div data-reveal="scale">
+      <div class="stat-num" data-count="140" data-suffix="+">140+</div>
+      <div class="stat-label">Countries represented</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= TRUSTED COMPANIES ============================= -->
+<section class="trusted-band" data-reveal>
+  <div class="container">
+    <p>Our users went on to work at</p>
+    <div class="trusted-logos">
+      <span>Northwind</span><span>Vertex</span><span>Aurora Labs</span><span>Fieldstone</span><span>Halcyon</span><span>Pinnacle</span><span>Solace</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= HOW IT WORKS ============================= -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <div class="eyebrow" style="justify-content:center">How It Works</div>
+      <h2>Four steps to an interview-ready resume</h2>
+    </div>
+    <div class="steps-row" data-reveal-group>
+      <div class="step-item"><div class="step-num">01</div><h4>Enter your details</h4><p>Add your real experience, education, and skills — nothing pre-filled.</p></div>
+      <div class="step-item"><div class="step-num">02</div><h4>Pick a template</h4><p>Choose a parser-safe layout that fits your field.</p></div>
+      <div class="step-item"><div class="step-num">03</div><h4>Run the ATS scan</h4><p>Paste the job post and see your score and missing keywords.</p></div>
+      <div class="step-item"><div class="step-num">04</div><h4>Polish &amp; export</h4><p>Let the AI assistant sharpen the wording, then download.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= TESTIMONIALS ============================= -->
+<section class="section" id="testimonials" style="background:var(--paper-50)">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <div class="eyebrow" style="justify-content:center">Testimonials</div>
+      <h2>People who cleared the filter</h2>
+    </div>
+    <div class="testimonial-grid" data-reveal-group>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="quote">I'd been getting silent rejections for months. The ATS checker showed me I was missing half the keywords the job post used. Fixed it, got three callbacks that week.</p>
+        <div class="testimonial-person"><span class="avatar">JK</span><div><strong>Jordan Kim</strong><span>Product Analyst</span></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="quote">What I liked is that it never made things up. The AI assistant just made my existing bullet points sound like I actually knew how to talk about my own work.</p>
+        <div class="testimonial-person"><span class="avatar">MT</span><div><strong>Maria Torres</strong><span>UX Designer</span></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="quote">The version history alone saved me — I could compare drafts side by side and see exactly which changes moved my score up.</p>
+        <div class="testimonial-person"><span class="avatar">AR</span><div><strong>Aditya Rao</strong><span>Backend Engineer</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= PRICING ============================= -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <div class="eyebrow" style="justify-content:center">Pricing</div>
+      <h2>Plans that scale with your search</h2>
+      <p>Start free. Upgrade only if you need unlimited scans and exports.</p>
+    </div>
+
+    <div class="pricing-toggle" data-reveal>
+      <span style="font-size:var(--fs-sm); font-weight:600">Monthly</span>
+      <button class="toggle-switch" id="pricingToggle" aria-label="Toggle annual pricing"></button>
+      <span style="font-size:var(--fs-sm); font-weight:600">Annual</span>
+      <span class="save-badge">Save 20%</span>
+    </div>
+
+    <div class="pricing-grid" data-reveal-group>
+      <div class="price-card">
+        <h3>Free</h3>
+        <p class="desc">Try the core tools before you commit.</p>
+        <div class="price-amount"><span class="num">$0</span><span class="per">/ forever</span></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> 1 resume</li>
+          <li><span class="check">✓</span> 3 ATS scans / month</li>
+          <li><span class="check">✓</span> 2 templates</li>
+          <li><span class="check">✓</span> PDF export</li>
+        </ul>
+        <a href="pages/register.html" class="btn btn-ghost btn-block js-cta" data-cta="pricing_free">Get Started Free</a>
+      </div>
+
+      <div class="price-card featured">
+        <span class="featured-badge">MOST POPULAR</span>
+        <h3>Pro</h3>
+        <p class="desc">For an active job search.</p>
+        <div class="price-amount"><span class="num" data-monthly="30" data-annual="24">$30</span><span class="per">/ month</span></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Unlimited resumes</li>
+          <li><span class="check">✓</span> Unlimited ATS scans</li>
+          <li><span class="check">✓</span> All templates</li>
+          <li><span class="check">✓</span> AI assistant, unlimited</li>
+          <li><span class="check">✓</span> Cover letter generator</li>
+          <li><span class="check">✓</span> PDF &amp; DOCX export</li>
+        </ul>
+        <a href="pages/register.html" class="btn btn-accent btn-block js-cta" data-cta="pricing_pro">Start Free Trial</a>
+      </div>
+
+      <div class="price-card">
+        <h3>Teams</h3>
+        <p class="desc">For career centers &amp; coaching services.</p>
+        <div class="price-amount"><span class="num">$99</span><span class="per">/ month</span></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Everything in Pro</li>
+          <li><span class="check">✓</span> Up to 10 seats</li>
+          <li><span class="check">✓</span> Shared templates</li>
+          <li><span class="check">✓</span> Priority support</li>
+        </ul>
+        <a href="pages/contact.html" class="btn btn-ghost btn-block">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= FAQ ============================= -->
+<section class="section" id="faq" style="background:var(--paper-50)">
+  <div class="container">
+    <div class="section-head center" data-reveal>
+      <div class="eyebrow" style="justify-content:center">FAQ</div>
+      <h2>Questions, answered</h2>
+    </div>
+    <div class="faq-list" data-reveal>
+      <div class="faq-item is-open">
+        <button class="faq-q">Does the AI ever invent experience I didn't have? <span class="plus">+</span></button>
+        <div class="faq-a"><p>No. The assistant only rewrites, rephrases, and suggests keywords for content you've already entered. It never adds companies, titles, dates, or achievements you haven't provided.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">How accurate is the ATS score? <span class="plus">+</span></button>
+        <div class="faq-a"><p>The score is modeled against parsing behavior from major applicant-tracking systems, checking keyword match, formatting compatibility, section structure, and readability.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Can I cancel my Pro subscription anytime? <span class="plus">+</span></button>
+        <div class="faq-a"><p>Yes — cancel anytime from Settings. You'll keep Pro access through the end of your current billing period.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What file formats can I export to? <span class="plus">+</span></button>
+        <div class="faq-a"><p>PDF and DOCX are available on every plan that includes export; Free includes PDF export.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Is my resume data private? <span class="plus">+</span></button>
+        <div class="faq-a"><p>Yes. Your resume content is never used to train models and isn't shared with third parties.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= NEWSLETTER ============================= -->
+<section class="section" style="padding-top:0">
+  <div class="newsletter-band" data-reveal>
+    <div class="newsletter-copy">
+      <h3>Job search tips, once a week</h3>
+      <p>ATS trends, resume examples, and hiring insights — no spam, unsubscribe anytime.</p>
+    </div>
+    <form class="newsletter-form" id="newsletterForm">
+      <input type="email" placeholder="you@email.com" required aria-label="Email address">
+      <button type="submit" class="btn btn-light">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================= FOOTER ============================= -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
+        <p>An AI-assisted resume builder and ATS score checker — built only from what you've actually done.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="pages/resume-builder.html">Resume Builder</a></li>
+          <li><a href="pages/ats-checker.html">ATS Checker</a></li>
+          <li><a href="pages/ats-checker.html">AI Assistant</a></li>
+          <li><a href="pages/resume-builder.html">Templates</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="pages/about.html">About</a></li>
+          <li><a href="index.html#pricing">Pricing</a></li>
+          <li><a href="pages/contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#">Resume Examples</a></li>
+          <li><a href="#">Career Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ResumeForge. All rights reserved.</span>
+      <div class="legal-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Sitemap</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.1/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/services/api-service.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

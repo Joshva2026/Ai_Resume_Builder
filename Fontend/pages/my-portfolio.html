@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio — ResumeForge</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/app-shell.css">
+</head>
+<body class="app-body">
+  
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark">RF</span>
+        <span class="brand-text">ResumeForge</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="resume-builder.html"><i class="fa-solid fa-file-lines"></i> Resume Builder</a>
+        <a href="ats-checker.html"><i class="fa-solid fa-gauge-high"></i> ATS Checker</a>
+        <a href="portfolio-builder.html" class="active"><i class="fa-solid fa-globe"></i> Portfolio Builder</a>
+        <a href="settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>My Portfolio</h1>
+        </div>
+      </header>
+
+      <div class="container" style="padding: 24px;">
+        <div class="card" style="text-align: center; padding: 48px;">
+          <div style="font-size: 48px; color: var(--primary); margin-bottom: 24px;">
+            <i class="fa-solid fa-globe"></i>
+          </div>
+          <h2>Your Personal Developer Portfolio</h2>
+          <p style="color: var(--ink-600); margin-bottom: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Showcase your skills, projects, and experience with a beautiful, customizable online portfolio.
+          </p>
+          <a href="portfolio-builder.html" class="btn btn-primary btn-lg"><i class="fa-solid fa-plus"></i> Create Portfolio</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/services/api-service.js"></script>
+</body>
+</html>

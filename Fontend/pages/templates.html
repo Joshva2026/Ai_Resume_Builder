@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Templates — ResumeForge</title>
+  <meta name="description" content="Choose from 8 ATS-tested resume templates designed to get you past the bots and onto the shortlist." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/sections.css" />
+  <style>
+    body { background: var(--paper-50); }
+
+    /* ── Navbar ── */
+    .navbar { background: white; border-bottom: 1px solid var(--line); }
+
+    /* ── Hero ── */
+    .tpl-hero {
+      padding: 96px 0 56px;
+      text-align: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: white;
+    }
+    .tpl-hero h1 { font-size: var(--fs-3xl); color: white; margin-bottom: 12px; }
+    .tpl-hero p  { color: rgba(255,255,255,0.7); font-size: var(--fs-md); max-width: 540px; margin: 0 auto 32px; }
+    .tpl-hero .eyebrow { color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.15); }
+
+    /* ── Filter tabs ── */
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 40px auto 0; }
+    .filter-btn {
+      padding: 8px 20px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-pill);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      cursor: pointer;
+      background: white;
+      color: var(--ink-700);
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--ink-950);
+      color: white;
+      border-color: var(--ink-950);
+    }
+
+    /* ── Grid ── */
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 28px;
+      padding: 48px 0 80px;
+    }
+
+    /* ── Card ── */
+    .tpl-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+    }
+    .tpl-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.1); }
+
+    .tpl-thumb {
+      height: 230px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tpl-mock {
+      width: 72%;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      padding: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      font-size: 6px;
+      line-height: 1.6;
+    }
+    .tpl-mock-header { height: 18px; border-radius: 2px; margin-bottom: 8px; }
+    .tpl-mock-line { height: 4px; background: #e8e8e8; border-radius: 2px; margin-bottom: 4px; }
+    .tpl-mock-line.short { width: 60%; }
+    .tpl-mock-line.xshort { width: 40%; }
+    .tpl-mock-line.accent { height: 1px; margin: 6px 0; }
+    .tpl-mock-name { font-weight: 700; font-size: 9px; margin-bottom: 2px; }
+    .tpl-mock-sub  { font-size: 6px; color: #666; margin-bottom: 6px; }
+    .tpl-mock-section { font-size: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 6px 0 3px; }
+
+    /* Hover overlay */
+    .tpl-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .tpl-card:hover .tpl-overlay { opacity: 1; }
+
+    /* Badge */
+    .tpl-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--score-high);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+
+    /* Info */
+    .tpl-info { padding: 18px 20px 20px; border-top: 1px solid var(--line); }
+    .tpl-info h3 { font-size: var(--fs-base); margin-bottom: 4px; }
+    .tpl-info p  { font-size: var(--fs-xs); color: var(--ink-500); margin-bottom: 12px; }
+    .tpl-meta { display: flex; align-items: center; justify-content: space-between; }
+    .tpl-score { font-size: var(--fs-xs); font-weight: 600; color: var(--score-high); }
+    .tpl-cat   { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-400); }
+
+    @media (max-width: 640px) {
+      .templates-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .tpl-hero h1 { font-size: var(--fs-2xl); }
+    }
+    @media (max-width: 420px) {
+      .templates-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar" id="navbar">
+    <div class="container">
+      <a href="../index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
+      <nav class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="resume-builder.html">Builder</a>
+        <a href="templates.html" class="active">Templates</a>
+        <a href="ats-checker.html">ATS Checker</a>
+      </nav>
+      <div class="nav-actions" id="navActions">
+        <a href="login.html" class="btn btn-ghost">Login</a>
+        <a href="register.html" class="btn btn-primary">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="tpl-hero">
+    <div class="container">
+      <div class="eyebrow" style="justify-content:center; margin-bottom:16px;">8 Templates</div>
+      <h1>Parser-safe. Recruiter-approved.</h1>
+      <p>Every template is rigorously tested against leading ATS platforms so your data is extracted perfectly — every time.</p>
+      <!-- Filter tabs -->
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="corporate">Corporate</button>
+        <button class="filter-btn" data-filter="modern">Modern</button>
+        <button class="filter-btn" data-filter="tech">Tech</button>
+        <button class="filter-btn" data-filter="creative">Creative</button>
+        <button class="filter-btn" data-filter="academic">Academic</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid -->
+  <main>
+    <div class="container">
+      <div class="templates-grid" id="templatesGrid">
+        <!-- Populated by JS -->
+        <div style="grid-column:1/-1; text-align:center; padding:48px; color:var(--ink-400);">
+          <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+          <p style="margin-top:12px">Loading templates…</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+
+  <script src="../js/services/api-service.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    // Build a mini resume mock preview matching each template style
+    function buildMock(t) {
+      const accent = t.accent || '#6c5ce7';
+      const cat = t.category;
+
+      if (cat === 'creative') {
+        return `<div class="tpl-mock" style="display:flex;gap:6px;padding:0;">
+          <div style="width:30%;background:${accent};padding:10px 6px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.3);margin-bottom:6px;"></div>
+            <div style="height:3px;background:rgba(255,255,255,0.5);border-radius:2px;margin-bottom:3px;"></div>
+            <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:70%;"></div>
+          </div>
+          <div style="flex:1;padding:10px 6px;">
+            <div class="tpl-mock-name" style="color:${accent};">Jane Doe</div>
+            <div class="tpl-mock-sub">Product Designer</div>
+            <div class="tpl-mock-section" style="color:${accent};">Experience</div>
+            <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+          </div>
+        </div>`;
+      }
+      if (cat === 'tech') {
+        return `<div class="tpl-mock">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div>
+              <div class="tpl-mock-name">Jane Doe</div>
+              <div class="tpl-mock-sub">Software Engineer</div>
+            </div>
+            <div style="font-size:5px;font-family:monospace;color:${accent};">&lt;code/&gt;</div>
+          </div>
+          <div class="tpl-mock-line accent" style="background:${accent};"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div><div class="tpl-mock-section" style="color:${accent};">Skills</div>
+              <div style="display:flex;flex-wrap:wrap;gap:2px;">
+                <span style="background:${accent}20;color:${accent};padding:1px 3px;border-radius:2px;font-size:5px;">JS</span>
+                <span style="background:${accent}20;color:${accent};padding:1px 3px;border-radius:2px;font-size:5px;">React</span>
+              </div>
+            </div>
+            <div><div class="tpl-mock-section" style="color:${accent};">Exp</div>
+              <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+            </div>
+          </div>
+        </div>`;
+      }
+      // default / corporate / modern / academic
+      return `<div class="tpl-mock">
+        <div class="tpl-mock-header" style="background:${accent};"></div>
+        <div class="tpl-mock-name">Jane Doe</div>
+        <div class="tpl-mock-sub">Senior Product Manager</div>
+        <div class="tpl-mock-line accent" style="background:${accent};opacity:0.4;"></div>
+        <div class="tpl-mock-section" style="color:${accent};">Experience</div>
+        <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+        <div class="tpl-mock-section" style="color:${accent};">Education</div>
+        <div class="tpl-mock-line"></div><div class="tpl-mock-line xshort"></div>
+        <div class="tpl-mock-section" style="color:${accent};">Skills</div>
+        <div class="tpl-mock-line short"></div>
+      </div>`;
+    }
+
+    function renderCard(t) {
+      const accent = t.accent || '#6c5ce7';
+      return `
+        <div class="tpl-card" data-category="${t.category}">
+          <div class="tpl-thumb" style="background:${accent}18;">
+            <div class="tpl-badge">${t.atsScore}% ATS</div>
+            ${buildMock(t)}
+            <div class="tpl-overlay">
+              <a href="resume-builder.html?template=${t.id}" class="btn btn-primary">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Use Template
+              </a>
+            </div>
+          </div>
+          <div class="tpl-info">
+            <h3>${t.name}</h3>
+            <p>${t.description}</p>
+            <div class="tpl-meta">
+              <span class="tpl-score"><i class="fa-solid fa-check-circle"></i> ${t.atsScore}/100 ATS score</span>
+              <span class="tpl-cat">${t.category}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    async function loadTemplates() {
+      const grid = document.getElementById('templatesGrid');
+      try {
+        const templates = await ApiService.templates.list();
+        allTemplates = templates;
+        grid.innerHTML = templates.map(renderCard).join('');
+      } catch(e) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink-500);">
+          <i class="fa-solid fa-plug-circle-xmark fa-2x" style="margin-bottom:12px;display:block;"></i>
+          Could not load templates — is the server running?
+        </div>`;
+      }
+    }
+
+    // Filter tabs
+    let allTemplates = [];
+    document.getElementById('filterBar').addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.tpl-card').forEach(card => {
+        card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+      });
+    });
+
+    loadTemplates();
+  </script>
+</body>
+</html>

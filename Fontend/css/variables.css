@@ -1,0 +1,109 @@
+/* ==========================================================================
+   RESUMEFORGE — DESIGN TOKENS
+   A resume/ATS platform for people whose next job depends on getting past
+   a machine before a human ever sees their work. The visual language leans
+   on the idea of a "score" — a gauge, a meter, a signal moving from red to
+   green — because that tension (will I pass the filter?) is the emotional
+   center of the product.
+   ========================================================================== */
+
+:root {
+  /* ---- Color: Ink & Signal ----
+     Base is a deep, cold ink-navy (not black) so the product feels precise
+     rather than "AI dark mode default." The signal accent is an electric
+     violet-blue used sparingly for actions. Score states borrow a traffic
+     scale (amber -> violet -> green) rather than pure red/green, so it never
+     reads as a rejection color when a score is merely "okay."  */
+  --ink-950: #0B0E1A;
+  --ink-900: #12162A;
+  --ink-800: #1B2140;
+  --ink-700: #2A3260;
+  --ink-600: #454F86;
+  --ink-400: #8892C4;
+  --ink-200: #C9CEEA;
+  --ink-100: #E4E7F7;
+
+  --paper-0: #FCFCFE;
+  --paper-50: #F5F6FC;
+  --paper-100: #EDEFFA;
+
+  --signal-600: #4A3AFF;
+  --signal-500: #6C5CFF;
+  --signal-400: #8B7DFF;
+  --signal-100: #EBE8FF;
+
+  --score-low: #F5A623;
+  --score-mid: #6C5CFF;
+  --score-high: #1FB574;
+  --score-high-bg: #E5F8EF;
+  --score-low-bg: #FDF3E3;
+
+  --line: #E1E4F2;
+  --line-strong: #C9CEEA;
+
+  /* ---- Type ----
+     Display: "Space Grotesk" — geometric, slightly technical, confident at
+     large sizes without feeling corporate-template. Body: "Inter" — the
+     most legible workhorse for dense product UI (forms, tables, scores).
+     Mono: "IBM Plex Mono" — used only for score numerals + data labels,
+     reinforcing "this is a measurement, not decoration."  */
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  --fs-2xs: 0.75rem;
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: 3rem;
+  --fs-4xl: 3.75rem;
+  --fs-5xl: 4.5rem;
+
+  /* ---- Space ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+  --sp-10: 128px;
+
+  /* ---- Shape ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* ---- Elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(11, 14, 26, 0.06), 0 1px 1px rgba(11, 14, 26, 0.04);
+  --shadow-md: 0 8px 24px rgba(18, 22, 42, 0.08), 0 2px 6px rgba(18, 22, 42, 0.04);
+  --shadow-lg: 0 24px 64px rgba(18, 22, 42, 0.14), 0 8px 20px rgba(18, 22, 42, 0.06);
+  --shadow-glow: 0 0 0 1px rgba(108, 92, 255, 0.15), 0 12px 32px rgba(108, 92, 255, 0.18);
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur-base: 280ms;
+  --dur-slow: 520ms;
+  --dur-xslow: 900ms;
+
+  --container-max: 1220px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

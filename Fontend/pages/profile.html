@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — ResumeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<style>
+  .page-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--sp-5);
+  }
+
+  .profile-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+  }
+
+  .profile-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+  }
+
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--signal-500), var(--ink-700));
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .profile-card h2 {
+    margin-bottom: 6px;
+  }
+
+  .profile-card p {
+    color: var(--ink-600);
+  }
+
+  .profile-meta {
+    display: grid;
+    gap: var(--sp-3);
+  }
+
+  .profile-meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sp-4);
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  .profile-meta-item .meta-label {
+    color: var(--ink-600);
+    font-size: var(--fs-2xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  .profile-note {
+    padding: var(--sp-4);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--paper-0);
+  }
+
+  .status {
+    color: var(--signal-600);
+  }
+
+  @media (max-width: 980px) {
+    .page-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="profileTemplate">
+  <div class="page-grid">
+    <div class="panel profile-card">
+      <div class="profile-card-head">
+        <div class="profile-avatar" id="profileAvatar">RF</div>
+        <div>
+          <h2 id="profileName">Your Name</h2>
+          <p id="profileEmail">email@example.com</p>
+        </div>
+      </div>
+
+      <div class="profile-note">
+        <p id="profileBio">Add a short bio to personalize your profile and help us remember your story.</p>
+      </div>
+
+      <div class="profile-meta">
+        <div class="profile-meta-item">
+          <span class="meta-label">Phone</span>
+          <span id="profilePhone">Not added</span>
+        </div>
+        <div class="profile-meta-item">
+          <span class="meta-label">Location</span>
+          <span id="profileLocation">Not added</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Profile details</h3>
+      </div>
+      <form id="profileForm" autocomplete="off">
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Jane">
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Doe">
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" readonly>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567">
+          </div>
+          <div class="field">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="New York, NY">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="bio">About you</label>
+          <textarea id="bio" name="bio" rows="5" placeholder="A short professional bio..."></textarea>
+        </div>
+
+        <div class="field">
+          <div id="profileStatus" class="hint"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="saveProfileBtn">Save changes</button>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'profile', title: 'Profile' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('profileTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/profile.js"></script>
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Preview</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" id="fontLink" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.1/aos.css">
+  <link rel="stylesheet" href="../css/portfolio.css">
+  
+  <style id="portfolioStyles">
+    :root {
+      --accent-color: #0ea5e9;
+      --font-family: 'Inter', sans-serif;
+    }
+    body {
+      font-family: var(--font-family);
+    }
+  </style>
+</head>
+<body class="portfolio-body theme-light" id="portfolioBody">
+
+  <section class="portfolio-hero" id="heroSection">
+    <h1 id="pvName" data-aos="fade-up">John Doe</h1>
+    <h2 id="pvHeadline" data-aos="fade-up" data-aos-delay="100">Full Stack Developer</h2>
+    <p id="pvAbout" data-aos="fade-up" data-aos-delay="200">I build pixel-perfect, engaging, and accessible digital experiences.</p>
+  </section>
+
+  <section class="portfolio-section" id="projectsSection" style="padding: 4rem 2rem; max-width: 1000px; margin: 0 auto; display:none;">
+    <h3 style="font-size: 2rem; margin-bottom: 2rem; text-align: center;" data-aos="fade-up">Selected Projects</h3>
+    <div id="pvProjects" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+      <!-- Projects injected here -->
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.1/aos.js"></script>
+  <script>
+    AOS.init({ once: true });
+    
+    // Listen for messages from builder
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'updatePreview') {
+        const data = event.data.payload;
+        
+        // Theme
+        const body = document.getElementById('portfolioBody');
+        body.className = `portfolio-body theme-${data.theme}`;
+        
+        // Accent Color
+        document.documentElement.style.setProperty('--accent-color', data.accentColor);
+        
+        // Text
+        document.getElementById('pvName').textContent = data.heroName || 'Your Name';
+        document.getElementById('pvHeadline').textContent = data.heroHeadline || 'Your Headline';
+        document.getElementById('pvAbout').textContent = data.heroAbout || 'Your About Me description...';
+        
+        // Projects
+        const projContainer = document.getElementById('pvProjects');
+        const projSection = document.getElementById('projectsSection');
+        
+        if (data.projects && data.projects.length > 0) {
+          projSection.style.display = 'block';
+          projContainer.innerHTML = data.projects.map((p, i) => `
+            <div class="project-card" data-aos="fade-up" data-aos-delay="${i * 100}">
+              <h4 style="margin:0 0 0.5rem 0; font-size:1.2rem;">${p.title || 'Project Title'}</h4>
+              <p style="font-size:0.9rem; opacity:0.8; margin-bottom:1rem;">${p.description || 'Description'}</p>
+              ${p.tech ? `<div style="font-size:0.8rem; color:var(--accent-color);">${p.tech}</div>` : ''}
+            </div>
+          `).join('');
+        } else {
+          projSection.style.display = 'none';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

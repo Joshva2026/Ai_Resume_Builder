@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Builder — ResumeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/builder.css">
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="builderTemplate">
+  <div class="builder-toolbar">
+    <input type="text" class="title-input" id="resumeTitle" value="Untitled Resume" aria-label="Resume title">
+    <div class="toolbar-actions">
+      <span class="save-indicator" id="saveIndicator"><span class="dot"></span> All changes saved</span>
+      <button class="btn btn-ghost" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+      <a href="ats-checker.html" class="btn btn-ghost"><i class="fa-solid fa-gauge-high"></i> Check ATS Score</a>
+      <button class="btn btn-primary" id="btnDownload"><i class="fa-solid fa-download"></i> Download</button>
+    </div>
+  </div>
+
+  <div class="builder-layout">
+    <!-- Section rail -->
+    <aside class="section-rail" id="sectionRail">
+      <h4>Sections — drag to reorder</h4>
+      <div class="rail-item active" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check"></i></div>
+      <div class="rail-item" draggable="true" data-section="summary"><i class="fa-solid fa-grip-vertical grip"></i> Career Summary</div>
+      <div class="rail-item" draggable="true" data-section="experience"><i class="fa-solid fa-grip-vertical grip"></i> Experience</div>
+      <div class="rail-item" draggable="true" data-section="education"><i class="fa-solid fa-grip-vertical grip"></i> Education</div>
+      <div class="rail-item" draggable="true" data-section="projects"><i class="fa-solid fa-grip-vertical grip"></i> Projects</div>
+      <div class="rail-item" draggable="true" data-section="skills"><i class="fa-solid fa-grip-vertical grip"></i> Skills</div>
+      <div class="rail-item" draggable="true" data-section="certifications"><i class="fa-solid fa-grip-vertical grip"></i> Certifications</div>
+      <div class="rail-item" draggable="true" data-section="languages"><i class="fa-solid fa-grip-vertical grip"></i> Languages</div>
+      <div class="rail-item" draggable="true" data-section="volunteer"><i class="fa-solid fa-grip-vertical grip"></i> Volunteer Work</div>
+      <div class="rail-item" draggable="true" data-section="awards"><i class="fa-solid fa-grip-vertical grip"></i> Awards</div>
+      <div class="rail-item" draggable="true" data-section="publications"><i class="fa-solid fa-grip-vertical grip"></i> Publications</div>
+    </aside>
+
+    <!-- Editor -->
+    <section class="editor-pane">
+
+      <div class="editor-section active" data-section="personal">
+        <h3>Personal Information</h3>
+        <div class="field-row">
+          <div class="field"><label>Full name</label><input type="text" id="f_fullName" placeholder="Jane Doe"></div>
+          <div class="field"><label>Professional title</label><input type="text" id="f_headline" placeholder="Senior Software Engineer"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="jane@email.com"></div>
+          <div class="field"><label>Phone</label><input type="tel" id="f_phone" placeholder="+1 555 000 0000"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Location</label><input type="text" id="f_location" placeholder="New York, NY"></div>
+          <div class="field"><label>LinkedIn / Portfolio</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
+        </div>
+      </div>
+
+      <div class="editor-section" data-section="summary">
+        <h3>Career Summary</h3>
+        <div class="field">
+          <label>Summary</label>
+          <textarea id="f_summary" rows="6" placeholder="Two to three sentences on your background and what you're looking for next. Only describe what's true today."></textarea>
+          <button class="ai-inline-btn" data-ai="summary"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI</button>
+        </div>
+      </div>
+
+      <div class="editor-section" data-section="experience">
+        <h3>Work Experience</h3>
+        <div id="experienceBlocks"></div>
+        <button class="btn btn-ghost" id="addExperience"><i class="fa-solid fa-plus"></i> Add Position</button>
+      </div>
+
+      <div class="editor-section" data-section="education">
+        <h3>Education</h3>
+        <div id="educationBlocks"></div>
+        <button class="btn btn-ghost" id="addEducation"><i class="fa-solid fa-plus"></i> Add Education</button>
+      </div>
+
+      <div class="editor-section" data-section="projects">
+        <h3>Projects</h3>
+        <div id="projectBlocks"></div>
+        <button class="btn btn-ghost" id="addProject"><i class="fa-solid fa-plus"></i> Add Project</button>
+      </div>
+
+      <div class="editor-section" data-section="skills">
+        <h3>Skills</h3>
+        <div class="field">
+          <label>Skills (comma separated)</label>
+          <textarea id="f_skills" rows="3" placeholder="JavaScript, React, Node.js, SQL, Team Leadership"></textarea>
+          <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Suggest ATS keywords</button>
+        </div>
+      </div>
+
+      <div class="editor-section" data-section="certifications">
+        <h3>Certifications</h3>
+        <div class="field">
+          <label>Certifications (one per line)</label>
+          <textarea id="f_certs" rows="4" placeholder="AWS Certified Solutions Architect — 2024"></textarea>
+        </div>
+      </div>
+
+      <div class="editor-section" data-section="languages">
+        <h3>Languages</h3>
+        <div id="languageBlocks"></div>
+        <button class="btn btn-ghost" id="addLanguage"><i class="fa-solid fa-plus"></i> Add Language</button>
+      </div>
+
+      <div class="editor-section" data-section="volunteer">
+        <h3>Volunteer Work</h3>
+        <div id="volunteerBlocks"></div>
+        <button class="btn btn-ghost" id="addVolunteer"><i class="fa-solid fa-plus"></i> Add Volunteer Role</button>
+      </div>
+
+      <div class="editor-section" data-section="awards">
+        <h3>Awards &amp; Honours</h3>
+        <div id="awardBlocks"></div>
+        <button class="btn btn-ghost" id="addAward"><i class="fa-solid fa-plus"></i> Add Award</button>
+      </div>
+
+      <div class="editor-section" data-section="publications">
+        <h3>Publications</h3>
+        <div id="publicationBlocks"></div>
+        <button class="btn btn-ghost" id="addPublication"><i class="fa-solid fa-plus"></i> Add Publication</button>
+      </div>
+
+    </section>
+
+    <!-- Live preview -->
+    <aside class="preview-pane">
+      <div class="paper" id="livePreview"></div>
+    </aside>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'resume-builder', title: 'Resume Builder' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('builderTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/resume-builder.js"></script>
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>

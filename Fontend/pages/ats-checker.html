@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS Checker — ResumeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/ats.css">
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="atsTemplate">
+  <div class="ats-layout">
+    <aside class="ats-input-panel">
+      <h3>Run a scan</h3>
+      <p class="sub">Pick a resume and paste the job description to check your match.</p>
+
+      <div class="field">
+        <label>Resume</label>
+        <select id="resumeSelect"><option value="">Loading resumes…</option></select>
+      </div>
+
+      <div class="field">
+        <label>Job description</label>
+        <textarea id="jobDescription" rows="10" placeholder="Paste the full job posting here for the most accurate keyword match…"></textarea>
+      </div>
+
+      <button class="btn btn-accent btn-block btn-lg" id="runScan"><i class="fa-solid fa-magnifying-glass-chart"></i> Run ATS Scan</button>
+    </aside>
+
+    <div class="ats-results" id="atsResults">
+      <div class="ats-empty">
+        <i class="fa-solid fa-gauge-high"></i>
+        <h3>No scan yet</h3>
+        <p>Choose a resume and paste a job description, then run a scan to see your ATS score breakdown.</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'ats-checker', title: 'ATS Score Checker' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('atsTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/ats-checker.js"></script>
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>

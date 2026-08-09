@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — ResumeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="dashboardTemplate">
+  <div class="dash-grid">
+    <div class="dash-stat">
+      <div class="top-row"><div class="icon" style="background:var(--signal-100); color:var(--signal-600)"><i class="fa-solid fa-file-lines"></i></div><span class="trend up">Live</span></div>
+      <div class="value" id="statResumeCount">–</div>
+      <div class="label">Total resumes</div>
+    </div>
+    <div class="dash-stat">
+      <div class="top-row"><div class="icon" style="background:var(--score-high-bg); color:var(--score-high)"><i class="fa-solid fa-gauge-high"></i></div><span class="trend up">Avg</span></div>
+      <div class="value" id="statAvgScore">–</div>
+      <div class="label">Average ATS score</div>
+    </div>
+    <div class="dash-stat">
+      <div class="top-row"><div class="icon" style="background:#FDF3E3; color:var(--score-low)"><i class="fa-solid fa-magnifying-glass-chart"></i></div></div>
+      <div class="value" id="statScanCount">–</div>
+      <div class="label">Scans this month</div>
+    </div>
+    <div class="dash-stat">
+      <div class="top-row"><div class="icon" style="background:var(--paper-100); color:var(--ink-700)"><i class="fa-solid fa-download"></i></div></div>
+      <div class="value" id="statDownloadCount">–</div>
+      <div class="label">Downloads</div>
+    </div>
+  </div>
+
+  <div class="dash-panels">
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Recent resumes</h3>
+        <a href="resume-builder.html" class="btn btn-primary" style="padding:9px 18px; font-size:13px"><i class="fa-solid fa-plus"></i> New Resume</a>
+      </div>
+      <div id="resumeList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Recent activity</h3></div>
+      <div id="activityList">
+        <div class="activity-item"><span class="dot"></span><div><p>Welcome to ResumeForge!</p><span>Just now</span></div></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'dashboard', title: 'Dashboard' });
+
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('dashboardTemplate').content.cloneNode(true));
+
+async function loadDashboard() {
+  const resumeList = document.getElementById('resumeList');
+
+  try {
+    const resumes = await ApiService.resumes.list();
+    document.getElementById('statResumeCount').textContent = resumes.length;
+    document.getElementById('statDownloadCount').textContent = '0';
+
+    if (resumes.length === 0) {
+      resumeList.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-regular fa-file-lines"></i>
+          <h4>No resumes yet</h4>
+          <p>Create your first resume to get started.</p>
+          <a href="resume-builder.html" class="btn btn-primary">Build My Resume</a>
+        </div>`;
+    } else {
+      resumeList.innerHTML = resumes.slice(0, 5).map((r) => `
+        <div class="resume-row">
+          <div class="doc-icon"><i class="fa-solid fa-file-lines"></i></div>
+          <div class="info">
+            <h4>${escapeHtml(r.title)}</h4>
+            <span>Updated ${new Date(r.updated_at || r.created_at).toLocaleDateString()}</span>
+          </div>
+          <div class="actions">
+            <a href="resume-builder.html?id=${r.id}" class="btn btn-ghost" style="padding:7px 14px; font-size:12px">Edit</a>
+          </div>
+        </div>`).join('');
+    }
+  } catch (err) {
+    resumeList.innerHTML = `
+      <div class="empty-state">
+        <i class="fa-solid fa-plug-circle-xmark"></i>
+        <h4>Can't reach the backend</h4>
+        <p>${escapeHtml(err.message)}</p>
+        <a href="resume-builder.html" class="btn btn-primary">Build My Resume</a>
+      </div>`;
+    document.getElementById('statResumeCount').textContent = '0';
+  }
+
+  try {
+    const history = await ApiService.ats.history();
+    document.getElementById('statScanCount').textContent = history.length;
+    const avg = history.length
+      ? Math.round(history.reduce((sum, r) => sum + (r.overall_score || 0), 0) / history.length)
+      : 0;
+    document.getElementById('statAvgScore').textContent = history.length ? `${avg}` : '–';
+  } catch (err) {
+    document.getElementById('statScanCount').textContent = '0';
+    document.getElementById('statAvgScore').textContent = '–';
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+loadDashboard();
+</script>
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>
