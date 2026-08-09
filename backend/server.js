@@ -34,10 +34,15 @@ const adminPool = mysql.createPool({
   port: Number(process.env.DB_PORT || 4000),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   ssl: {
     minVersion: 'TLSv1.2',
     rejectUnauthorized: true
   },
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  maxIdle: 10,
+  idleTimeout: 30000
 });
 
 // Main database connection pool
@@ -54,7 +59,24 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  maxIdle: 10,
+  idleTimeout: 30000
 });
+
+// Validate environment variables on startup (names only)
+function validateEnvironmentVariables() {
+  const required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
+  const missing = required.filter(v => !process.env[v]);
+  if (missing.length > 0) {
+    console.warn(`[SECURITY WARNING] Missing required environment variables: ${missing.join(', ')}`);
+  }
+  if (!process.env.GEMINI_API_KEY) {
+    console.warn('[SECURITY INFO] GEMINI_API_KEY is not set. AI qualitative features will return fallback recommendations.');
+  }
+}
+validateEnvironmentVariables();
 
 // ==========================================
 // MIDDLEWARE SETUP
@@ -62,9 +84,28 @@ const pool = mysql.createPool({
 
 // Security
 app.use(helmet());
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5000',
+  'http://127.0.0.1:5500',
+  'http://localhost:5500'
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS Policy Error: Origin not allowed'));
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Rate limiting
@@ -72,8 +113,16 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
-
 app.use(limiter);
+
+// Specific Rate Limiting for AI & ATS Endpoints to prevent API key abuse
+const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // max 30 AI calls per IP per 15 minutes
+  message: { error: 'Too many requests to AI services. Please try again in 15 minutes.' }
+});
+app.use('/api/ai', aiLimiter);
+app.use('/api/ats', aiLimiter);
 
 // Body parser
 app.use(express.json({ limit: '50mb' }));
@@ -109,6 +158,19 @@ const authenticateToken = (req, res, next) => {
       return res.status(403).json({ error: 'Invalid token' });
     }
     req.user = user;
+    next();
+  });
+};
+
+const optionalAuthenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+  jwt.verify(token, process.env.JWT_SECRET || 'secret_key', (err, user) => {
+    if (!err) req.user = user;
     next();
   });
 };
@@ -150,6 +212,9 @@ const initializeDatabase = async () => {
         location VARCHAR(255),
         bio TEXT,
         profile_image_url VARCHAR(500),
+        linkedin_url VARCHAR(255),
+        portfolio_url VARCHAR(255),
+        github_url VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -619,14 +684,36 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
     const connection = await pool.getConnection();
 
-    const [profiles] = await connection.query(
-      'SELECT * FROM profiles WHERE user_id = ?',
+    const [rows] = await connection.query(
+      `SELECT 
+        u.id as user_id, u.email, u.first_name, u.last_name,
+        p.phone, p.location, p.bio, p.profile_image_url, p.linkedin_url, p.portfolio_url, p.github_url
+      FROM users u
+      LEFT JOIN profiles p ON u.id = p.user_id
+      WHERE u.id = ?`,
       [req.user.id]
     );
 
     connection.release();
 
-    res.json(profiles[0] || {});
+    if (!rows.length) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const row = rows[0];
+    res.json({
+      id: row.user_id,
+      email: row.email || '',
+      firstName: row.first_name || '',
+      lastName: row.last_name || '',
+      phone: row.phone || '',
+      location: row.location || '',
+      bio: row.bio || '',
+      profileImageUrl: row.profile_image_url || '',
+      linkedinUrl: row.linkedin_url || '',
+      portfolioUrl: row.portfolio_url || '',
+      githubUrl: row.github_url || ''
+    });
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
@@ -635,23 +722,92 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
 
 app.put('/api/profile', authenticateToken, async (req, res) => {
   try {
-    const { phone, location, bio, profileImageUrl } = req.body;
+    const { 
+      email, firstName, lastName, phone, location, bio, 
+      profileImageUrl, linkedinUrl, portfolioUrl, githubUrl 
+    } = req.body;
 
     const connection = await pool.getConnection();
 
+    if (email) {
+      const trimmedEmail = email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+        connection.release();
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      const [existing] = await connection.query(
+        'SELECT id FROM users WHERE email = ? AND id != ?',
+        [trimmedEmail, req.user.id]
+      );
+
+      if (existing.length > 0) {
+        connection.release();
+        return res.status(409).json({ error: 'Email already belongs to another account' });
+      }
+
+      await connection.query(
+        'UPDATE users SET email = ?, first_name = ?, last_name = ? WHERE id = ?',
+        [trimmedEmail, firstName || '', lastName || '', req.user.id]
+      );
+    } else if (firstName !== undefined || lastName !== undefined) {
+      await connection.query(
+        'UPDATE users SET first_name = ?, last_name = ? WHERE id = ?',
+        [firstName || '', lastName || '', req.user.id]
+      );
+    }
+
     await connection.query(
-      'UPDATE profiles SET phone = ?, location = ?, bio = ?, profile_image_url = ? WHERE user_id = ?',
-      [phone, location, bio, profileImageUrl, req.user.id]
+      `INSERT INTO profiles (user_id, phone, location, bio, profile_image_url, linkedin_url, portfolio_url, github_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         phone = VALUES(phone),
+         location = VALUES(location),
+         bio = VALUES(bio),
+         profile_image_url = VALUES(profile_image_url),
+         linkedin_url = VALUES(linkedin_url),
+         portfolio_url = VALUES(portfolio_url),
+         github_url = VALUES(github_url)`,
+      [
+        req.user.id,
+        phone || '',
+        location || '',
+        bio || '',
+        profileImageUrl || '',
+        linkedinUrl || '',
+        portfolioUrl || '',
+        githubUrl || ''
+      ]
     );
 
-    const [updated] = await connection.query(
-      'SELECT * FROM profiles WHERE user_id = ?',
+    const [rows] = await connection.query(
+      `SELECT 
+        u.id as user_id, u.email, u.first_name, u.last_name,
+        p.phone, p.location, p.bio, p.profile_image_url, p.linkedin_url, p.portfolio_url, p.github_url
+      FROM users u
+      LEFT JOIN profiles p ON u.id = p.user_id
+      WHERE u.id = ?`,
       [req.user.id]
     );
 
     connection.release();
 
-    res.json({ message: 'Profile updated', profile: updated[0] });
+    const row = rows[0];
+    const profile = {
+      id: row.user_id,
+      email: row.email || '',
+      firstName: row.first_name || '',
+      lastName: row.last_name || '',
+      phone: row.phone || '',
+      location: row.location || '',
+      bio: row.bio || '',
+      profileImageUrl: row.profile_image_url || '',
+      linkedinUrl: row.linkedin_url || '',
+      portfolioUrl: row.portfolio_url || '',
+      githubUrl: row.github_url || ''
+    };
+
+    res.json({ message: 'Profile updated', profile });
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Failed to update profile' });
@@ -865,8 +1021,8 @@ app.post('/api/ats/analyze', authenticateToken, async (req, res) => {
   try {
     const { resumeId, jobDescription } = req.body;
 
-    if (!jobDescription) {
-      return res.status(400).json({ error: 'Job description is required' });
+    if (!resumeId) {
+      return res.status(400).json({ error: 'Resume ID is required' });
     }
 
     const connection = await pool.getConnection();
@@ -882,13 +1038,28 @@ app.post('/api/ats/analyze', authenticateToken, async (req, res) => {
     }
 
     const resumeContent = resumes[0].content;
-    const textContent = JSON.stringify(resumeContent); 
+    const textContent = typeof resumeContent === 'string' ? resumeContent : JSON.stringify(resumeContent); 
 
     // Deterministic ATS Engine
-    const atsScore = atsEngine.calculateDeterministicScore(textContent, jobDescription);
+    const atsScore = atsEngine.calculateDeterministicScore(textContent, jobDescription || '');
 
-    // Call qualitative Gemini feedback
-    const aiFeedback = await aiService.getAtsQualitativeFeedback(jobDescription, textContent, atsScore.missing_keywords);
+    // Qualitative feedback (Gemini or Fallback)
+    let aiFeedback = { suggestions: [], detailed_feedback: {} };
+    if (jobDescription && process.env.GEMINI_API_KEY) {
+      try {
+        aiFeedback = await aiService.getAtsQualitativeFeedback(jobDescription, textContent, atsScore.missing_keywords);
+      } catch (e) {
+        console.error('Qualitative feedback warning:', e.message);
+      }
+    }
+
+    if (!aiFeedback.suggestions || !aiFeedback.suggestions.length) {
+      aiFeedback.suggestions = [
+        'Include exact skill keywords from the job posting in your experience bullets.',
+        'Quantify your accomplishments using specific metrics, percentages, or dollar amounts.',
+        'Ensure standard section headings like Experience, Education, and Skills.'
+      ];
+    }
 
     const [result] = await connection.query(
       'INSERT INTO ats_reports (resume_id, overall_score, keyword_match, formatting_score, grammar_score, readability_score, missing_keywords, suggestions, detailed_feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -897,8 +1068,8 @@ app.post('/api/ats/analyze', authenticateToken, async (req, res) => {
         atsScore.overall_score,
         atsScore.keyword_match,
         atsScore.formatting_score,
-        90, // mock grammar for now
-        85, // mock readability for now
+        atsScore.grammar_score || 90,
+        atsScore.readability_score || 85,
         JSON.stringify(atsScore.missing_keywords || []),
         JSON.stringify(aiFeedback.suggestions || []),
         JSON.stringify(aiFeedback.detailed_feedback || {})
@@ -914,63 +1085,107 @@ app.post('/api/ats/analyze', authenticateToken, async (req, res) => {
   }
 });
 
-// Upload endpoint for Hybrid ATS Pipeline
-app.post('/api/ats/analyze-upload', authenticateToken, upload.single('resume'), async (req, res) => {
+// Upload endpoint for Hybrid ATS Pipeline (Supports PDF, DOC, DOCX, TXT for guests & logged in users)
+app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('resume'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Resume file is required (PDF, DOC, DOCX, or TXT)' });
+  }
+
+  const fs = require('fs');
+  const tempPath = req.file.path;
+
   try {
     const { jobDescription } = req.body;
     
-    if (!jobDescription) {
-      return res.status(400).json({ error: 'Job description is required' });
+    // File validation
+    const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
+    const ext = (req.file.originalname.split('.').pop() || '').toLowerCase();
+    if (!validExtensions.includes(ext)) {
+      return res.status(400).json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are supported.' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'Resume file is required (PDF or DOCX)' });
-    }
+    // Extract text from uploaded file
+    const textContent = await atsEngine.extractText(tempPath, req.file.mimetype, req.file.originalname);
 
-    // Validate file type
-    const validMimes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (!validMimes.includes(req.file.mimetype)) {
-      return res.status(400).json({ error: 'Invalid file type. Only PDF and DOCX are supported.' });
+    if (!textContent || !textContent.trim()) {
+      return res.status(400).json({ error: 'Could not extract text from the file. The file may be empty or image-based.' });
     }
-
-    // Extract text
-    const textContent = await atsEngine.extractText(req.file.path, req.file.mimetype);
 
     // Deterministic ATS Engine
-    const atsScore = atsEngine.calculateDeterministicScore(textContent, jobDescription);
+    const atsScore = atsEngine.calculateDeterministicScore(textContent, jobDescription || '');
 
-    // Call qualitative Gemini feedback
-    const aiFeedback = await aiService.getAtsQualitativeFeedback(jobDescription, textContent, atsScore.missing_keywords);
+    // Qualitative feedback (Gemini or Fallback)
+    let aiFeedback = { suggestions: [], detailed_feedback: {} };
+    if (jobDescription && process.env.GEMINI_API_KEY) {
+      try {
+        aiFeedback = await aiService.getAtsQualitativeFeedback(jobDescription, textContent, atsScore.missing_keywords);
+      } catch (e) {
+        console.error('Qualitative feedback warning:', e.message);
+      }
+    }
 
-    // Create a temporary/placeholder resume record since we don't have JSON structure
-    const connection = await pool.getConnection();
-    const [resumeResult] = await connection.query(
-      'INSERT INTO resumes (user_id, title, content) VALUES (?, ?, ?)',
-      [req.user.id, req.file.originalname, JSON.stringify({ extractedText: textContent })]
-    );
-    const resumeId = resumeResult.insertId;
+    if (!aiFeedback.suggestions || !aiFeedback.suggestions.length) {
+      aiFeedback.suggestions = [
+        'Include exact skill keywords from the job posting in your experience section.',
+        'Use bullet points to highlight measurable achievements and results.',
+        'Keep formatting clean and readable for ATS parsers.'
+      ];
+    }
 
-    const [result] = await connection.query(
-      'INSERT INTO ats_reports (resume_id, overall_score, keyword_match, formatting_score, grammar_score, readability_score, missing_keywords, suggestions, detailed_feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
+    let reportId = null;
+    let resumeId = null;
+
+    // Save to DB only if user is authenticated
+    if (req.user && req.user.id) {
+      try {
+        const connection = await pool.getConnection();
+        const [resumeResult] = await connection.query(
+          'INSERT INTO resumes (user_id, title, content) VALUES (?, ?, ?)',
+          [req.user.id, req.file.originalname, JSON.stringify({ extractedText: textContent })]
+        );
+        resumeId = resumeResult.insertId;
+
+        const [result] = await connection.query(
+          'INSERT INTO ats_reports (resume_id, overall_score, keyword_match, formatting_score, grammar_score, readability_score, missing_keywords, suggestions, detailed_feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            resumeId,
+            atsScore.overall_score,
+            atsScore.keyword_match,
+            atsScore.formatting_score,
+            atsScore.grammar_score || 90,
+            atsScore.readability_score || 85,
+            JSON.stringify(atsScore.missing_keywords || []),
+            JSON.stringify(aiFeedback.suggestions || []),
+            JSON.stringify(aiFeedback.detailed_feedback || {})
+          ]
+        );
+        reportId = result.insertId;
+        connection.release();
+      } catch (dbError) {
+        console.error('Optional DB persistence error:', dbError.message);
+      }
+    }
+
+    res.json({
+      message: 'ATS analysis complete',
+      report: {
+        ...atsScore,
+        ...aiFeedback,
+        id: reportId,
         resumeId,
-        atsScore.overall_score,
-        atsScore.keyword_match,
-        atsScore.formatting_score,
-        90,
-        85,
-        JSON.stringify(atsScore.missing_keywords || []),
-        JSON.stringify(aiFeedback.suggestions || []),
-        JSON.stringify(aiFeedback.detailed_feedback || {})
-      ]
-    );
-
-    connection.release();
-
-    res.json({ message: 'ATS analysis complete', report: { ...atsScore, ...aiFeedback, id: result.insertId, resumeId } });
+        fileName: req.file.originalname
+      }
+    });
   } catch (error) {
     console.error('ATS upload analysis error:', error);
-    res.status(500).json({ error: 'ATS analysis failed' });
+    res.status(500).json({ error: error.message || 'ATS analysis failed' });
+  } finally {
+    // Delete temp file after processing
+    try {
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath);
+      }
+    } catch (_) {}
   }
 });
 
@@ -1027,6 +1242,51 @@ app.get('/api/ats/report/:id', authenticateToken, async (req, res) => {
 // ==========================================
 // AI ENHANCEMENT ROUTES
 // ==========================================
+
+app.post('/api/ai/assistant', optionalAuthenticateToken, async (req, res) => {
+  try {
+    const { messages } = req.body;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    let userContext = null;
+    if (req.user && req.user.id) {
+      try {
+        const connection = await pool.getConnection();
+        const [rows] = await connection.query(
+          `SELECT u.first_name, u.last_name, u.email, p.location, p.bio
+           FROM users u
+           LEFT JOIN profiles p ON u.id = p.user_id
+           WHERE u.id = ?`,
+          [req.user.id]
+        );
+        connection.release();
+        if (rows.length) {
+          userContext = {
+            firstName: rows[0].first_name,
+            lastName: rows[0].last_name,
+            email: rows[0].email,
+            location: rows[0].location,
+            bio: rows[0].bio
+          };
+        }
+      } catch (dbErr) {
+        console.error('User context fetch warning:', dbErr.message);
+      }
+    }
+
+    const result = await aiService.assistantChat(messages, userContext);
+    res.json(result);
+  } catch (error) {
+    console.error('AI assistant route error:', error.message);
+    if (error.message === 'AI service is not configured.') {
+      return res.status(503).json({ error: 'AI Assistant is currently unavailable. Please try again later.' });
+    }
+    res.status(500).json({ error: 'AI Assistant failed to respond' });
+  }
+});
 
 app.post('/api/ai/rewrite', authenticateToken, async (req, res) => {
   try {

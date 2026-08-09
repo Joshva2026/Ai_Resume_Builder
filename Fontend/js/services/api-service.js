@@ -225,12 +225,37 @@ const ApiService = (() => {
   const ats = {
     analyze: (resumeId, jobDescription) =>
       request('/ats/analyze', { method: 'POST', body: { resumeId, jobDescription } }),
+    analyzeUpload: async (formData) => {
+      const token = getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      let res;
+      try {
+        res = await fetch(`${BASE_URL}/ats/analyze-upload`, {
+          method: 'POST',
+          headers,
+          body: formData,
+        });
+      } catch (err) {
+        throw new ApiError('Backend unreachable. Please check your connection.', 503);
+      }
+
+      let data = null;
+      try { data = await res.json(); } catch (_) {}
+
+      if (!res.ok) {
+        throw new ApiError(data?.error || `Upload analysis failed (${res.status})`, res.status, data);
+      }
+      return data;
+    },
     history: () => request('/ats/history'),
     report: (id) => request(`/ats/report/${id}`),
   };
 
   // ── AI ───────────────────────────────────────────────────────────────
   const ai = {
+    assistant: (messages) => request('/ai/assistant', { method: 'POST', body: { messages } }),
     rewrite: (text) => request('/ai/rewrite', { method: 'POST', body: { text } }),
     summary: (careerSummary) => request('/ai/summary', { method: 'POST', body: { careerSummary } }),
     keywords: (jobRole) => request('/ai/keywords', { method: 'POST', body: { jobRole } }),

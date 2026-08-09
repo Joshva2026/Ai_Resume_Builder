@@ -9,6 +9,7 @@ const AppShell = (() => {
     { key: 'dashboard', icon: 'fa-grid-2', label: 'Dashboard', href: 'dashboard.html' },
     { key: 'resume-builder', icon: 'fa-pen-ruler', label: 'Resume Builder', href: 'resume-builder.html' },
     { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Checker', href: 'ats-checker.html' },
+    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant.html' },
     { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile.html' },
     { group: 'Explore' },
     { key: 'about', icon: 'fa-circle-info', label: 'About', href: 'about.html' },

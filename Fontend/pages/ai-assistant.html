@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Career Assistant — ResumeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<style>
+  .assistant-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    overflow: hidden;
+  }
+
+  .assistant-header {
+    padding: var(--sp-4) var(--sp-5);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .assistant-header-info {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .assistant-avatar-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--signal-500), #6366f1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .assistant-header h2 {
+    font-size: var(--fs-md);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .assistant-header p {
+    font-size: var(--fs-2xs);
+    color: var(--ink-600);
+    margin: 2px 0 0 0;
+  }
+
+  /* Quick Prompts Container */
+  .quick-prompts-wrapper {
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--paper-50);
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    white-space: nowrap;
+    display: flex;
+    gap: 8px;
+    scrollbar-width: thin;
+  }
+
+  .prompt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: white;
+    border: 1px solid var(--line);
+    color: var(--ink-800);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .prompt-chip:hover {
+    border-color: var(--signal-500);
+    color: var(--signal-600);
+    background: var(--signal-100);
+  }
+
+  .prompt-chip i {
+    color: var(--signal-500);
+  }
+
+  /* Chat Messages Scroll Area */
+  .chat-messages {
+    flex: 1;
+    padding: var(--sp-5);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    background: #fafafa;
+  }
+
+  .msg-row {
+    display: flex;
+    gap: var(--sp-3);
+    max-width: 85%;
+  }
+
+  .msg-row.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .msg-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .msg-row.assistant .msg-avatar {
+    background: linear-gradient(135deg, var(--signal-500), #6366f1);
+    color: white;
+  }
+
+  .msg-row.user .msg-avatar {
+    background: var(--ink-800);
+    color: white;
+  }
+
+  .msg-bubble {
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: 14px;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .msg-row.assistant .msg-bubble {
+    background: white;
+    border: 1px solid var(--line);
+    color: var(--ink-900);
+    border-top-left-radius: 2px;
+  }
+
+  .msg-row.user .msg-bubble {
+    background: var(--signal-600);
+    color: white;
+    border-top-right-radius: 2px;
+  }
+
+  .msg-bubble p { margin-bottom: 8px; }
+  .msg-bubble p:last-child { margin-bottom: 0; }
+  .msg-bubble ul, .msg-bubble ol { margin: 8px 0 8px 20px; }
+  .msg-bubble li { margin-bottom: 4px; }
+  .msg-bubble strong { font-weight: 600; }
+
+  /* Loading typing indicator */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    border-top-left-radius: 2px;
+    width: fit-content;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal-500);
+    animation: typingBounce 1.4s infinite ease-in-out both;
+  }
+
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+
+  /* Chat Input Bar */
+  .chat-input-bar {
+    padding: var(--sp-4);
+    background: white;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: var(--sp-3);
+    align-items: center;
+  }
+
+  .chat-input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+
+  textarea#chatInput {
+    width: 100%;
+    min-height: 48px;
+    max-height: 120px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: var(--fs-sm);
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea#chatInput:focus {
+    border-color: var(--signal-500);
+    box-shadow: 0 0 0 3px var(--signal-100);
+  }
+
+  .send-btn {
+    height: 48px;
+    padding: 0 var(--sp-5);
+    background: var(--signal-600);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+  }
+
+  .send-btn:hover {
+    background: var(--signal-700);
+  }
+
+  .send-btn:disabled {
+    background: var(--ink-300);
+    cursor: not-allowed;
+  }
+
+  .clear-btn {
+    height: 48px;
+    padding: 0 14px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-600);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .clear-btn:hover {
+    background: var(--paper-100);
+    color: var(--score-low);
+  }
+
+  @media (max-width: 768px) {
+    .assistant-container {
+      height: calc(100vh - 100px);
+      border-radius: 0;
+      border: none;
+    }
+    .msg-row { max-width: 95%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="aiAssistantTemplate">
+  <div class="assistant-container">
+    <div class="assistant-header">
+      <div class="assistant-header-info">
+        <div class="assistant-avatar-badge"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h2>AI Career Assistant</h2>
+          <p>Ask anything about resume writing, ATS optimization, cover letters, and career growth.</p>
+        </div>
+      </div>
+      <button class="clear-btn" id="clearChatBtn" title="Clear chat history"><i class="fa-solid fa-trash-can"></i></button>
+    </div>
+
+    <!-- Quick Action Prompts -->
+    <div class="quick-prompts-wrapper">
+      <button class="prompt-chip" data-prompt="How can I improve my resume for a software developer job?"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve My Resume</button>
+      <button class="prompt-chip" data-prompt="How do I improve my ATS score to pass keyword filters?"><i class="fa-solid fa-gauge-high"></i> Improve ATS Score</button>
+      <button class="prompt-chip" data-prompt="Write a compelling professional summary for my resume."><i class="fa-solid fa-pen-nib"></i> Write Summary</button>
+      <button class="prompt-chip" data-prompt="Generate 5 strong bullet points with metrics for a software engineer."><i class="fa-solid fa-list-check"></i> Generate Bullet Points</button>
+      <button class="prompt-chip" data-prompt="Write a professional cover letter template for a tech role."><i class="fa-solid fa-file-signature"></i> Create Cover Letter</button>
+      <button class="prompt-chip" data-prompt="What are the top technical & soft skills I should list on my resume?"><i class="fa-solid fa-lightbulb"></i> Suggest Skills</button>
+      <button class="prompt-chip" data-prompt="Review my profile bio and suggest improvements."><i class="fa-solid fa-user-check"></i> Review My Profile</button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg-row assistant">
+        <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="msg-bubble">
+          <p>Hello! I am your <strong>ResumeForge AI Assistant</strong>. How can I help you today?</p>
+          <p>You can pick a quick topic above or type any question about your resume, ATS match, cover letter, or career goals below!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chat-input-bar">
+      <div class="chat-input-wrapper">
+        <textarea id="chatInput" placeholder="Ask about resume tips, bullet points, cover letters..." rows="1"></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i> Send</button>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'ai-assistant', title: 'AI Assistant' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('aiAssistantTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/ai-assistant.js"></script>
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>
