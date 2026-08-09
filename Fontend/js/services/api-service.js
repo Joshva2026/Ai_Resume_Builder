@@ -8,7 +8,11 @@
  */
 
 const ApiService = (() => {
-  const BASE_URL = `http://${window.location.hostname}:5000/api`;
+  // Production vs Local API URL configuration
+  const IS_PROD = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+  // Fallback to a placeholder that should be replaced during actual deployment or via env vars in build step
+  const PROD_API_URL = 'https://your-backend-domain.onrender.com/api';
+  const BASE_URL = IS_PROD ? PROD_API_URL : `http://${window.location.hostname}:5000/api`;
 
   const TOKEN_KEY   = 'rf_access_token';
   const REFRESH_KEY = 'rf_refresh_token';
