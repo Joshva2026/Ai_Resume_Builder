@@ -5,14 +5,16 @@
  * if the user is already signed in.
  */
 (function () {
-  const PROTECTED_PAGES = [
-    'dashboard.html', 'profile.html', 'resume-builder.html', 'resume-preview.html',
-    'ats-checker.html', 'ai-assistant.html', 'cover-letter.html', 'my-resumes.html',
-    'download-center.html', 'settings.html',
-  ];
-  const AUTH_PAGES = ['login.html', 'register.html'];
+  const rawPage = window.location.pathname.split('/').pop() || '';
+  const page = rawPage.replace(/\.html$/, '');
 
-  const page = window.location.pathname.split('/').pop();
+  const PROTECTED_PAGES = [
+    'dashboard', 'profile', 'resume-builder', 'resume-preview',
+    'ats-checker', 'ai-assistant', 'cover-letter', 'my-resumes',
+    'download-center', 'settings',
+  ];
+  const AUTH_PAGES = ['login', 'register'];
+
   const authed = typeof ApiService !== 'undefined' && ApiService.isAuthenticated();
 
   if (PROTECTED_PAGES.includes(page) && !authed) {

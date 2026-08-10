@@ -20,24 +20,47 @@
     const cardSaved  = document.getElementById('cardOptionSaved');
     const fileContainer  = document.getElementById('fileUploadContainer');
     const savedContainer = document.getElementById('savedResumeContainer');
+    const btnSelectFileOption = document.getElementById('btnSelectFileOption');
+    const btnSelectCreatedOption = document.getElementById('btnSelectCreatedOption');
 
-    cardUpload.addEventListener('click', () => {
+    const selectUploadMode = () => {
       activeMode = 'upload';
       cardUpload.classList.add('active');
       cardSaved.classList.remove('active');
       fileContainer.style.display = 'block';
       savedContainer.style.display = 'none';
       hideError();
-    });
+    };
 
-    cardSaved.addEventListener('click', () => {
+    const selectSavedMode = () => {
       activeMode = 'saved';
       cardSaved.classList.add('active');
       cardUpload.classList.remove('active');
       savedContainer.style.display = 'block';
       fileContainer.style.display = 'none';
       hideError();
-    });
+    };
+
+    cardUpload.addEventListener('click', selectUploadMode);
+    cardSaved.addEventListener('click', selectSavedMode);
+
+    if (btnSelectFileOption) {
+      btnSelectFileOption.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectUploadMode();
+        const fileInput = document.getElementById('resumeFileInput');
+        if (fileInput) fileInput.click();
+      });
+    }
+
+    if (btnSelectCreatedOption) {
+      btnSelectCreatedOption.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectSavedMode();
+        const resumeSelect = document.getElementById('resumeSelect');
+        if (resumeSelect) resumeSelect.focus();
+      });
+    }
 
     // File Drag & Drop
     const dropZone  = document.getElementById('dropZone');
@@ -117,11 +140,11 @@
     if (!select) return;
     try {
       const resumes = await ApiService.resumes.list();
-      if (!resumes || !resumes.length) {
+      if (!Array.isArray(resumes) || !resumes.length) {
         select.innerHTML = '<option value="">No created resumes — upload a file instead</option>';
         return;
       }
-      select.innerHTML = resumes.map((r) => `<option value="${r.id}">${escapeHtml(r.title)}</option>`).join('');
+      select.innerHTML = resumes.map((r) => `<option value="${r.id}">${escapeHtml(r.title || r.name || 'Untitled Resume')}</option>`).join('');
     } catch (err) {
       select.innerHTML = '<option value="">Could not load created resumes</option>';
     }
@@ -201,16 +224,14 @@
     const missingKeywords = report.missingKeywords || report.missing_keywords || [];
     const suggestions     = report.suggestions || [];
     const feedback        = report.detailed_feedback || report.detailedFeedback || {};
-    const strengths       = feedback.strengths || [];
-    const weaknesses      = feedback.weaknesses || [];
 
     results.innerHTML = `
       <div class="big-gauge-card">
         <div class="big-gauge">
           <svg width="180" height="180" viewBox="0 0 180 180">
             <circle cx="90" cy="90" r="78" fill="none" stroke="var(--paper-100)" stroke-width="14"/>
-            <circle cx="90" cy="90" r="78" fill="none" stroke="${verdict.color}" stroke-width="14" stroke-linecap="round"
-              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" style="transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)"/>
+            <circle id="gaugeProgressCircle" cx="90" cy="90" r="78" fill="none" stroke="${verdict.color}" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" style="transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)"/>
           </svg>
           <div class="num"><span class="n">${score}</span><span class="l">out of 100</span></div>
         </div>
@@ -255,7 +276,7 @@
         <button type="button" class="btn btn-accent btn-lg" id="btnAskAiAssistant">
           <i class="fa-solid fa-robot"></i> Ask AI Assistant
         </button>
-        <a href="resume-builder.html" class="btn btn-primary btn-lg">
+        <a href="resume-builder" class="btn btn-primary btn-lg">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI
         </a>
         <button type="button" class="btn btn-ghost btn-lg" id="btnCheckAnother">
@@ -264,12 +285,20 @@
       </div>
     `;
 
+    // Trigger smooth SVG gauge animation
+    requestAnimationFrame(() => {
+      const circle = document.getElementById('gaugeProgressCircle');
+      if (circle) {
+        circle.style.strokeDashoffset = `${offset}`;
+      }
+    });
+
     // Bind action buttons
     const btnAskAi = document.getElementById('btnAskAiAssistant');
     if (btnAskAi) {
       btnAskAi.addEventListener('click', () => {
         const promptText = encodeURIComponent(`Please review my ATS score (${score}/100) and explain how I can fix missing keywords: ${missingKeywords.join(', ')}`);
-        window.location.href = `ai-assistant.html?prompt=${promptText}&score=${score}`;
+        window.location.href = `ai-assistant?prompt=${promptText}&score=${score}`;
       });
     }
 

@@ -1135,20 +1135,14 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
     let reportId = null;
     let resumeId = null;
 
-    // Save to DB only if user is authenticated
+    // Save report to DB only if user is authenticated (without creating dummy resumes)
     if (req.user && req.user.id) {
       try {
         const connection = await pool.getConnection();
-        const [resumeResult] = await connection.query(
-          'INSERT INTO resumes (user_id, title, content) VALUES (?, ?, ?)',
-          [req.user.id, req.file.originalname, JSON.stringify({ extractedText: textContent })]
-        );
-        resumeId = resumeResult.insertId;
-
         const [result] = await connection.query(
           'INSERT INTO ats_reports (resume_id, overall_score, keyword_match, formatting_score, grammar_score, readability_score, missing_keywords, suggestions, detailed_feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
-            resumeId,
+            null,
             atsScore.overall_score,
             atsScore.keyword_match,
             atsScore.formatting_score,

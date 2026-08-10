@@ -8,9 +8,13 @@ async function extractText(filePath, mimetype, originalName = '') {
 
   // 1. PDF
   if (mimetype === 'application/pdf' || ext === 'pdf') {
-    const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdf(dataBuffer);
-    return data.text || '';
+    try {
+      const dataBuffer = fs.readFileSync(filePath);
+      const data = await pdf(dataBuffer);
+      return data.text || '';
+    } catch (err) {
+      throw new Error('Failed to read PDF file. It may be password-protected or corrupted.');
+    }
   }
   
   // 2. DOCX & DOC
@@ -22,9 +26,15 @@ async function extractText(filePath, mimetype, originalName = '') {
   ) {
     try {
       const result = await mammoth.extractRawText({ path: filePath });
-      if (result && result.value) return result.value;
+      if (result && result.value && result.value.trim()) return result.value;
     } catch (_) {}
-    return fs.readFileSync(filePath, 'utf8');
+
+    const textFallback = fs.readFileSync(filePath, 'utf8');
+    // Check for raw binary OLE header junk
+    if (/\x00/.test(textFallback.slice(0, 100))) {
+      throw new Error('Legacy binary .doc files are not supported. Please convert your file to .docx or .pdf.');
+    }
+    return textFallback;
   }
 
   // 3. TXT
@@ -36,17 +46,33 @@ async function extractText(filePath, mimetype, originalName = '') {
   try {
     return fs.readFileSync(filePath, 'utf8');
   } catch (err) {
-    throw new Error('Unsupported file format. Please upload PDF, DOC, DOCX, or TXT.');
+    throw new Error('Unsupported file format. Please upload PDF, DOCX, or TXT.');
   }
 }
+
+// Common English stop words to filter out while retaining 2+ letter tech keywords (AWS, SQL, GCP, Git, C, R, Vue, PHP, iOS, ML, AI)
+const STOP_WORDS = new Set([
+  'a', 'an', 'the', 'and', 'or', 'but', 'if', 'because', 'as', 'until', 'while',
+  'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through',
+  'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'upon', 'down',
+  'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once',
+  'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each',
+  'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own',
+  'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should',
+  'now', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
+  'having', 'do', 'does', 'did', 'doing', 'this', 'that', 'these', 'those', 'my', 'your',
+  'his', 'her', 'its', 'our', 'their', 'them', 'what', 'which', 'who', 'whom'
+]);
 
 // Deterministic ATS Scoring Engine
 function calculateDeterministicScore(resumeText, jobDescription = '') {
   const normalizedResume = (resumeText || '').toLowerCase().replace(/[^a-z0-9\s]/g, '');
   const normalizedJd = (jobDescription || '').toLowerCase().replace(/[^a-z0-9\s]/g, '');
   
-  const resumeWords = new Set(normalizedResume.split(/\s+/).filter(w => w.length > 3));
-  const jdWords = normalizedJd.split(/\s+/).filter(w => w.length > 3);
+  const isMeaningfulWord = (w) => w.length >= 2 && !STOP_WORDS.has(w) && !/^\d+$/.test(w);
+
+  const resumeWords = new Set(normalizedResume.split(/\s+/).filter(isMeaningfulWord));
+  const jdWords = normalizedJd.split(/\s+/).filter(isMeaningfulWord);
   const uniqueJdWords = [...new Set(jdWords)];
   
   const matchedKeywords = [];
