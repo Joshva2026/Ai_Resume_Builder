@@ -174,8 +174,12 @@
       </div>
       <form id="profileForm" autocomplete="off">
         <div class="field">
-          <label for="profileImageUrl">Profile Image URL</label>
-          <input type="url" id="profileImageUrl" name="profileImageUrl" placeholder="https://example.com/avatar.jpg">
+          <label for="profileImageUrl">Profile Image</label>
+          <div style="display:flex; gap:8px;">
+            <input type="url" id="profileImageUrl" name="profileImageUrl" placeholder="https://example.com/avatar.jpg" style="flex:1;">
+            <button type="button" class="btn btn-ghost" id="btnUploadAvatar" style="white-space:nowrap; font-size:13px;"><i class="fa-solid fa-upload"></i> Upload Image</button>
+            <input type="file" id="avatarFileInput" accept="image/*" hidden>
+          </div>
         </div>
         <div class="field-row">
           <div class="field">

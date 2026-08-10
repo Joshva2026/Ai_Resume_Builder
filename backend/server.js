@@ -87,6 +87,7 @@ app.use(helmet());
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  'https://ai-resume-builder-puce-one.vercel.app',
   'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:3000',
@@ -98,7 +99,7 @@ const allowedOrigins = [
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin) || process.env.NODE_ENV !== 'production') {
       return callback(null, true);
     }
     return callback(new Error('CORS Policy Error: Origin not allowed'));
@@ -1256,14 +1257,38 @@ app.post('/api/ai/assistant', optionalAuthenticateToken, async (req, res) => {
            WHERE u.id = ?`,
           [req.user.id]
         );
+
+        const [resumes] = await connection.query(
+          `SELECT title, content FROM resumes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1`,
+          [req.user.id]
+        );
+
+        const [atsReports] = await connection.query(
+          `SELECT ar.overall_score, ar.missing_keywords, ar.suggestions
+           FROM ats_reports ar
+           JOIN resumes r ON ar.resume_id = r.id
+           WHERE r.user_id = ? ORDER BY ar.created_at DESC LIMIT 1`,
+          [req.user.id]
+        );
+
         connection.release();
+
         if (rows.length) {
           userContext = {
             firstName: rows[0].first_name,
             lastName: rows[0].last_name,
             email: rows[0].email,
             location: rows[0].location,
-            bio: rows[0].bio
+            bio: rows[0].bio,
+            latestResume: resumes.length ? {
+              title: resumes[0].title,
+              content: typeof resumes[0].content === 'string' ? resumes[0].content : JSON.stringify(resumes[0].content)
+            } : null,
+            latestAtsReport: atsReports.length ? {
+              score: atsReports[0].overall_score,
+              missingKeywords: atsReports[0].missing_keywords,
+              suggestions: atsReports[0].suggestions
+            } : null
           };
         }
       } catch (dbErr) {

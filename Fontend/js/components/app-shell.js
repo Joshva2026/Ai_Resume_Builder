@@ -6,14 +6,14 @@
 const AppShell = (() => {
   const NAV_ITEMS = [
     { group: 'Workspace' },
-    { key: 'dashboard', icon: 'fa-grid-2', label: 'Dashboard', href: 'dashboard.html' },
-    { key: 'resume-builder', icon: 'fa-pen-ruler', label: 'Resume Builder', href: 'resume-builder.html' },
-    { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Checker', href: 'ats-checker.html' },
-    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant.html' },
-    { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile.html' },
+    { key: 'dashboard', icon: 'fa-grid-2', label: 'Dashboard', href: 'dashboard' },
+    { key: 'resume-builder', icon: 'fa-pen-ruler', label: 'Resume Builder', href: 'resume-builder' },
+    { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Checker', href: 'ats-checker' },
+    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant' },
+    { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile' },
     { group: 'Explore' },
-    { key: 'about', icon: 'fa-circle-info', label: 'About', href: 'about.html' },
-    { key: 'contact', icon: 'fa-envelope-open-text', label: 'Contact', href: 'contact.html' },
+    { key: 'about', icon: 'fa-circle-info', label: 'About', href: 'about' },
+    { key: 'contact', icon: 'fa-envelope-open-text', label: 'Contact', href: 'contact' },
   ];
 
   function navHtml(active) {

@@ -11,9 +11,14 @@ async function extractText(filePath, mimetype, originalName = '') {
     try {
       const dataBuffer = fs.readFileSync(filePath);
       const data = await pdf(dataBuffer);
-      return data.text || '';
+      const extractedText = (data && data.text) ? data.text.trim() : '';
+      if (!extractedText) {
+        throw new Error('Unable to read text from this PDF file. If it is a scanned image or photo PDF, please provide a text-based PDF, DOCX, or TXT file.');
+      }
+      return extractedText;
     } catch (err) {
-      throw new Error('Failed to read PDF file. It may be password-protected or corrupted.');
+      if (err.message.includes('scanned image')) throw err;
+      throw new Error('Failed to read PDF file. It may be password-protected, encrypted, or corrupted.');
     }
   }
   

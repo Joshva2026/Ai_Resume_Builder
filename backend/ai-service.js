@@ -38,6 +38,18 @@ Be encouraging, precise, and practical. Focus on helping candidates highlight me
     if (userContext.email) systemInstruction += `- Email: ${userContext.email}\n`;
     if (userContext.location) systemInstruction += `- Location: ${userContext.location}\n`;
     if (userContext.bio) systemInstruction += `- Bio: ${userContext.bio}\n`;
+
+    if (userContext.latestResume) {
+      systemInstruction += `- Latest Resume Title: "${userContext.latestResume.title}"\n`;
+      systemInstruction += `- Resume Content Snippet: ${userContext.latestResume.content.slice(0, 1500)}\n`;
+    }
+
+    if (userContext.latestAtsReport) {
+      systemInstruction += `- Latest ATS Score: ${userContext.latestAtsReport.score}/100\n`;
+      if (userContext.latestAtsReport.missingKeywords) {
+        systemInstruction += `- Missing Keywords: ${userContext.latestAtsReport.missingKeywords}\n`;
+      }
+    }
   }
 
   const conversationText = (messages || []).map(m => {

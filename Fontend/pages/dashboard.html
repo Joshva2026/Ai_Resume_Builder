@@ -43,7 +43,7 @@
     <div class="panel">
       <div class="panel-head">
         <h3>Recent resumes</h3>
-        <a href="resume-builder.html" class="btn btn-primary" style="padding:9px 18px; font-size:13px"><i class="fa-solid fa-plus"></i> New Resume</a>
+        <a href="resume-builder" class="btn btn-primary" style="padding:9px 18px; font-size:13px"><i class="fa-solid fa-plus"></i> New Resume</a>
       </div>
       <div id="resumeList"></div>
     </div>
@@ -80,18 +80,18 @@ async function loadDashboard() {
           <i class="fa-regular fa-file-lines"></i>
           <h4>No resumes yet</h4>
           <p>Create your first resume to get started.</p>
-          <a href="resume-builder.html" class="btn btn-primary">Build My Resume</a>
+          <a href="resume-builder" class="btn btn-primary">Build My Resume</a>
         </div>`;
     } else {
       resumeList.innerHTML = resumes.slice(0, 5).map((r) => `
         <div class="resume-row">
           <div class="doc-icon"><i class="fa-solid fa-file-lines"></i></div>
           <div class="info">
-            <h4>${escapeHtml(r.title)}</h4>
-            <span>Updated ${new Date(r.updated_at || r.created_at).toLocaleDateString()}</span>
+            <h4>${escapeHtml(r.title || r.name || 'Untitled Resume')}</h4>
+            <span>Updated ${new Date(r.updated_at || r.created_at || Date.now()).toLocaleDateString()}</span>
           </div>
           <div class="actions">
-            <a href="resume-builder.html?id=${r.id}" class="btn btn-ghost" style="padding:7px 14px; font-size:12px">Edit</a>
+            <a href="resume-builder?id=${r.id}" class="btn btn-ghost" style="padding:7px 14px; font-size:12px">Edit</a>
           </div>
         </div>`).join('');
     }
@@ -101,7 +101,7 @@ async function loadDashboard() {
         <i class="fa-solid fa-plug-circle-xmark"></i>
         <h4>Can't reach the backend</h4>
         <p>${escapeHtml(err.message)}</p>
-        <a href="resume-builder.html" class="btn btn-primary">Build My Resume</a>
+        <a href="resume-builder" class="btn btn-primary">Build My Resume</a>
       </div>`;
     document.getElementById('statResumeCount').textContent = '0';
   }

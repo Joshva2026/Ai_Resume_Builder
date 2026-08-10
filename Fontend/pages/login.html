@@ -176,7 +176,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     await ApiService.auth.login({ email, password });
     btnText.textContent = 'Success! ✓';
     submitBtn.style.background = 'var(--score-high)';
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
+    setTimeout(() => { window.location.href = 'dashboard'; }, 400);
   } catch (err) {
     errorBox.querySelector('span').textContent = err.message || 'Login failed. Please check your credentials.';
     errorBox.classList.add('is-visible');

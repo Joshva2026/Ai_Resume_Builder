@@ -452,7 +452,7 @@
       } else {
         const resume = await ApiService.resumes.create(payload);
         currentResumeId = resume.id;
-        window.history.replaceState({}, '', `resume-builder.html?id=${resume.id}`);
+        window.history.replaceState({}, '', `resume-builder?id=${resume.id}`);
       }
       indicator.innerHTML = '<span class="dot"></span> All changes saved';
     } catch (err) {

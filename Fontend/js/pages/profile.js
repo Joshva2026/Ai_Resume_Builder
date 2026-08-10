@@ -73,6 +73,27 @@
     const form      = document.getElementById('profileForm');
     const status    = document.getElementById('profileStatus');
     const submitBtn = document.getElementById('saveProfileBtn');
+    const btnUpload = document.getElementById('btnUploadAvatar');
+    const fileInput = document.getElementById('avatarFileInput');
+
+    if (btnUpload && fileInput) {
+      btnUpload.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          if (file.size > 5 * 1024 * 1024) {
+            alert('Image file size exceeds 5MB limit.');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            setValue('profileImageUrl', evt.target.result);
+            updateProfileCard({ ...ApiService.getUser(), profileImageUrl: evt.target.result });
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

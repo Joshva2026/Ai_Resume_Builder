@@ -133,8 +133,21 @@
       <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
       <div class="msg-bubble">
         ${formatMarkdown(rawMarkdown)}
+        <div style="margin-top:8px; text-align:right;">
+          <button type="button" class="btn btn-sm btn-ghost copy-msg-btn" style="font-size:11px; padding:3px 8px; color:var(--ink-500);"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
       </div>`;
+
     container.appendChild(row);
+    const copyBtn = row.querySelector('.copy-msg-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(rawMarkdown).then(() => {
+          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+          setTimeout(() => { copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy'; }, 2000);
+        }).catch(() => {});
+      });
+    }
     scrollToBottom();
   }
 
