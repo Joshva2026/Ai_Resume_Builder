@@ -1238,6 +1238,113 @@ app.get('/api/ats/report/:id', authenticateToken, async (req, res) => {
 // AI ENHANCEMENT ROUTES
 // ==========================================
 
+app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
+  try {
+    const { message, conversation, resumeContext, stream } = req.body;
+
+    if (!message && (!conversation || conversation.length === 0)) {
+      return res.status(400).json({ error: 'Message or conversation history is required' });
+    }
+
+    const messages = [];
+    if (conversation && Array.isArray(conversation)) {
+      messages.push(...conversation);
+    }
+    if (message) {
+      messages.push({ role: 'user', content: message });
+    }
+
+    let userContext = null;
+    if (resumeContext && typeof resumeContext === 'object' && Object.keys(resumeContext).length > 0) {
+      userContext = {
+        latestResume: {
+          title: resumeContext.title || 'Provided Resume',
+          content: resumeContext
+        }
+      };
+    } else if (req.user && req.user.id) {
+      try {
+        const connection = await pool.getConnection();
+        const [rows] = await connection.query(
+          `SELECT u.first_name, u.last_name, u.email, p.location, p.bio
+           FROM users u
+           LEFT JOIN profiles p ON u.id = p.user_id
+           WHERE u.id = ?`,
+          [req.user.id]
+        );
+
+        const [resumes] = await connection.query(
+          `SELECT title, content FROM resumes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1`,
+          [req.user.id]
+        );
+
+        const [atsReports] = await connection.query(
+          `SELECT ar.overall_score, ar.missing_keywords, ar.suggestions
+           FROM ats_reports ar
+           JOIN resumes r ON ar.resume_id = r.id
+           WHERE r.user_id = ? ORDER BY ar.created_at DESC LIMIT 1`,
+          [req.user.id]
+        );
+
+        connection.release();
+
+        if (rows.length) {
+          userContext = {
+            firstName: rows[0].first_name,
+            lastName: rows[0].last_name,
+            email: rows[0].email,
+            location: rows[0].location,
+            bio: rows[0].bio,
+            latestResume: resumes.length ? {
+              title: resumes[0].title,
+              content: typeof resumes[0].content === 'string' ? resumes[0].content : JSON.stringify(resumes[0].content)
+            } : null,
+            latestAtsReport: atsReports.length ? {
+              score: atsReports[0].overall_score,
+              missingKeywords: atsReports[0].missing_keywords,
+              suggestions: atsReports[0].suggestions
+            } : null
+          };
+        }
+      } catch (dbErr) {
+        console.error('User context fetch warning inside chat route:', dbErr.message);
+      }
+    }
+
+    if (stream === true) {
+      const responseStream = await aiService.assistantChat(messages, userContext, true);
+      
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
+
+      try {
+        for await (const chunk of responseStream) {
+          if (chunk.text) {
+            res.write(`data: ${JSON.stringify({ text: chunk.text })}\n\n`);
+          }
+        }
+        res.write(`data: [DONE]\n\n`);
+        res.end();
+      } catch (streamErr) {
+        console.error('Error during AI streaming:', streamErr);
+        res.write(`data: ${JSON.stringify({ error: 'Stream failed midway.' })}\n\n`);
+        res.end();
+      }
+    } else {
+      const result = await aiService.assistantChat(messages, userContext, false);
+      res.json({
+        success: true,
+        message: result.reply
+      });
+    }
+  } catch (error) {
+    console.error('AI Chat route error:', error.message);
+    res.status(500).json({ error: 'Sorry, I couldn\'t connect to the AI service right now. Please try again.' });
+  }
+});
+
 app.post('/api/ai/assistant', optionalAuthenticateToken, async (req, res) => {
   try {
     const { messages } = req.body;
@@ -1292,18 +1399,15 @@ app.post('/api/ai/assistant', optionalAuthenticateToken, async (req, res) => {
           };
         }
       } catch (dbErr) {
-        console.error('User context fetch warning:', dbErr.message);
+        console.error('User context fetch warning inside assistant route:', dbErr.message);
       }
     }
 
-    const result = await aiService.assistantChat(messages, userContext);
+    const result = await aiService.assistantChat(messages, userContext, false);
     res.json(result);
   } catch (error) {
     console.error('AI assistant route error:', error.message);
-    if (error.message === 'AI service is not configured.') {
-      return res.status(503).json({ error: 'AI Assistant is currently unavailable. Please try again later.' });
-    }
-    res.status(500).json({ error: 'AI Assistant failed to respond' });
+    res.status(500).json({ error: 'Sorry, I couldn\'t connect to the AI service right now. Please try again.' });
   }
 });
 

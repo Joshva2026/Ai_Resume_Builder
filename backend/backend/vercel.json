@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "resumeforge",
+  "builds": [
+    { "src": "Fontend/**/*", "use": "@vercel/static" }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/Fontend/$1"
+    }
+  ]
+}
