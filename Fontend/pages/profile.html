@@ -37,12 +37,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--signal-500), var(--ink-700));
+    background: linear-gradient(135deg, var(--signal-600) 0%, #00d2ff 100%);
+    border: 1px solid var(--signal-400);
     color: white;
     font-size: 28px;
     font-weight: 700;
     overflow: hidden;
     flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
   }
 
   .profile-avatar img {
@@ -53,10 +55,11 @@
 
   .profile-card h2 {
     margin-bottom: 6px;
+    color: #FFFFFF;
   }
 
   .profile-card p {
-    color: var(--ink-600);
+    color: var(--ink-400);
   }
 
   .profile-meta {
@@ -69,13 +72,16 @@
     justify-content: space-between;
     align-items: center;
     padding: var(--sp-4);
-    background: white;
-    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
+    color: #FFFFFF;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
   .profile-meta-item .meta-label {
-    color: var(--ink-600);
+    color: var(--ink-400);
     font-size: var(--fs-2xs);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -83,7 +89,7 @@
   }
 
   .meta-value-link {
-    color: var(--signal-600);
+    color: #00F2FE;
     text-decoration: none;
     font-weight: 500;
     max-width: 220px;
@@ -99,8 +105,11 @@
   .profile-note {
     padding: var(--sp-4);
     border-radius: var(--radius-sm);
-    border: 1px solid var(--line);
-    background: var(--paper-0);
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.01);
+    color: var(--ink-200);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
   .profile-note p {
@@ -115,7 +124,7 @@
   }
 
   .status {
-    color: var(--signal-600);
+    color: #00F2FE;
   }
 
   @media (max-width: 980px) {

@@ -49,6 +49,14 @@ function checkAuthState() {
       if (mobileNameEl) mobileNameEl.textContent = `Welcome, ${user.firstName || user.email.split('@')[0]}`;
     }
     
+    // Redirect CTAs to dashboard for logged in users
+    document.querySelectorAll('.js-cta').forEach(el => {
+      el.setAttribute('href', 'pages/dashboard.html');
+      if (el.textContent.includes('Start Building') || el.textContent.includes('Get Started')) {
+        el.innerHTML = 'Go to Dashboard <i class="fa-solid fa-arrow-right"></i>';
+      }
+    });
+
     // Bind logout buttons
     document.getElementById('navLogoutBtn')?.addEventListener('click', () => handleLogout());
     document.getElementById('mobileLogoutBtn')?.addEventListener('click', () => handleLogout());
@@ -296,51 +304,106 @@ function initParticles() {
   if (!hero || !canvas || !window.THREE) return;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, hero.offsetWidth / hero.offsetHeight, 0.1, 1000);
-  camera.position.z = 30;
+  const camera = new THREE.PerspectiveCamera(45, hero.offsetWidth / hero.offsetHeight, 0.1, 1000);
+  camera.position.set(0, 4, 25);
+  camera.lookAt(0, 1, 0);
 
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setSize(hero.offsetWidth, hero.offsetHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  // Particles
-  const geometry = new THREE.BufferGeometry();
-  const particlesCount = 400;
-  const posArray = new Float32Array(particlesCount * 3);
+  // Lights
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
 
-  for(let i = 0; i < particlesCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 120;
+  const dirLight = new THREE.DirectionalLight(0x00f2fe, 2.0);
+  dirLight.position.set(10, 15, 10);
+  scene.add(dirLight);
+
+  const pointLight = new THREE.PointLight(0x38bdf8, 2.5, 50);
+  pointLight.position.set(-10, -5, 5);
+  scene.add(pointLight);
+
+  // 1. Crystal Glass Resume Page
+  const resumeGeo = new THREE.BoxGeometry(6.5, 9, 0.15);
+  const resumeMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.45,
+    transmission: 0.9,
+    roughness: 0.15,
+    metalness: 0.1,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1,
+    ior: 1.5,
+    side: THREE.DoubleSide
+  });
+  const resumeMesh = new THREE.Mesh(resumeGeo, resumeMat);
+  resumeMesh.position.set(0, 1.5, 0);
+  scene.add(resumeMesh);
+
+  // Lines on resume
+  const textGroup = new THREE.Group();
+  for (let i = 0; i < 7; i++) {
+    const lineWidth = i === 0 ? 3.5 : 4.5 - (i % 2) * 1.5;
+    const lineGeo = new THREE.BoxGeometry(lineWidth, 0.18, 0.05);
+    const lineMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0x00f2fe : 0x38bdf8, transparent: true, opacity: 0.75 });
+    const lineMesh = new THREE.Mesh(lineGeo, lineMat);
+    lineMesh.position.set(-2.2 + lineWidth / 2, 3 - i * 0.95, 0.1);
+    textGroup.add(lineMesh);
   }
+  resumeMesh.add(textGroup);
 
-  geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-  const material = new THREE.PointsMaterial({
-    size: 0.6,
-    color: 0x6c5cff,
+  // 2. Floating AI Particles
+  const particlesCount = 70;
+  const particlesGeo = new THREE.BufferGeometry();
+  const posArray = new Float32Array(particlesCount * 3);
+  for(let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 45;
+  }
+  particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  const particlesMat = new THREE.PointsMaterial({
+    size: 0.35,
+    color: 0x00f2fe,
     transparent: true,
     opacity: 0.8
   });
+  const points = new THREE.Points(particlesGeo, particlesMat);
+  scene.add(points);
 
-  const particlesMesh = new THREE.Points(geometry, material);
-  scene.add(particlesMesh);
+  // 3. ATS Rings
+  const ringGeo = new THREE.RingGeometry(7.0, 7.15, 48);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI / 2.2;
+  ring.position.set(0, 1.5, 0);
+  scene.add(ring);
 
-  // Connecting lines
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x8b7dff, transparent: true, opacity: 0.15 });
-  const linesMesh = new THREE.LineSegments(geometry, lineMaterial);
-  scene.add(linesMesh);
+  // 4. Undulating Water Surface
+  const waterGeo = new THREE.PlaneGeometry(80, 80, 20, 20);
+  const waterMat = new THREE.MeshPhysicalMaterial({
+    color: 0x07152b,
+    transparent: true,
+    opacity: 0.8,
+    roughness: 0.18,
+    metalness: 0.85,
+    transmission: 0.55,
+    ior: 1.333,
+    side: THREE.DoubleSide
+  });
+  const water = new THREE.Mesh(waterGeo, waterMat);
+  water.rotation.x = -Math.PI / 2;
+  water.position.y = -5.5;
+  scene.add(water);
 
   // Animation Loop
   let mouseX = 0;
   let mouseY = 0;
-  let targetX = 0;
-  let targetY = 0;
   let scrollY = 0;
-  
-  const windowHalfX = window.innerWidth / 2;
-  const windowHalfY = window.innerHeight / 2;
-  
-  document.addEventListener('mousemove', (event) => {
-    mouseX = (event.clientX - windowHalfX);
-    mouseY = (event.clientY - windowHalfY);
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX - window.innerWidth / 2) * 0.002;
+    mouseY = (e.clientY - window.innerHeight / 2) * 0.002;
   });
 
   window.addEventListener('scroll', () => {
@@ -351,19 +414,34 @@ function initParticles() {
   let animId;
 
   const tick = () => {
-    targetX = mouseX * 0.001;
-    targetY = mouseY * 0.001;
+    const elapsedTime = clock.getElapsedTime();
 
-    particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
-    particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
-    particlesMesh.rotation.z += 0.002;
-    
-    linesMesh.rotation.y = particlesMesh.rotation.y;
-    linesMesh.rotation.x = particlesMesh.rotation.x;
-    linesMesh.rotation.z = particlesMesh.rotation.z;
+    // Float resume
+    resumeMesh.rotation.y = elapsedTime * 0.18 + mouseX * 0.4;
+    resumeMesh.rotation.x = Math.sin(elapsedTime * 0.4) * 0.12 + mouseY * 0.4;
+    resumeMesh.position.y = 1.5 + Math.sin(elapsedTime * 1.3) * 0.35;
 
-    // Parallax scroll effect
-    camera.position.y = -scrollY * 0.015;
+    // Animate rings
+    ring.rotation.z = -elapsedTime * 0.12;
+    ring.position.y = 1.5 + Math.sin(elapsedTime * 1.3) * 0.35;
+
+    // Water wave vertices animation
+    const pos = waterGeo.attributes.position;
+    for(let i = 0; i < pos.count; i++) {
+      const u = pos.getX(i);
+      const v = pos.getY(i);
+      const zval = Math.sin(u * 0.15 + elapsedTime) * 0.18 + Math.cos(v * 0.12 + elapsedTime) * 0.18;
+      pos.setZ(i, zval);
+    }
+    pos.needsUpdate = true;
+
+    // Rotate points
+    points.rotation.y = elapsedTime * 0.04;
+
+    // Parallax camera
+    camera.position.x += (mouseX * 6 - camera.position.x) * 0.05;
+    camera.position.y += (-mouseY * 4 + 4 - camera.position.y) * 0.05;
+    camera.position.y -= (scrollY * 0.015 - scrollY * 0.01) * 0.02;
 
     renderer.render(scene, camera);
     animId = window.requestAnimationFrame(tick);
@@ -371,7 +449,6 @@ function initParticles() {
   tick();
 
   window.addEventListener('resize', () => {
-    if (!hero) return;
     camera.aspect = hero.offsetWidth / hero.offsetHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(hero.offsetWidth, hero.offsetHeight);

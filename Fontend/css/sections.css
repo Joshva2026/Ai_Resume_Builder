@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .showcase .showcase-copy h2 {
-  background: linear-gradient(90deg, var(--ink-950), var(--signal-600));
+  background: linear-gradient(90deg, #FFFFFF, var(--signal-500));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -20,31 +20,35 @@
 .showcase.reverse .container > * { direction: ltr; }
 
 .showcase-panel {
-  background: var(--ink-950);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: var(--sp-6);
   position: relative;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   min-height: 380px;
-  overflow: hidden; /* Fix: prevent inner content overflow glitch */
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base);
+  overflow: hidden;
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base), border-color var(--dur-fast);
 }
 .showcase-panel:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(108,92,255,0.15);
+  border-color: var(--glass-border-focus);
+  box-shadow: 0 15px 45px rgba(0, 242, 254, 0.15);
 }
 
 .showcase-panel .panel-window {
-  background: var(--ink-900);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: var(--radius-md);
   padding: var(--sp-5);
-  border: 1px solid var(--ink-700);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .window-dots { display: flex; gap: 6px; margin-bottom: var(--sp-4); }
-.window-dots span { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-700); }
+.window-dots span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); }
 
-.mock-line { height: 9px; border-radius: 4px; background: var(--ink-700); margin-bottom: 10px; }
+.mock-line { height: 9px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); margin-bottom: 10px; }
 .mock-line.w-70 { width: 70%; }
 .mock-line.w-50 { width: 50%; }
 .mock-line.w-90 { width: 90%; }
@@ -57,47 +61,55 @@
   font-size: 11px;
   padding: 5px 10px;
   border-radius: var(--radius-pill);
-  background: var(--ink-800);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--ink-200);
-  border: 1px solid var(--ink-700);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.mock-chip.on { background: var(--signal-500); color: white; border-color: var(--signal-500); }
+.mock-chip.on { 
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(56, 189, 248, 0.05) 100%); 
+  color: #00F2FE; 
+  border-color: rgba(0, 242, 254, 0.35);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+}
 
 .mini-gauge {
   display: flex; align-items: center; gap: var(--sp-4);
-  background: var(--ink-800);
+  background: rgba(255, 255, 255, 0.04);
   border-radius: var(--radius-sm);
   padding: var(--sp-4);
   margin-top: var(--sp-4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .mini-gauge .ring {
   width: 52px; height: 52px; border-radius: 50%;
-  background: conic-gradient(var(--score-high) 0deg 306deg, var(--ink-700) 306deg 360deg);
+  background: conic-gradient(var(--score-high) 0deg 306deg, rgba(255, 255, 255, 0.1) 306deg 360deg);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 .mini-gauge .ring::after {
   content: '85';
   width: 40px; height: 40px; border-radius: 50%;
-  background: var(--ink-800);
+  background: rgba(13, 27, 42, 0.8);
   color: white; font-family: var(--font-mono); font-size: 13px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .mini-gauge .txt { font-size: var(--fs-2xs); color: var(--ink-200); }
 .mini-gauge .txt strong { display: block; color: white; font-size: var(--fs-sm); margin-bottom: 2px; }
 
 .ai-bubble {
-  background: var(--ink-800);
+  background: rgba(255, 255, 255, 0.04);
   border-radius: var(--radius-sm);
   padding: var(--sp-4);
   margin-top: var(--sp-3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-left: 2px solid var(--signal-500);
 }
 .ai-bubble .tag { font-family: var(--font-mono); font-size: 10px; color: var(--signal-400); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: block;}
 .ai-bubble p { color: var(--ink-100); font-size: var(--fs-xs); line-height: 1.6; }
 
 .showcase-copy .feature-list { margin-top: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-4); }
-.feature-list li { display: flex; gap: var(--sp-3); align-items: flex-start; font-size: var(--fs-sm); color: var(--ink-700); }
+.feature-list li { display: flex; gap: var(--sp-3); align-items: flex-start; font-size: var(--fs-sm); color: var(--ink-200); }
 .feature-list .check {
   width: 20px; height: 20px; border-radius: 50%;
   background: var(--score-high-bg); color: var(--score-high);

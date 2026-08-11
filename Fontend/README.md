@@ -92,7 +92,6 @@ frontend/
 - ✅ Professional wording suggestions
 - ✅ Action verb recommendations
 - ✅ Keyword suggestions
-- ✅ Cover letter generation
 
 ### User Management
 - ✅ Profile management
@@ -119,7 +118,6 @@ frontend/
 - **ats-checker.html** - ATS analysis and scoring
 - **profile.html** - User profile and settings
 - **settings.html** - Account and preference settings
-- **cover-letter.html** - Cover letter generator
 
 ### Error Pages
 - **404.html** - Page not found

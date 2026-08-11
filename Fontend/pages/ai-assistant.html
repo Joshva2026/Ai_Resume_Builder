@@ -11,24 +11,25 @@
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
-<style>
   .assistant-container {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 120px);
     max-width: 1000px;
     margin: 0 auto;
-    background: white;
-    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    box-shadow: var(--glass-shadow);
     overflow: hidden;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
   .assistant-header {
     padding: var(--sp-4) var(--sp-5);
-    border-bottom: 1px solid var(--line);
-    background: var(--paper-0);
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(13, 27, 42, 0.25);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -44,32 +45,35 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--signal-500), #6366f1);
+    background: linear-gradient(135deg, var(--signal-600) 0%, #00d2ff 100%);
+    border: 1px solid var(--signal-400);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
     flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
   }
 
   .assistant-header h2 {
     font-size: var(--fs-md);
     margin: 0;
     line-height: 1.2;
+    color: #FFFFFF;
   }
 
   .assistant-header p {
     font-size: var(--fs-2xs);
-    color: var(--ink-600);
+    color: var(--ink-400);
     margin: 2px 0 0 0;
   }
 
   /* Quick Prompts Container */
   .quick-prompts-wrapper {
     padding: var(--sp-3) var(--sp-4);
-    background: var(--paper-50);
-    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.01);
+    border-bottom: 1px solid var(--glass-border);
     overflow-x: auto;
     white-space: nowrap;
     display: flex;
@@ -83,24 +87,27 @@
     gap: 6px;
     padding: 6px 14px;
     border-radius: 20px;
-    background: white;
-    border: 1px solid var(--line);
-    color: var(--ink-800);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--ink-200);
     font-size: var(--fs-xs);
     font-weight: 500;
     cursor: pointer;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     transition: all 0.2s ease;
     flex-shrink: 0;
   }
 
   .prompt-chip:hover {
-    border-color: var(--signal-500);
-    color: var(--signal-600);
-    background: var(--signal-100);
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(56, 189, 248, 0.05) 100%);
+    color: #00F2FE;
+    border-color: rgba(0, 242, 254, 0.35);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.12);
   }
 
   .prompt-chip i {
-    color: var(--signal-500);
+    color: #00F2FE;
   }
 
   /* Chat Messages Scroll Area */
@@ -111,7 +118,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--sp-4);
-    background: #fafafa;
+    background: rgba(0, 0, 0, 0.15);
   }
 
   .msg-row {
@@ -138,13 +145,14 @@
   }
 
   .msg-row.assistant .msg-avatar {
-    background: linear-gradient(135deg, var(--signal-500), #6366f1);
+    background: linear-gradient(135deg, var(--signal-600) 0%, #00d2ff 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
   }
 
   .msg-row.user .msg-avatar {
-    background: var(--ink-800);
-    color: white;
+    background: #FFFFFF;
+    color: var(--ink-950);
   }
 
   .msg-bubble {
@@ -153,12 +161,13 @@
     font-size: var(--fs-sm);
     line-height: 1.55;
     word-break: break-word;
+    box-shadow: var(--glass-shadow);
   }
 
   .msg-row.assistant .msg-bubble {
-    background: white;
-    border: 1px solid var(--line);
-    color: var(--ink-900);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    color: #FFFFFF;
     border-top-left-radius: 2px;
   }
 
@@ -166,6 +175,7 @@
     background: var(--signal-600);
     color: white;
     border-top-right-radius: 2px;
+    box-shadow: var(--shadow-glow);
   }
 
   .msg-bubble p { margin-bottom: 8px; }
@@ -180,8 +190,8 @@
     align-items: center;
     gap: 4px;
     padding: 12px 16px;
-    background: white;
-    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
     border-radius: 14px;
     border-top-left-radius: 2px;
     width: fit-content;
@@ -191,8 +201,9 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--signal-500);
+    background: #00F2FE;
     animation: typingBounce 1.4s infinite ease-in-out both;
+    box-shadow: var(--shadow-glow);
   }
 
   .dot:nth-child(1) { animation-delay: -0.32s; }
@@ -206,8 +217,8 @@
   /* Chat Input Bar */
   .chat-input-bar {
     padding: var(--sp-4);
-    background: white;
-    border-top: 1px solid var(--line);
+    background: rgba(13, 27, 42, 0.25);
+    border-top: 1px solid var(--glass-border);
     display: flex;
     gap: var(--sp-3);
     align-items: center;
@@ -223,24 +234,27 @@
     min-height: 48px;
     max-height: 120px;
     padding: 12px 16px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
     font-family: inherit;
     font-size: var(--fs-sm);
     resize: none;
     outline: none;
-    transition: border-color 0.2s;
+    background: rgba(255, 255, 255, 0.03);
+    color: #FFFFFF;
+    transition: all 0.2s;
   }
 
   textarea#chatInput:focus {
     border-color: var(--signal-500);
-    box-shadow: 0 0 0 3px var(--signal-100);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .send-btn {
     height: 48px;
     padding: 0 var(--sp-5);
-    background: var(--signal-600);
+    background: linear-gradient(135deg, var(--signal-600) 0%, #00d2ff 100%);
     color: white;
     border: none;
     border-radius: var(--radius-sm);
@@ -249,53 +263,59 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: background 0.2s;
+    box-shadow: var(--shadow-glow);
+    transition: all 0.2s;
   }
 
   .send-btn:hover {
-    background: var(--signal-700);
+    background: linear-gradient(135deg, #00e5ff 0%, var(--signal-600) 100%);
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.45);
   }
 
   .send-btn:disabled {
-    background: var(--ink-300);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    color: var(--ink-600);
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   .clear-btn {
     height: 48px;
     padding: 0 14px;
-    background: transparent;
-    border: 1px solid var(--line);
-    color: var(--ink-600);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--ink-200);
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .clear-btn:hover {
-    background: var(--paper-100);
-    color: var(--score-low);
+    background: rgba(255, 255, 255, 0.06);
+    color: #dc2626;
+    border-color: rgba(220, 38, 38, 0.35);
   }
 
   /* Code block & styling */
   .msg-bubble pre {
-    background: var(--paper-100, #f1f3f5);
+    background: rgba(0, 0, 0, 0.35);
     padding: 12px;
     border-radius: 8px;
     overflow-x: auto;
     margin: 8px 0;
-    border: 1px solid var(--line);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     font-family: 'IBM Plex Mono', Courier, monospace;
     font-size: var(--fs-xs, 12px);
-    color: var(--ink-900, #1a1a1a);
+    color: #E2E8F0;
   }
   .msg-bubble code {
     font-family: 'IBM Plex Mono', Courier, monospace;
-    background: var(--paper-50, #f8f9fa);
+    background: rgba(255, 255, 255, 0.06);
     padding: 2px 5px;
     border-radius: 4px;
     font-size: 0.9em;
-    color: var(--signal-600, #3b82f6);
+    color: #00F2FE;
   }
   .msg-bubble pre code {
     background: transparent;
@@ -329,7 +349,7 @@
         <div class="assistant-avatar-badge"><i class="fa-solid fa-robot"></i></div>
         <div>
           <h2>AI Career Assistant</h2>
-          <p>Ask anything about resume writing, ATS optimization, cover letters, and career growth.</p>
+          <p>Ask anything about resume writing, ATS optimization, and career growth.</p>
         </div>
       </div>
       <button class="clear-btn" id="clearChatBtn" title="Clear chat history"><i class="fa-solid fa-trash-can"></i></button>
@@ -341,7 +361,6 @@
       <button class="prompt-chip" data-prompt="How do I improve my ATS score to pass keyword filters?"><i class="fa-solid fa-gauge-high"></i> Improve ATS Score</button>
       <button class="prompt-chip" data-prompt="Write a compelling professional summary for my resume."><i class="fa-solid fa-pen-nib"></i> Write Summary</button>
       <button class="prompt-chip" data-prompt="Generate 5 strong bullet points with metrics for a software engineer."><i class="fa-solid fa-list-check"></i> Generate Bullet Points</button>
-      <button class="prompt-chip" data-prompt="Write a professional cover letter template for a tech role."><i class="fa-solid fa-file-signature"></i> Create Cover Letter</button>
       <button class="prompt-chip" data-prompt="What are the top technical & soft skills I should list on my resume?"><i class="fa-solid fa-lightbulb"></i> Suggest Skills</button>
       <button class="prompt-chip" data-prompt="Review my profile bio and suggest improvements."><i class="fa-solid fa-user-check"></i> Review My Profile</button>
     </div>
@@ -352,7 +371,7 @@
         <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
         <div class="msg-bubble">
           <p>Hello! I am your <strong>ResumeForge AI Assistant</strong>. How can I help you today?</p>
-          <p>You can pick a quick topic above or type any question about your resume, ATS match, cover letter, or career goals below!</p>
+          <p>You can pick a quick topic above or type any question about your resume, ATS match, or career goals below!</p>
         </div>
       </div>
     </div>
@@ -360,7 +379,7 @@
     <!-- Chat Input -->
     <div class="chat-input-bar">
       <div class="chat-input-wrapper">
-        <textarea id="chatInput" placeholder="Ask about resume tips, bullet points, cover letters..." rows="1"></textarea>
+        <textarea id="chatInput" placeholder="Ask about resume tips, bullet points, or career advice..." rows="1"></textarea>
       </div>
       <button class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i> Send</button>
     </div>

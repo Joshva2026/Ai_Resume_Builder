@@ -12,39 +12,62 @@
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/sections.css" />
   <style>
-    body { background: var(--paper-50); }
+    body { background: var(--bg-ocean); background-attachment: fixed; color: var(--ink-100); }
 
     /* ── Navbar ── */
-    .navbar { background: white; border-bottom: 1px solid var(--line); }
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: var(--sp-4) 0;
+      background: rgba(13, 27, 42, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all var(--dur-base) var(--ease-out);
+    }
+    .navbar.is-scrolled {
+      background: rgba(13, 27, 42, 0.55);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      box-shadow: var(--glass-shadow);
+      border-bottom: 1px solid var(--glass-border);
+      padding: var(--sp-3) 0;
+    }
 
     /* ── Hero ── */
     .tpl-hero {
-      padding: 96px 0 56px;
+      padding: 140px 0 56px;
       text-align: center;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background: transparent;
       color: white;
+      position: relative;
+      z-index: 2;
     }
     .tpl-hero h1 { font-size: var(--fs-3xl); color: white; margin-bottom: 12px; }
-    .tpl-hero p  { color: rgba(255,255,255,0.7); font-size: var(--fs-md); max-width: 540px; margin: 0 auto 32px; }
-    .tpl-hero .eyebrow { color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.15); }
+    .tpl-hero p  { color: var(--ink-200); font-size: var(--fs-md); max-width: 540px; margin: 0 auto 32px; }
+    .tpl-hero .eyebrow { color: #00F2FE; }
 
     /* ── Filter tabs ── */
     .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 40px auto 0; }
     .filter-btn {
       padding: 8px 20px;
-      border: 1px solid var(--line-strong);
+      border: 1px solid var(--glass-border);
       border-radius: var(--radius-pill);
       font-size: var(--fs-sm);
       font-weight: 500;
       cursor: pointer;
-      background: white;
-      color: var(--ink-700);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ink-200);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       transition: all 0.2s;
     }
     .filter-btn:hover, .filter-btn.active {
-      background: var(--ink-950);
-      color: white;
-      border-color: var(--ink-950);
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(56, 189, 248, 0.05) 100%);
+      color: #00F2FE;
+      border-color: rgba(0, 242, 254, 0.35);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
     }
 
     /* ── Grid ── */
@@ -57,14 +80,21 @@
 
     /* ── Card ── */
     .tpl-card {
-      background: white;
-      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
       border-radius: 16px;
       overflow: hidden;
-      transition: transform 0.25s, box-shadow 0.25s;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--glass-shadow);
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
       position: relative;
     }
-    .tpl-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.1); }
+    .tpl-card:hover { 
+      transform: translateY(-6px); 
+      border-color: var(--glass-border-focus);
+      box-shadow: 0 15px 45px rgba(0, 242, 254, 0.18); 
+    }
 
     .tpl-thumb {
       height: 230px;
@@ -73,6 +103,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
     }
     .tpl-mock {
       width: 72%;
@@ -83,6 +114,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.12);
       font-size: 6px;
       line-height: 1.6;
+      color: #333333;
     }
     .tpl-mock-header { height: 18px; border-radius: 2px; margin-bottom: 8px; }
     .tpl-mock-line { height: 4px; background: #e8e8e8; border-radius: 2px; margin-bottom: 4px; }
@@ -97,7 +129,7 @@
     .tpl-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.65);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -120,12 +152,12 @@
     }
 
     /* Info */
-    .tpl-info { padding: 18px 20px 20px; border-top: 1px solid var(--line); }
-    .tpl-info h3 { font-size: var(--fs-base); margin-bottom: 4px; }
-    .tpl-info p  { font-size: var(--fs-xs); color: var(--ink-500); margin-bottom: 12px; }
+    .tpl-info { padding: 18px 20px 20px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    .tpl-info h3 { font-size: var(--fs-base); margin-bottom: 4px; color: #FFFFFF; }
+    .tpl-info p  { font-size: var(--fs-xs); color: var(--ink-400); margin-bottom: 12px; }
     .tpl-meta { display: flex; align-items: center; justify-content: space-between; }
     .tpl-score { font-size: var(--fs-xs); font-weight: 600; color: var(--score-high); }
-    .tpl-cat   { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-400); }
+    .tpl-cat   { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--signal-400); }
 
     @media (max-width: 640px) {
       .templates-grid { grid-template-columns: 1fr 1fr; gap: 16px; }

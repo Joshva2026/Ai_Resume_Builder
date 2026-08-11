@@ -1,52 +1,49 @@
 /* ==========================================================================
-   RESUMEFORGE — DESIGN TOKENS
-   A resume/ATS platform for people whose next job depends on getting past
-   a machine before a human ever sees their work. The visual language leans
-   on the idea of a "score" — a gauge, a meter, a signal moving from red to
-   green — because that tension (will I pass the filter?) is the emotional
-   center of the product.
+   RESUMEFORGE — DESIGN TOKENS (STITCH OCEAN GLASS EDITION)
    ========================================================================== */
 
 :root {
-  /* ---- Color: Ink & Signal ----
-     Base is a deep, cold ink-navy (not black) so the product feels precise
-     rather than "AI dark mode default." The signal accent is an electric
-     violet-blue used sparingly for actions. Score states borrow a traffic
-     scale (amber -> violet -> green) rather than pure red/green, so it never
-     reads as a rejection color when a score is merely "okay."  */
-  --ink-950: #0B0E1A;
-  --ink-900: #12162A;
-  --ink-800: #1B2140;
-  --ink-700: #2A3260;
-  --ink-600: #454F86;
-  --ink-400: #8892C4;
-  --ink-200: #C9CEEA;
-  --ink-100: #E4E7F7;
+  /* ---- Colors: Deep Ocean Navy & Sleek Glass ---- */
+  --bg-ocean: radial-gradient(circle at 50% 0%, #0c182e 0%, #050a14 100%);
+  --bg-ocean-fallback: #050a14;
+  
+  --ink-950: #050A14;
+  --ink-900: #0D1B2A;
+  --ink-800: #1B263B;
+  --ink-700: #415A77;
+  --ink-600: #778DA9;
+  --ink-400: #A0AEC0;
+  --ink-200: #CBD5E1;
+  --ink-100: #E2E8F0;
 
-  --paper-0: #FCFCFE;
-  --paper-50: #F5F6FC;
-  --paper-100: #EDEFFA;
+  --paper-0: #050a14;
+  --paper-50: #0c182e;
+  --paper-100: #1b263b;
 
-  --signal-600: #4A3AFF;
-  --signal-500: #6C5CFF;
-  --signal-400: #8B7DFF;
-  --signal-100: #EBE8FF;
+  --signal-600: #00F2FE;
+  --signal-500: #38BDF8;
+  --signal-400: #7DD3FC;
+  --signal-100: rgba(0, 242, 254, 0.1);
 
   --score-low: #F5A623;
-  --score-mid: #6C5CFF;
-  --score-high: #1FB574;
-  --score-high-bg: #E5F8EF;
-  --score-low-bg: #FDF3E3;
+  --score-mid: #38BDF8;
+  --score-high: #10B981;
+  --score-high-bg: rgba(16, 185, 129, 0.12);
+  --score-low-bg: rgba(245, 166, 35, 0.12);
 
-  --line: #E1E4F2;
-  --line-strong: #C9CEEA;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.15);
 
-  /* ---- Type ----
-     Display: "Space Grotesk" — geometric, slightly technical, confident at
-     large sizes without feeling corporate-template. Body: "Inter" — the
-     most legible workhorse for dense product UI (forms, tables, scores).
-     Mono: "IBM Plex Mono" — used only for score numerals + data labels,
-     reinforcing "this is a measurement, not decoration."  */
+  /* ---- Glass System Tokens ---- */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-focus: rgba(0, 242, 254, 0.35);
+  --glass-blur: blur(20px);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+
+  /* ---- Typography ---- */
   --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
   --font-body: 'Inter', 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
@@ -81,16 +78,16 @@
   --radius-lg: 22px;
   --radius-pill: 999px;
 
-  /* ---- Elevation ---- */
-  --shadow-sm: 0 1px 2px rgba(11, 14, 26, 0.06), 0 1px 1px rgba(11, 14, 26, 0.04);
-  --shadow-md: 0 8px 24px rgba(18, 22, 42, 0.08), 0 2px 6px rgba(18, 22, 42, 0.04);
-  --shadow-lg: 0 24px 64px rgba(18, 22, 42, 0.14), 0 8px 20px rgba(18, 22, 42, 0.06);
-  --shadow-glow: 0 0 0 1px rgba(108, 92, 255, 0.15), 0 12px 32px rgba(108, 92, 255, 0.18);
+  /* ---- Shadows & Glows ---- */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.15);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.3);
+  --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 20px rgba(0, 242, 254, 0.25);
+  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.25);
 
   /* ---- Motion ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --dur-fast: 150ms;
   --dur-base: 280ms;
   --dur-slow: 520ms;

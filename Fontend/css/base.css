@@ -11,8 +11,9 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-base);
   line-height: 1.6;
-  color: var(--ink-900);
-  background: var(--paper-0);
+  color: var(--ink-100);
+  background: var(--bg-ocean);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -31,7 +32,7 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.08;
   letter-spacing: -0.01em;
   margin: 0;
-  color: var(--ink-950);
+  color: #FFFFFF;
 }
 
 p { margin: 0; }
@@ -117,40 +118,59 @@ p { margin: 0; }
   font-weight: 600;
   font-size: var(--fs-sm);
   border: 1px solid transparent;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   transition: transform var(--dur-fast) var(--ease-out),
               box-shadow var(--dur-fast) var(--ease-out),
               background var(--dur-fast) var(--ease-out),
-              border-color var(--dur-fast) var(--ease-out);
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
   white-space: nowrap;
 }
 
 .btn:active { transform: scale(0.97); }
 
 .btn-primary {
-  background: var(--ink-950);
-  color: var(--paper-0);
+  background: linear-gradient(135deg, var(--signal-600) 0%, #00d2ff 100%);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-glow);
 }
-.btn-primary:hover { background: var(--signal-600); box-shadow: var(--shadow-glow); }
+.btn-primary:hover { 
+  background: linear-gradient(135deg, #00e5ff 0%, var(--signal-600) 100%); 
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.45); 
+}
 
 .btn-accent {
-  background: var(--signal-500);
-  color: white;
-  box-shadow: 0 8px 20px rgba(108, 92, 255, 0.28);
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #050a14;
+  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
 }
-.btn-accent:hover { background: var(--signal-600); transform: translateY(-1px); }
+.btn-accent:hover { 
+  transform: translateY(-1px); 
+  box-shadow: 0 12px 30px rgba(0, 242, 254, 0.5); 
+}
 
 .btn-ghost {
-  background: transparent;
-  color: var(--ink-900);
-  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.03);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--glass-highlight);
 }
-.btn-ghost:hover { border-color: var(--ink-900); background: var(--paper-50); }
+.btn-ghost:hover { 
+  border-color: var(--signal-500); 
+  background: rgba(255, 255, 255, 0.08); 
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+}
 
 .btn-light {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   color: var(--ink-950);
 }
-.btn-light:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-light:hover { 
+  transform: translateY(-1px); 
+  box-shadow: var(--shadow-md); 
+  background: #FFFFFF;
+}
 
 .btn-lg { padding: 16px 30px; font-size: var(--fs-base); }
 .btn-block { width: 100%; }
@@ -159,12 +179,13 @@ p { margin: 0; }
 .btn-text {
   background: none;
   border: none;
-  color: var(--signal-600);
+  color: var(--signal-500);
   font-weight: 600;
   font-size: var(--fs-sm);
   padding: 4px 0;
+  transition: color var(--dur-fast);
 }
-.btn-text:hover { color: var(--signal-500); }
+.btn-text:hover { color: var(--signal-600); }
 
 /* ---- Form Elements ---- */
 .field { margin-bottom: var(--sp-5); }
@@ -173,7 +194,7 @@ p { margin: 0; }
   display: block;
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--ink-800);
+  color: var(--ink-200);
   margin-bottom: var(--sp-2);
 }
 
@@ -182,13 +203,20 @@ p { margin: 0; }
 .field select {
   width: 100%;
   padding: 13px 16px;
-  border: 1.5px solid var(--line-strong);
+  border: 1.5px solid var(--line);
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
   font-size: var(--fs-sm);
-  color: var(--ink-950);
-  background: var(--paper-0);
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-highlight);
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+
+.field input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .field input:focus,
@@ -196,17 +224,23 @@ p { margin: 0; }
 .field select:focus {
   outline: none;
   border-color: var(--signal-500);
-  box-shadow: 0 0 0 4px var(--signal-100);
+  box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.15);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.field .hint { font-size: var(--fs-2xs); color: var(--ink-600); margin-top: var(--sp-2); }
+.field select option {
+  background: var(--paper-50);
+  color: #FFFFFF;
+}
+
+.field .hint { font-size: var(--fs-2xs); color: var(--ink-400); margin-top: var(--sp-2); }
 
 /* ---- Global Back Button ---- */
 .global-back-btn {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: var(--ink-950);
+  background: rgba(255, 255, 255, 0.05);
   color: white;
   width: 48px;
   height: 48px;
@@ -214,11 +248,16 @@ p { margin: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   z-index: 1000;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .global-back-btn:hover {
   transform: translateY(-2px);
-  background: var(--signal-600);
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--signal-500);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
 }

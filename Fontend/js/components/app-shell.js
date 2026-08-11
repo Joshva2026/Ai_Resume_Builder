@@ -59,6 +59,14 @@ const AppShell = (() => {
           </header>
           <main class="app-content" id="appContent"></main>
         </div>
+
+        <div class="mobile-bottom-dock">
+          <a href="dashboard" class="${active === 'dashboard' ? 'active' : ''}"><i class="fa-solid fa-table-columns"></i><span>Dash</span></a>
+          <a href="resume-builder" class="${active === 'resume-builder' ? 'active' : ''}"><i class="fa-solid fa-pen-ruler"></i><span>Builder</span></a>
+          <a href="ats-checker" class="${active === 'ats-checker' ? 'active' : ''}"><i class="fa-solid fa-gauge-high"></i><span>ATS</span></a>
+          <a href="ai-assistant" class="${active === 'ai-assistant' ? 'active' : ''}"><i class="fa-solid fa-robot"></i><span>AI</span></a>
+          <a href="profile" class="${active === 'profile' ? 'active' : ''}"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+        </div>
       </div>
     `;
 

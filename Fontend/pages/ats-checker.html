@@ -20,25 +20,29 @@
   }
 
   .ats-option-card {
-    border: 2px solid var(--line);
+    border: 1.5px solid var(--glass-border);
     border-radius: var(--radius-md);
     padding: var(--sp-4);
-    background: white;
+    background: rgba(255, 255, 255, 0.03);
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    color: #FFFFFF;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
   .ats-option-card:hover {
-    border-color: var(--signal-500);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
 
   .ats-option-card.active {
-    border-color: var(--signal-600);
-    background: var(--paper-50);
+    border-color: var(--signal-500);
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(56, 189, 248, 0.05) 100%);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.12);
   }
 
   .ats-option-head {
@@ -52,61 +56,65 @@
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: var(--signal-100);
-    color: var(--signal-600);
+    background: rgba(0, 242, 254, 0.1);
+    color: #00F2FE;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
+    border: 1px solid rgba(0, 242, 254, 0.25);
   }
 
   .ats-option-card h4 {
     margin: 0;
     font-size: var(--fs-sm);
+    color: #FFFFFF;
   }
 
   .ats-option-card p {
-    color: var(--ink-600);
+    color: var(--ink-200);
     font-size: var(--fs-xs);
     margin-bottom: var(--sp-3);
   }
 
   .drop-zone {
-    border: 2px dashed var(--line);
+    border: 2px dashed rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-sm);
-    padding: var(--sp-4);
+    padding: var(--sp-5) var(--sp-4);
     text-align: center;
-    background: white;
+    background: rgba(255, 255, 255, 0.02);
     cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
   }
 
   .drop-zone:hover, .drop-zone.dragover {
     border-color: var(--signal-500);
-    background: var(--paper-50);
+    background: rgba(0, 242, 254, 0.05);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
   }
 
   .drop-icon {
     font-size: 28px;
-    color: var(--signal-500);
+    color: #00F2FE;
     margin-bottom: var(--sp-2);
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
   }
 
   .drop-text {
     font-weight: 500;
     font-size: var(--fs-xs);
-    color: var(--ink-800);
+    color: var(--ink-100);
   }
 
   .browse-link {
-    color: var(--signal-600);
+    color: #00F2FE;
     font-weight: 600;
     text-decoration: underline;
   }
 
   .drop-hint {
     font-size: var(--fs-2xs);
-    color: var(--ink-500);
+    color: var(--ink-400);
     margin-top: 4px;
   }
 
@@ -115,9 +123,11 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--sp-3) var(--sp-4);
-    background: white;
-    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-sm);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
   .file-info-left {
@@ -128,13 +138,13 @@
 
   .file-icon {
     font-size: 22px;
-    color: var(--signal-500);
+    color: #00F2FE;
   }
 
   .file-name {
     font-weight: 600;
     font-size: var(--fs-xs);
-    color: var(--ink-900);
+    color: #FFFFFF;
     max-width: 170px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -143,7 +153,7 @@
 
   .file-size {
     font-size: var(--fs-2xs);
-    color: var(--ink-500);
+    color: var(--ink-400);
   }
 
   .file-remove-btn {
@@ -152,15 +162,16 @@
     color: var(--ink-400);
     cursor: pointer;
     font-size: 16px;
+    transition: color 0.2s;
   }
 
   .file-remove-btn:hover {
-    color: var(--score-low);
+    color: #dc2626;
   }
 
   .opt-tag {
     font-weight: 400;
-    color: var(--ink-500);
+    color: var(--signal-400);
     font-size: var(--fs-2xs);
   }
 
@@ -168,7 +179,7 @@
     padding: var(--sp-3) var(--sp-4);
     background: var(--score-low-bg);
     border: 1px solid var(--score-low);
-    color: var(--score-low);
+    color: #FFC043;
     border-radius: var(--radius-sm);
     font-size: var(--fs-xs);
     margin-bottom: var(--sp-3);
