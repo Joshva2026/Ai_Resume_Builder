@@ -131,6 +131,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
 // File upload configuration
 const uploadDir = path.join(__dirname, 'uploads');
@@ -258,7 +259,7 @@ const initializeDatabase = async () => {
     await connection.query(`
       CREATE TABLE IF NOT EXISTS ats_reports (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        resume_id INT NOT NULL,
+        resume_id INT NULL,
         overall_score INT,
         keyword_match INT,
         formatting_score INT,
@@ -590,6 +591,69 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({ error: 'Logout failed' });
+  }
+});
+
+app.post('/api/auth/refresh', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Refresh token is required' });
+    }
+
+    const connection = await pool.getConnection();
+
+    // Check if token exists in DB
+    const [tokens] = await connection.query(
+      'SELECT user_id, expires_at, is_revoked FROM refresh_tokens WHERE token = ?',
+      [token]
+    );
+
+    if (tokens.length === 0 || tokens[0].is_revoked || new Date(tokens[0].expires_at) < new Date()) {
+      connection.release();
+      return res.status(403).json({ error: 'Invalid or expired refresh token' });
+    }
+
+    const userId = tokens[0].user_id;
+
+    // Get user details
+    const [users] = await connection.query(
+      'SELECT email FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (users.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userEmail = users[0].email;
+
+    // Verify token using JWT library
+    jwt.verify(token, process.env.JWT_REFRESH_SECRET || 'refresh_secret', (err) => {
+      if (err) {
+        connection.release();
+        return res.status(403).json({ error: 'Invalid refresh token' });
+      }
+
+      // Generate new access token
+      const accessToken = jwt.sign(
+        { id: userId, email: userEmail },
+        process.env.JWT_SECRET || 'secret_key',
+        { expiresIn: '1h' }
+      );
+
+      connection.release();
+
+      res.json({
+        accessToken,
+        message: 'Token refreshed successfully'
+      });
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({ error: 'Failed to refresh token' });
   }
 });
 
@@ -1136,14 +1200,34 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
     let reportId = null;
     let resumeId = null;
 
-    // Save report to DB only if user is authenticated (without creating dummy resumes)
+    // Save report and resume to DB only if user is authenticated
     if (req.user && req.user.id) {
       try {
         const connection = await pool.getConnection();
+
+        // 1. Create a resumes record for this uploaded resume text content
+        const resumeTitle = `Uploaded: ${req.file.originalname}`;
+        const resumeContentObj = {
+          rawText: textContent,
+          personal: { fullName: req.user.email ? req.user.email.split('@')[0] : 'Scanned User' },
+          summary: textContent.slice(0, 1000),
+          experience: [],
+          skills: '',
+          education: [],
+          projects: []
+        };
+
+        const [resumeResult] = await connection.query(
+          'INSERT INTO resumes (user_id, title, content, is_primary) VALUES (?, ?, ?, ?)',
+          [req.user.id, resumeTitle, JSON.stringify(resumeContentObj), false]
+        );
+        resumeId = resumeResult.insertId;
+
+        // 2. Save the ATS report linked to the new resume ID
         const [result] = await connection.query(
           'INSERT INTO ats_reports (resume_id, overall_score, keyword_match, formatting_score, grammar_score, readability_score, missing_keywords, suggestions, detailed_feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
-            null,
+            resumeId,
             atsScore.overall_score,
             atsScore.keyword_match,
             atsScore.formatting_score,
@@ -1157,7 +1241,7 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
         reportId = result.insertId;
         connection.release();
       } catch (dbError) {
-        console.error('Optional DB persistence error:', dbError.message);
+        console.error('DB persistence error in analyze-upload:', dbError.message);
       }
     }
 
@@ -1599,10 +1683,33 @@ app.post('/api/download/docx', authenticateToken, async (req, res) => {
   try {
     const { resumeId } = req.body;
 
+    const connection = await pool.getConnection();
+
+    const [resumes] = await connection.query(
+      'SELECT content FROM resumes WHERE id = ? AND user_id = ?',
+      [resumeId, req.user.id]
+    );
+
+    if (resumes.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    const resumeContent = typeof resumes[0].content === 'string' ? JSON.parse(resumes[0].content) : resumes[0].content;
+
+    const templateGenerator = require('./resume-pdf-template');
+    const htmlContent = templateGenerator.generateResumeHtml(resumeContent, 'classic');
+
     const fileName = `resume-${resumeId}-${Date.now()}.docx`;
+    const downloadsDir = path.join(__dirname, 'downloads');
+    if (!fs.existsSync(downloadsDir)) {
+      fs.mkdirSync(downloadsDir);
+    }
+    const filePath = path.join(downloadsDir, fileName);
     const fileUrl = `/downloads/${fileName}`;
 
-    const connection = await pool.getConnection();
+    // Write file to disk (Word can read HTML files saved as .docx)
+    fs.writeFileSync(filePath, htmlContent, 'utf8');
 
     await connection.query(
       'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',

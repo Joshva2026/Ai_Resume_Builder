@@ -32,9 +32,24 @@ function getResumeContext(resumeContent, query = '') {
     }
   }
 
+  // Handle raw text fallback inside parsed JSON
+  if (parsedContent.rawText) {
+    return `Resume Content:\n${parsedContent.rawText}`;
+  }
+
   const queryLower = query.toLowerCase();
-  // If no query, do a high-level summary. Otherwise check keyword matches.
-  const showAll = !query;
+  // If no query or query asks for general analysis/improvements/ats, show everything.
+  const showAll = !query || 
+    queryLower.includes('ats') || 
+    queryLower.includes('score') || 
+    queryLower.includes('improve') || 
+    queryLower.includes('review') || 
+    queryLower.includes('check') || 
+    queryLower.includes('how') || 
+    queryLower.includes('recommend') || 
+    queryLower.includes('help') ||
+    queryLower.includes('resume') ||
+    queryLower.includes('analysis');
   
   const showSkills = showAll || queryLower.includes('skill') || queryLower.includes('tech') || queryLower.includes('language') || queryLower.includes('framework');
   const showProjects = showAll || queryLower.includes('project') || queryLower.includes('portfolio');

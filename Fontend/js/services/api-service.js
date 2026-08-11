@@ -41,6 +41,18 @@ const ApiService = (() => {
   }
 
   // ── Core request wrapper ──────────────────────────────────────────────
+  let isRefreshing = false;
+  let refreshSubscribers = [];
+
+  function subscribeTokenRefresh(cb) {
+    refreshSubscribers.push(cb);
+  }
+
+  function onRefreshed(token) {
+    refreshSubscribers.forEach(cb => cb(token));
+    refreshSubscribers = [];
+  }
+
   async function request(path, { method = 'GET', body, auth = true, headers = {} } = {}) {
     const finalHeaders = { 'Content-Type': 'application/json', ...headers };
 
@@ -57,13 +69,53 @@ const ApiService = (() => {
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch (networkError) {
-      // ── MOCK FALLBACK REMOVED ────────────────────────────────────────
       console.error('[ApiService] Backend unreachable');
       throw new ApiError('Backend unreachable. Please start the server.', 503);
     }
 
     let data = null;
     try { data = await response.json(); } catch (_) { /* empty body */ }
+
+    // Intercept 403 (Invalid/Expired token) to perform silent refresh
+    if (response.status === 403 && auth && localStorage.getItem(REFRESH_KEY)) {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        try {
+          const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: localStorage.getItem(REFRESH_KEY) })
+          });
+
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            if (refreshData.accessToken) {
+              localStorage.setItem(TOKEN_KEY, refreshData.accessToken);
+              onRefreshed(refreshData.accessToken);
+              isRefreshing = false;
+            } else {
+              throw new Error('Refresh failed');
+            }
+          } else {
+            throw new Error('Refresh failed');
+          }
+        } catch (refreshErr) {
+          isRefreshing = false;
+          clearTokens();
+          if (window.location.pathname.includes('/pages/') && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
+            window.location.href = 'login.html';
+          }
+          throw new ApiError('Session expired. Please log in again.', 401);
+        }
+      }
+
+      return new Promise((resolve) => {
+        subscribeTokenRefresh((newToken) => {
+          finalHeaders['Authorization'] = `Bearer ${newToken}`;
+          resolve(request(path, { method, body, auth, headers: finalHeaders }));
+        });
+      });
+    }
 
     if (!response.ok) {
       throw new ApiError(data?.error || `Request failed (${response.status})`, response.status, data);

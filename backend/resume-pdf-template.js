@@ -198,7 +198,7 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
               <span class="item-title">${e.role || 'Role'}</span>
               ${e.company ? `<span class="item-subtitle">, ${e.company}</span>` : ''}
             </div>
-            <span class="item-date">${e.startDate || ''} ${e.endDate ? '- ' + e.endDate : ''}</span>
+            <span class="item-date">${e.start || e.startDate || ''} ${e.end || e.endDate ? '- ' + (e.end || e.endDate) : ''}</span>
           </div>
       `;
       if (e.description) {
@@ -226,7 +226,7 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
               <span class="item-title">${e.degree || 'Degree'}</span>
               ${e.school ? `<span class="item-subtitle">, ${e.school}</span>` : ''}
             </div>
-            <span class="item-date">${e.year || ''}</span>
+            <span class="item-date">${e.start || e.end || e.year || ''}</span>
           </div>
         </div>
       `;
@@ -243,7 +243,7 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
       html += `
         <div class="item">
           <div class="item-header">
-            <span class="item-title">${pr.title || 'Project Name'} ${pr.link ? ` - ${pr.link}` : ''}</span>
+            <span class="item-title">${pr.name || pr.title || 'Project Name'} ${pr.link ? ` - ${pr.link}` : ''}</span>
           </div>
       `;
       if (pr.description) {
