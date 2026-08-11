@@ -6,10 +6,12 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
   const proj = resumeContent.projects || [];
   const skills = resumeContent.skills || '';
   const certs = resumeContent.certifications || '';
+  const achievements = resumeContent.achievements || '';
   
-  // Format skills and certs
+  // Format skills, certs, and achievements
   const skillList = skills.split(',').map(s => s.trim()).filter(Boolean).map(s => `<li>${s}</li>`).join('');
   const certList = certs.split('\n').map(c => c.trim()).filter(Boolean).map(c => `<li>${c}</li>`).join('');
+  const achList = achievements.split('\n').map(a => a.trim()).filter(Boolean).map(a => `<li>${a}</li>`).join('');
 
   let html = `
   <!DOCTYPE html>
@@ -219,6 +221,10 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
       <h2 class="section-title">Education</h2>
     `;
     edu.forEach(e => {
+      const eduStart = e.start || '';
+      const eduEnd = e.end || '';
+      const eduYear = e.year || '';
+      const dateStr = eduStart && eduEnd ? `${eduStart} - ${eduEnd}` : (eduYear || eduStart || eduEnd);
       html += `
         <div class="item">
           <div class="item-header">
@@ -226,7 +232,7 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
               <span class="item-title">${e.degree || 'Degree'}</span>
               ${e.school ? `<span class="item-subtitle">, ${e.school}</span>` : ''}
             </div>
-            <span class="item-date">${e.start || e.end || e.year || ''}</span>
+            <span class="item-date">${dateStr}</span>
           </div>
         </div>
       `;
@@ -275,6 +281,17 @@ function generateResumeHtml(resumeContent, theme = 'classic') {
       <h2 class="section-title">Certifications</h2>
       <ul class="certs-list">
         ${certList}
+      </ul>
+    </div>
+    `;
+  }
+
+  if (achList) {
+    html += `
+    <div class="section">
+      <h2 class="section-title">Achievements</h2>
+      <ul class="certs-list">
+        ${achList}
       </ul>
     </div>
     `;

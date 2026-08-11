@@ -141,7 +141,17 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext !== '.pdf' && ext !== '.docx' && ext !== '.doc' && ext !== '.txt') {
+      return cb(new Error('Only PDF, DOC, DOCX, and TXT files are allowed'));
+    }
+    cb(null, true);
+  }
+});
 
 // ==========================================
 // JWT AUTHENTICATION MIDDLEWARE
@@ -235,11 +245,32 @@ const initializeDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         is_primary BOOLEAN DEFAULT false,
+        original_filename VARCHAR(500) NULL,
+        source ENUM('builder','upload') DEFAULT 'builder',
+        raw_text LONGTEXT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         INDEX idx_user_id (user_id),
         INDEX idx_created_at (created_at)
       )
     `);
+
+    // Ensure columns exist (for existing tables)
+    try {
+      const [resumesCols] = await connection.query(`SHOW COLUMNS FROM resumes LIKE 'original_filename'`);
+      if (resumesCols.length === 0) {
+        await connection.query(`ALTER TABLE resumes ADD COLUMN original_filename VARCHAR(500) NULL`);
+      }
+      const [sourceCols] = await connection.query(`SHOW COLUMNS FROM resumes LIKE 'source'`);
+      if (sourceCols.length === 0) {
+        await connection.query(`ALTER TABLE resumes ADD COLUMN source ENUM('builder','upload') DEFAULT 'builder'`);
+      }
+      const [rawTextCols] = await connection.query(`SHOW COLUMNS FROM resumes LIKE 'raw_text'`);
+      if (rawTextCols.length === 0) {
+        await connection.query(`ALTER TABLE resumes ADD COLUMN raw_text LONGTEXT NULL`);
+      }
+    } catch (colErr) {
+      console.error('Error migrating resumes table columns:', colErr.message);
+    }
 
     // Create resume_versions table
     await connection.query(`
@@ -327,10 +358,20 @@ const initializeDatabase = async () => {
         token VARCHAR(500) NOT NULL UNIQUE,
         expires_at DATETIME,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_revoked BOOLEAN DEFAULT false,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         INDEX idx_user_id (user_id)
       )
     `);
+
+    try {
+      const [revokedCols] = await connection.query(`SHOW COLUMNS FROM refresh_tokens LIKE 'is_revoked'`);
+      if (revokedCols.length === 0) {
+        await connection.query(`ALTER TABLE refresh_tokens ADD COLUMN is_revoked BOOLEAN DEFAULT false`);
+      }
+    } catch (colErr) {
+      console.error('Error migrating refresh_tokens table columns:', colErr.message);
+    }
 
     // Create settings table
     await connection.query(`
@@ -1090,11 +1131,16 @@ app.post('/api/ats/analyze', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Resume ID is required' });
     }
 
+    const parsedResumeId = parseInt(resumeId, 10);
+    if (isNaN(parsedResumeId)) {
+      return res.status(400).json({ error: 'Invalid Resume ID format.' });
+    }
+
     const connection = await pool.getConnection();
 
     const [resumes] = await connection.query(
       'SELECT content FROM resumes WHERE id = ? AND user_id = ?',
-      [resumeId, req.user.id]
+      [parsedResumeId, req.user.id]
     );
 
     if (resumes.length === 0) {
@@ -1108,28 +1154,22 @@ app.post('/api/ats/analyze', authenticateToken, async (req, res) => {
     // Deterministic ATS Engine
     const atsScore = atsEngine.calculateDeterministicScore(textContent, jobDescription || '');
 
-    // Qualitative feedback (Gemini or Fallback)
+    // Qualitative feedback (Gemini)
     let aiFeedback = { suggestions: [], detailed_feedback: {} };
-    if (jobDescription && process.env.GEMINI_API_KEY) {
+    if (jobDescription) {
       try {
         aiFeedback = await aiService.getAtsQualitativeFeedback(jobDescription, textContent, atsScore.missing_keywords);
       } catch (e) {
-        console.error('Qualitative feedback warning:', e.message);
+        console.error('Qualitative feedback error:', e.message);
+        connection.release();
+        return res.status(503).json({ error: "I couldn't process that request right now. Please try again." });
       }
-    }
-
-    if (!aiFeedback.suggestions || !aiFeedback.suggestions.length) {
-      aiFeedback.suggestions = [
-        'Include exact skill keywords from the job posting in your experience bullets.',
-        'Quantify your accomplishments using specific metrics, percentages, or dollar amounts.',
-        'Ensure standard section headings like Experience, Education, and Skills.'
-      ];
     }
 
     const [result] = await connection.query(
       'INSERT INTO ats_reports (resume_id, overall_score, keyword_match, formatting_score, grammar_score, readability_score, missing_keywords, suggestions, detailed_feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
-        resumeId,
+        parsedResumeId,
         atsScore.overall_score,
         atsScore.keyword_match,
         atsScore.formatting_score,
@@ -1179,22 +1219,15 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
     // Deterministic ATS Engine
     const atsScore = atsEngine.calculateDeterministicScore(textContent, jobDescription || '');
 
-    // Qualitative feedback (Gemini or Fallback)
+    // Qualitative feedback (Gemini)
     let aiFeedback = { suggestions: [], detailed_feedback: {} };
-    if (jobDescription && process.env.GEMINI_API_KEY) {
+    if (jobDescription) {
       try {
         aiFeedback = await aiService.getAtsQualitativeFeedback(jobDescription, textContent, atsScore.missing_keywords);
       } catch (e) {
-        console.error('Qualitative feedback warning:', e.message);
+        console.error('Qualitative feedback error in upload-analyze:', e.message);
+        return res.status(503).json({ error: "I couldn't process that request right now. Please try again." });
       }
-    }
-
-    if (!aiFeedback.suggestions || !aiFeedback.suggestions.length) {
-      aiFeedback.suggestions = [
-        'Include exact skill keywords from the job posting in your experience section.',
-        'Use bullet points to highlight measurable achievements and results.',
-        'Keep formatting clean and readable for ATS parsers.'
-      ];
     }
 
     let reportId = null;
@@ -1202,9 +1235,8 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
 
     // Save report and resume to DB only if user is authenticated
     if (req.user && req.user.id) {
+      const connection = await pool.getConnection();
       try {
-        const connection = await pool.getConnection();
-
         // 1. Create a resumes record for this uploaded resume text content
         const resumeTitle = `Uploaded: ${req.file.originalname}`;
         const resumeContentObj = {
@@ -1218,10 +1250,15 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
         };
 
         const [resumeResult] = await connection.query(
-          'INSERT INTO resumes (user_id, title, content, is_primary) VALUES (?, ?, ?, ?)',
-          [req.user.id, resumeTitle, JSON.stringify(resumeContentObj), false]
+          'INSERT INTO resumes (user_id, title, content, is_primary, original_filename, source, raw_text) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [req.user.id, resumeTitle, JSON.stringify(resumeContentObj), false, req.file.originalname, 'upload', textContent]
         );
         resumeId = resumeResult.insertId;
+
+        if (!resumeId) {
+          connection.release();
+          return res.status(500).json({ error: 'Failed to create resume record in database.' });
+        }
 
         // 2. Save the ATS report linked to the new resume ID
         const [result] = await connection.query(
@@ -1241,7 +1278,9 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
         reportId = result.insertId;
         connection.release();
       } catch (dbError) {
-        console.error('DB persistence error in analyze-upload:', dbError.message);
+        connection.release();
+        console.error('DB persistence error in analyze-upload:', dbError);
+        return res.status(500).json({ error: 'Failed to save analysis report to database.' });
       }
     }
 
@@ -1274,7 +1313,7 @@ app.get('/api/ats/history', authenticateToken, async (req, res) => {
 
     const [reports] = await connection.query(`
       SELECT ar.* FROM ats_reports ar
-      JOIN resumes r ON ar.resume_id = r.id
+      LEFT JOIN resumes r ON ar.resume_id = r.id
       WHERE r.user_id = ?
       ORDER BY ar.created_at DESC
       LIMIT 10
@@ -1297,7 +1336,7 @@ app.get('/api/ats/report/:id', authenticateToken, async (req, res) => {
 
     const [reports] = await connection.query(`
       SELECT ar.* FROM ats_reports ar
-      JOIN resumes r ON ar.resume_id = r.id
+      LEFT JOIN resumes r ON ar.resume_id = r.id
       WHERE ar.id = ? AND r.user_id = ?
     `, [id, req.user.id]);
 
@@ -1324,7 +1363,7 @@ app.get('/api/ats/report/:id', authenticateToken, async (req, res) => {
 
 app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
   try {
-    const { message, conversation, resumeContext, stream } = req.body;
+    const { message, conversation, resumeContext, resumeId, stream } = req.body;
 
     if (!message && (!conversation || conversation.length === 0)) {
       return res.status(400).json({ error: 'Message or conversation history is required' });
@@ -1357,18 +1396,29 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
           [req.user.id]
         );
 
-        const [resumes] = await connection.query(
-          `SELECT title, content FROM resumes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1`,
-          [req.user.id]
-        );
+        let resumes = [];
+        if (resumeId) {
+          [resumes] = await connection.query(
+            `SELECT id, title, content FROM resumes WHERE id = ? AND user_id = ?`,
+            [resumeId, req.user.id]
+          );
+        } else {
+          [resumes] = await connection.query(
+            `SELECT id, title, content FROM resumes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1`,
+            [req.user.id]
+          );
+        }
 
-        const [atsReports] = await connection.query(
-          `SELECT ar.overall_score, ar.missing_keywords, ar.suggestions
-           FROM ats_reports ar
-           JOIN resumes r ON ar.resume_id = r.id
-           WHERE r.user_id = ? ORDER BY ar.created_at DESC LIMIT 1`,
-          [req.user.id]
-        );
+        let atsReports = [];
+        if (resumes.length > 0) {
+          const actualResumeId = resumes[0].id;
+          [atsReports] = await connection.query(
+            `SELECT overall_score, missing_keywords, suggestions
+             FROM ats_reports
+             WHERE resume_id = ? ORDER BY created_at DESC LIMIT 1`,
+            [actualResumeId]
+          );
+        }
 
         connection.release();
 
@@ -1431,7 +1481,7 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
 
 app.post('/api/ai/assistant', optionalAuthenticateToken, async (req, res) => {
   try {
-    const { messages } = req.body;
+    const { messages, resumeId } = req.body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'Messages array is required' });
@@ -1449,18 +1499,29 @@ app.post('/api/ai/assistant', optionalAuthenticateToken, async (req, res) => {
           [req.user.id]
         );
 
-        const [resumes] = await connection.query(
-          `SELECT title, content FROM resumes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1`,
-          [req.user.id]
-        );
+        let resumes = [];
+        if (resumeId) {
+          [resumes] = await connection.query(
+            `SELECT id, title, content FROM resumes WHERE id = ? AND user_id = ?`,
+            [resumeId, req.user.id]
+          );
+        } else {
+          [resumes] = await connection.query(
+            `SELECT id, title, content FROM resumes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1`,
+            [req.user.id]
+          );
+        }
 
-        const [atsReports] = await connection.query(
-          `SELECT ar.overall_score, ar.missing_keywords, ar.suggestions
-           FROM ats_reports ar
-           JOIN resumes r ON ar.resume_id = r.id
-           WHERE r.user_id = ? ORDER BY ar.created_at DESC LIMIT 1`,
-          [req.user.id]
-        );
+        let atsReports = [];
+        if (resumes.length > 0) {
+          const actualResumeId = resumes[0].id;
+          [atsReports] = await connection.query(
+            `SELECT overall_score, missing_keywords, suggestions
+             FROM ats_reports
+             WHERE resume_id = ? ORDER BY created_at DESC LIMIT 1`,
+            [actualResumeId]
+          );
+        }
 
         connection.release();
 
@@ -1556,22 +1617,7 @@ app.post('/api/ai/action-verbs', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/ai/cover-letter', authenticateToken, async (req, res) => {
-  try {
-    const { resumeData, jobTitle, companyName } = req.body;
-    
-    const resumeContext = typeof resumeData === 'object' ? JSON.stringify(resumeData) : resumeData;
-    const result = await aiService.generateCoverLetter(jobTitle, companyName, resumeContext);
 
-    res.json({ message: 'Cover letter generated', coverLetter: result.coverLetter });
-  } catch (error) {
-    console.error('Cover letter error:', error);
-    if (error.message === 'AI service is not configured.') {
-      return res.status(503).json({ error: error.message });
-    }
-    res.status(500).json({ error: 'Cover letter generation failed' });
-  }
-});
 
 // ==========================================
 // TEMPLATE ROUTES
@@ -1680,49 +1726,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/download/docx', authenticateToken, async (req, res) => {
-  try {
-    const { resumeId } = req.body;
-
-    const connection = await pool.getConnection();
-
-    const [resumes] = await connection.query(
-      'SELECT content FROM resumes WHERE id = ? AND user_id = ?',
-      [resumeId, req.user.id]
-    );
-
-    if (resumes.length === 0) {
-      connection.release();
-      return res.status(404).json({ error: 'Resume not found' });
-    }
-
-    const resumeContent = typeof resumes[0].content === 'string' ? JSON.parse(resumes[0].content) : resumes[0].content;
-
-    const templateGenerator = require('./resume-pdf-template');
-    const htmlContent = templateGenerator.generateResumeHtml(resumeContent, 'classic');
-
-    const fileName = `resume-${resumeId}-${Date.now()}.docx`;
-    const downloadsDir = path.join(__dirname, 'downloads');
-    if (!fs.existsSync(downloadsDir)) {
-      fs.mkdirSync(downloadsDir);
-    }
-    const filePath = path.join(downloadsDir, fileName);
-    const fileUrl = `/downloads/${fileName}`;
-
-    // Write file to disk (Word can read HTML files saved as .docx)
-    fs.writeFileSync(filePath, htmlContent, 'utf8');
-
-    await connection.query(
-      'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',
-      [resumeId, 'docx', fileUrl]
-    );
-
-    connection.release();
-
-    res.json({ message: 'DOCX generated', downloadUrl: fileUrl });
-  } catch (error) {
-    console.error('DOCX download error:', error);
-    res.status(500).json({ error: 'DOCX generation failed' });
-  }
+  res.json({ message: 'DOCX generation not yet configured.', url: null });
 });
 
 app.get('/api/download/history', authenticateToken, async (req, res) => {
@@ -1754,83 +1758,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Backend is running' });
 });
 
-// ==========================================
-// PORTFOLIO ROUTES
-// ==========================================
 
-app.post('/api/portfolio', authenticateToken, async (req, res) => {
-  try {
-    const { username, title, aboutText, theme, accentColor, typography, isPublished, heroImageUrl, projects } = req.body;
-    const userId = req.user.id;
-
-    const connection = await pool.getConnection();
-
-    // Check if portfolio already exists for user
-    const [existing] = await connection.query('SELECT id FROM portfolios WHERE user_id = ?', [userId]);
-
-    let portfolioId;
-
-    if (existing.length > 0) {
-      portfolioId = existing[0].id;
-      await connection.query(
-        'UPDATE portfolios SET username = ?, title = ?, about_text = ?, theme = ?, accent_color = ?, typography = ?, is_published = ?, hero_image_url = ? WHERE id = ?',
-        [username, title, aboutText, theme, accentColor, typography, isPublished, heroImageUrl, portfolioId]
-      );
-    } else {
-      const [result] = await connection.query(
-        'INSERT INTO portfolios (user_id, username, title, about_text, theme, accent_color, typography, is_published, hero_image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [userId, username, title, aboutText, theme, accentColor, typography, isPublished, heroImageUrl]
-      );
-      portfolioId = result.insertId;
-    }
-
-    // Update projects (simple approach: delete and re-insert)
-    await connection.query('DELETE FROM portfolio_projects WHERE portfolio_id = ?', [portfolioId]);
-    
-    if (projects && projects.length > 0) {
-      for (const [index, p] of projects.entries()) {
-        await connection.query(
-          'INSERT INTO portfolio_projects (portfolio_id, title, description, technologies, display_order) VALUES (?, ?, ?, ?, ?)',
-          [portfolioId, p.title, p.description, JSON.stringify(p.tech ? p.tech.split(',') : []), index]
-        );
-      }
-    }
-
-    connection.release();
-    res.json({ message: 'Portfolio saved successfully', portfolioId });
-  } catch (error) {
-    console.error('Save portfolio error:', error);
-    res.status(500).json({ error: 'Failed to save portfolio' });
-  }
-});
-
-app.get('/api/portfolio/:username', async (req, res) => {
-  try {
-    const { username } = req.params;
-    const connection = await pool.getConnection();
-
-    const [portfolios] = await connection.query('SELECT * FROM portfolios WHERE username = ? AND is_published = true', [username]);
-
-    if (portfolios.length === 0) {
-      connection.release();
-      return res.status(404).json({ error: 'Portfolio not found or not published' });
-    }
-
-    const portfolio = portfolios[0];
-
-    const [projects] = await connection.query('SELECT * FROM portfolio_projects WHERE portfolio_id = ? ORDER BY display_order ASC', [portfolio.id]);
-
-    connection.release();
-
-    res.json({
-      ...portfolio,
-      projects: projects.map(p => ({ ...p, tech: JSON.parse(p.technologies || '[]').join(', ') }))
-    });
-  } catch (error) {
-    console.error('Get portfolio error:', error);
-    res.status(500).json({ error: 'Failed to fetch portfolio' });
-  }
-});
 
 // ==========================================
 // ERROR HANDLING
@@ -1838,6 +1766,15 @@ app.get('/api/portfolio/:username', async (req, res) => {
 
 app.use((err, req, res, next) => {
   console.error('Global error:', err);
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File size limit exceeded (maximum 5MB allowed).' });
+    }
+    return res.status(400).json({ error: err.message });
+  }
+  if (err.message && err.message.includes('Only PDF, DOC, DOCX, and TXT')) {
+    return res.status(400).json({ error: err.message });
+  }
   res.status(500).json({ error: 'Internal server error' });
 });
 

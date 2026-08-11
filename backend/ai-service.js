@@ -38,24 +38,8 @@ function getResumeContext(resumeContent, query = '') {
   }
 
   const queryLower = query.toLowerCase();
-  // If no query or query asks for general analysis/improvements/ats, show everything.
-  const showAll = !query || 
-    queryLower.includes('ats') || 
-    queryLower.includes('score') || 
-    queryLower.includes('improve') || 
-    queryLower.includes('review') || 
-    queryLower.includes('check') || 
-    queryLower.includes('how') || 
-    queryLower.includes('recommend') || 
-    queryLower.includes('help') ||
-    queryLower.includes('resume') ||
-    queryLower.includes('analysis');
-  
-  const showSkills = showAll || queryLower.includes('skill') || queryLower.includes('tech') || queryLower.includes('language') || queryLower.includes('framework');
-  const showProjects = showAll || queryLower.includes('project') || queryLower.includes('portfolio');
-  const showSummary = showAll || queryLower.includes('summary') || queryLower.includes('profile') || queryLower.includes('about') || queryLower.includes('objective');
-  const showExperience = showAll || queryLower.includes('experience') || queryLower.includes('work') || queryLower.includes('job') || queryLower.includes('role') || queryLower.includes('history') || queryLower.includes('company') || queryLower.includes('bullet') || queryLower.includes('rewrite') || queryLower.includes('improve');
-  const showEducation = showAll || queryLower.includes('education') || queryLower.includes('degree') || queryLower.includes('school') || queryLower.includes('university') || queryLower.includes('college');
+  // Always include resume context unless explicitly asked not to
+  const showAll = !queryLower.includes('ignore my resume') && !queryLower.includes('without context');
   
   let formatted = '';
   
@@ -69,45 +53,48 @@ function getResumeContext(resumeContent, query = '') {
     if (p.link) formatted += `- Link: ${p.link}\n`;
   }
   
-  if (showSummary && parsedContent.summary) {
+  if (showAll && parsedContent.summary) {
     formatted += `\n### Professional Summary\n${parsedContent.summary}\n`;
   }
   
-  if (showSkills && parsedContent.skills) {
+  if (showAll && parsedContent.skills) {
     formatted += `\n### Skills\n${parsedContent.skills}\n`;
   }
   
-  if (showExperience && Array.isArray(parsedContent.experience) && parsedContent.experience.length > 0) {
+  if (showAll && Array.isArray(parsedContent.experience) && parsedContent.experience.length > 0) {
     formatted += `\n### Experience\n`;
     parsedContent.experience.forEach(e => {
-      formatted += `- **${e.role || 'Role'}** at ${e.company || 'Company'} (${e.startDate || ''} - ${e.endDate || 'Present'})\n`;
+      const expStart = e.start || e.startDate || '';
+      const expEnd = e.end || e.endDate || 'Present';
+      formatted += `- **${e.role || 'Role'}** at ${e.company || 'Company'} (${expStart} - ${expEnd})\n`;
       if (e.description) {
-        const isExpQuery = queryLower.includes('experience') || queryLower.includes('work') || queryLower.includes('job') || queryLower.includes('rewrite') || queryLower.includes('bullet') || queryLower.includes('improve') || queryLower.includes('sentence');
-        if (isExpQuery || showAll) {
-          formatted += `  Description:\n${e.description.split('\n').filter(Boolean).map(l => `  * ${l.trim()}`).join('\n')}\n`;
-        }
+        formatted += `  Description:\n${e.description.split('\n').filter(Boolean).map(l => `  * ${l.trim()}`).join('\n')}\n`;
       }
     });
   }
   
-  if (showProjects && Array.isArray(parsedContent.projects) && parsedContent.projects.length > 0) {
+  if (showAll && Array.isArray(parsedContent.projects) && parsedContent.projects.length > 0) {
     formatted += `\n### Projects\n`;
     parsedContent.projects.forEach(pr => {
-      formatted += `- **${pr.title || 'Project'}**${pr.link ? ` (${pr.link})` : ''}\n`;
+      formatted += `- **${pr.name || pr.title || 'Project'}**${pr.link ? ` (${pr.link})` : ''}\n`;
       if (pr.description) {
         formatted += `  Description:\n${pr.description.split('\n').filter(Boolean).map(l => `  * ${l.trim()}`).join('\n')}\n`;
       }
     });
   }
   
-  if (showEducation && Array.isArray(parsedContent.education) && parsedContent.education.length > 0) {
+  if (showAll && Array.isArray(parsedContent.education) && parsedContent.education.length > 0) {
     formatted += `\n### Education\n`;
     parsedContent.education.forEach(ed => {
-      formatted += `- **${ed.degree || 'Degree'}**, ${ed.school || 'School'} (${ed.year || ''})\n`;
+      const eduStart = ed.start || '';
+      const eduEnd = ed.end || '';
+      const eduYear = ed.year || '';
+      const dateStr = eduStart && eduEnd ? `${eduStart} - ${eduEnd}` : (eduYear || eduStart || eduEnd);
+      formatted += `- **${ed.degree || 'Degree'}**, ${ed.school || 'School'} (${dateStr})\n`;
     });
   }
 
-  if (parsedContent.certifications && (showAll || queryLower.includes('cert'))) {
+  if (parsedContent.certifications && showAll) {
     formatted += `\n### Certifications\n${parsedContent.certifications}\n`;
   }
   
@@ -151,19 +138,18 @@ Format your responses using clean markdown (bolding, bullet points, numbered lis
       if (resumeInfo) {
         contextStr += `\nLatest Resume Context (filtered for query relevance):\n${resumeInfo}\n`;
       }
+    } else {
+      contextStr += `\nIMPORTANT: The user has no resume currently selected or uploaded. Clearly state to the user that no resume is currently selected and they should upload or build one first before you can provide resume-specific recommendations.\n`;
     }
 
     if (userContext.latestAtsReport) {
-      const isAtsQuery = lastUserMsg.toLowerCase().includes('ats') || lastUserMsg.toLowerCase().includes('score') || lastUserMsg.toLowerCase().includes('report') || lastUserMsg.toLowerCase().includes('keyword');
-      if (isAtsQuery || !lastUserMsg) {
-        contextStr += `\nLatest ATS Report:\n`;
-        contextStr += `- Overall Score: ${userContext.latestAtsReport.score}/100\n`;
-        if (userContext.latestAtsReport.missingKeywords) {
-          contextStr += `- Missing Keywords: ${userContext.latestAtsReport.missingKeywords}\n`;
-        }
-        if (userContext.latestAtsReport.suggestions) {
-          contextStr += `- Suggestions: ${userContext.latestAtsReport.suggestions}\n`;
-        }
+      contextStr += `\nLatest ATS Report:\n`;
+      contextStr += `- Overall Score: ${userContext.latestAtsReport.score}/100\n`;
+      if (userContext.latestAtsReport.missingKeywords) {
+        contextStr += `- Missing Keywords: ${userContext.latestAtsReport.missingKeywords}\n`;
+      }
+      if (userContext.latestAtsReport.suggestions) {
+        contextStr += `- Suggestions: ${userContext.latestAtsReport.suggestions}\n`;
       }
     }
   }
@@ -273,33 +259,6 @@ async function getKeywords(jobRole) {
   }
 }
 
-async function generateCoverLetter(jobTitle, companyName, resumeContext = '') {
-  const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
-
-  try {
-    const prompt = `Write a professional, concise cover letter for the position of "${jobTitle}" at "${companyName}". 
-    Use the following resume context (if provided) to personalize it: ${resumeContext}. 
-    Keep it under 300 words. Do not make up fake experiences. 
-    Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"coverLetter": "..."}`;
-    
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
-    });
-    
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error('Gemini API Error:', error.message || 'Error executing request');
-    throw new Error('Failed to generate cover letter with AI');
-  }
-}
-
 async function getAtsQualitativeFeedback(jobDescription, resumeText, missingKeywords) {
   const ai = getAiClient();
   if (!ai) {
@@ -353,6 +312,5 @@ module.exports = {
   rewriteText,
   generateSummary,
   getKeywords,
-  generateCoverLetter,
   getAtsQualitativeFeedback
 };

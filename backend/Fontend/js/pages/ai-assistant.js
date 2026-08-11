@@ -10,6 +10,7 @@
   let conversationHistory = [];
   let isThinking = false;
   let abortController = null;
+  let activeResumeId = null;
 
   function init() {
     if (initialized) return;
@@ -89,6 +90,11 @@
     const params = new URLSearchParams(window.location.search);
     const prompt = params.get('prompt');
     const score = params.get('score');
+    const rId = params.get('resumeId');
+
+    if (rId) {
+      activeResumeId = parseInt(rId, 10);
+    }
 
     if (prompt) {
       const fullText = score ? `${prompt} (Current ATS Score: ${score}/100)` : prompt;
@@ -166,6 +172,7 @@
         body: JSON.stringify({
           message: lastUserMsg,
           conversation: previousHistory,
+          resumeId: activeResumeId || null,
           stream: true
         }),
         signal: abortController.signal

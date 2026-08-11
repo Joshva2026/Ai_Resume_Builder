@@ -314,7 +314,6 @@ const ApiService = (() => {
     summary: (careerSummary) => request('/ai/summary', { method: 'POST', body: { careerSummary } }),
     keywords: (jobRole) => request('/ai/keywords', { method: 'POST', body: { jobRole } }),
     actionVerbs: () => request('/ai/action-verbs', { method: 'POST' }),
-    coverLetter: (resumeData, jobTitle, companyName) => request('/ai/cover-letter', { method: 'POST', body: { resumeData, jobTitle, companyName } }),
   };
 
   // ── TEMPLATES ─────────────────────────────────────────────────────────
