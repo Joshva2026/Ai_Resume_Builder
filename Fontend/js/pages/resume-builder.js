@@ -534,7 +534,9 @@
       }
       indicator.innerHTML = '<span class="dot"></span> All changes saved';
     } catch (err) {
-      indicator.innerHTML = `<span class="dot" style="background:#D64545"></span> Save failed — backend offline?`;
+      indicator.innerHTML = `<span class="dot" style="background:var(--signal-500)"></span> Save failed &mdash; retrying...`;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveResume, 5000);
     }
   }
 

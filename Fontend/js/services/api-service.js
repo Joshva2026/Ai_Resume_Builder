@@ -69,8 +69,8 @@ const ApiService = (() => {
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch (networkError) {
-      console.error('[ApiService] Backend unreachable');
-      throw new ApiError('Backend unreachable. Please start the server.', 503);
+      console.warn('[ApiService] Network error or backend unreachable', networkError);
+      throw new ApiError('Network connection failed. Please check your internet or try again.', 503);
     }
 
     let data = null;
@@ -102,6 +102,7 @@ const ApiService = (() => {
         } catch (refreshErr) {
           isRefreshing = false;
           clearTokens();
+          onRefreshed(null); // Notify queued requests to fail
           if (window.location.pathname.includes('/pages/') && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
             window.location.href = 'login.html';
           }
@@ -109,8 +110,11 @@ const ApiService = (() => {
         }
       }
 
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         subscribeTokenRefresh((newToken) => {
+          if (!newToken) {
+            return reject(new ApiError('Session expired. Please log in again.', 401));
+          }
           finalHeaders['Authorization'] = `Bearer ${newToken}`;
           resolve(request(path, { method, body, auth, headers: finalHeaders }));
         });

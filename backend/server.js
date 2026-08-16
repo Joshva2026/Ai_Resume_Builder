@@ -619,7 +619,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     // Store refresh token
     await connection.query(
-      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))',
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY)) ON DUPLICATE KEY UPDATE expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY)',
       [userId, refreshToken]
     );
 
@@ -678,7 +678,7 @@ app.post('/api/auth/login', async (req, res) => {
     );
 
     await connection.query(
-      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))',
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY)) ON DUPLICATE KEY UPDATE expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY)',
       [user.id, refreshToken]
     );
 
@@ -1073,7 +1073,9 @@ app.get('/api/resumes/:id', authenticateToken, async (req, res) => {
     }
 
     const resume = resumes[0];
-    resume.content = JSON.parse(resume.content);
+    if (typeof resume.content === 'string') {
+      try { resume.content = JSON.parse(resume.content); } catch (e) {}
+    }
 
     connection.release();
 
@@ -1102,24 +1104,10 @@ app.put('/api/resumes/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Resume not found' });
     }
 
-    // Get current version number
-    const [versions] = await connection.query(
-      'SELECT MAX(version_number) as maxVersion FROM resume_versions WHERE resume_id = ?',
-      [id]
-    );
-
-    const nextVersion = (versions[0].maxVersion || 0) + 1;
-
     // Update resume
     await connection.query(
       'UPDATE resumes SET title = ?, content = ?, updated_at = NOW() WHERE id = ?',
       [title, JSON.stringify(content), id]
-    );
-
-    // Create new version
-    await connection.query(
-      'INSERT INTO resume_versions (resume_id, version_number, content) VALUES (?, ?, ?)',
-      [id, nextVersion, JSON.stringify(content)]
     );
 
     connection.release();
@@ -1185,7 +1173,7 @@ app.post('/api/resumes/:id/duplicate', authenticateToken, async (req, res) => {
     const newResume = {
       id: result.insertId,
       title: newTitle,
-      content: JSON.parse(original.content),
+      content: typeof original.content === 'string' ? JSON.parse(original.content) : original.content,
       templateId: original.template_id,
     };
 
