@@ -90,20 +90,29 @@
 
 <template id="builderTemplate">
   <div class="builder-toolbar">
+    <button class="btn btn-ghost" id="btnBackTop"><i class="fa-solid fa-arrow-left"></i> Back</button>
     <input type="text" class="title-input" id="resumeTitle" value="Untitled Resume" aria-label="Resume title">
     <div class="toolbar-actions">
       <span class="save-indicator" id="saveIndicator"><span class="dot"></span> All changes saved</span>
       <button class="btn btn-ghost" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
       <a href="ats-checker.html" class="btn btn-ghost"><i class="fa-solid fa-gauge-high"></i> Check ATS Score</a>
       <button class="btn btn-primary" id="btnDownload"><i class="fa-solid fa-download"></i> Download PDF</button>
+      <button class="btn btn-ghost" id="btnUndo"><i class="fa-solid fa-undo"></i> Undo</button>
+      <button class="btn btn-primary" id="btnNext"><i class="fa-solid fa-arrow-right"></i> Next</button>
+      <button class="btn btn-primary" id="btnSave">Save Resume</button>
+      <button class="btn btn-ghost" id="btnRetry">Retry</button>
     </div>
-  </div>
 
+  </div>
+<div class="progress-container">
+  <div class="progress-bar"><div id="wizardProgress"></div></div>
+</div>
   <div class="builder-layout">
     <!-- Section rail -->
     <aside class="section-rail" id="sectionRail">
       <h4>Sections — drag to reorder</h4>
-      <div class="rail-item active" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check"></i></div>
+      <div class="rail-item active" draggable="true" data-section="type"><i class="fa-solid fa-grip-vertical grip"></i> Resume Type</div>
+      <div class="rail-item" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check"></i></div>
       <div class="rail-item" draggable="true" data-section="summary"><i class="fa-solid fa-grip-vertical grip"></i> Career Summary</div>
       <div class="rail-item" draggable="true" data-section="experience"><i class="fa-solid fa-grip-vertical grip"></i> Experience</div>
       <div class="rail-item" draggable="true" data-section="education"><i class="fa-solid fa-grip-vertical grip"></i> Education</div>
@@ -118,6 +127,14 @@
 
     <!-- Editor -->
     <section class="editor-pane">
+      <div class="editor-section active" data-section="type">
+        <h3>Resume Type</h3>
+        <div class="field-row">
+          <button class="btn btn-primary" id="btnFresher">Fresher</button>
+          <button class="btn btn-primary" id="btnExperienced">Experienced</button>
+        </div>
+      </div>
+      <div class="editor-section" data-section="personal">
       <div class="editor-section active" data-section="personal">
         <h3>Personal Information</h3>
         <div class="field-row">
