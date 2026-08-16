@@ -5,3 +5,5 @@ uploads/
 !.env.example
 *.log
 db.json
+backend/clear_db.js
+test-flow.js

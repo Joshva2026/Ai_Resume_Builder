@@ -24,7 +24,7 @@
     styling: { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' }
   };
 
-  let saveTimer = null;
+  // let saveTimer = null; // Auto-save timer disabled
 
   document.addEventListener('DOMContentLoaded', init);
   // Since app-shell injects the template synchronously right after render, run init on next tick too
@@ -116,7 +116,7 @@
       el.addEventListener('input', () => {
         map[id](el.value);
         renderPreview();
-        scheduleSave();
+        // scheduleSave(); // Auto-save disabled
       });
     });
   }
@@ -132,7 +132,7 @@
       selTemplate.addEventListener('change', () => {
         state.styling.template = selTemplate.value;
         renderPreview();
-        scheduleSave();
+        // scheduleSave(); // Auto-save disabled
       });
     }
     if (selFont) {
@@ -336,7 +336,7 @@
       input.addEventListener('input', () => {
         entry[f] = input.value;
         renderPreview();
-        scheduleSave();
+        // scheduleSave(); // Auto-save disabled
       });
     });
     wrap.querySelector('.remove-block').addEventListener('click', () => {
@@ -344,7 +344,7 @@
       if (idx > -1) collection.splice(idx, 1);
       wrap.remove();
       renderPreview();
-      scheduleSave();
+      // scheduleSave(); // Auto-save disabled
     });
     wrap.querySelectorAll('[data-ai="rewrite"]').forEach((btn) => {
       btn.addEventListener('click', () => runInlineRewrite(btn, wrap));
@@ -511,10 +511,7 @@
      Autosave
   --------------------------------------------------------------------- */
   function scheduleSave() {
-    const indicator = document.getElementById('saveIndicator');
-    indicator.innerHTML = '<span class="dot" style="background:var(--score-low)"></span> Saving…';
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveResume, 1200);
+    // Auto-save disabled; no operation performed.
   }
 
   let currentResumeId = resumeId || null;
@@ -607,7 +604,7 @@
      Toolbar: title rename, download
   --------------------------------------------------------------------- */
   function bindToolbar() {
-    document.getElementById('resumeTitle').addEventListener('input', scheduleSave);
+    document.getElementById('resumeTitle').addEventListener('input', // scheduleSave);
 
     document.getElementById('btnDownload').addEventListener('click', async () => {
       if (!currentResumeId) {
