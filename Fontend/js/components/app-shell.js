@@ -6,21 +6,28 @@
 const AppShell = (() => {
   const NAV_ITEMS = [
     { group: 'Workspace' },
-    { key: 'dashboard', icon: 'fa-grid-2', label: 'Dashboard', href: 'dashboard' },
+    { key: 'dashboard', icon: 'fa-table-columns', label: 'Dashboard', href: 'dashboard' },
     { key: 'resume-builder', icon: 'fa-pen-ruler', label: 'Resume Builder', href: 'resume-builder' },
-    { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Checker', href: 'ats-checker' },
-    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant' },
+    { key: 'cover-letter', icon: 'fa-envelope-open-text', label: 'Cover Letter', href: 'cover-letter' },
+    { key: 'applications', icon: 'fa-list-check', label: 'Application Tracker', href: 'applications' },
+    
+    { group: 'AI & Career Tools' },
+    { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Score Checker', href: 'ats-checker' },
+    { key: 'job-match', icon: 'fa-shuffle', label: 'Job Match Analyzer', href: 'job-match' },
+    { key: 'linkedin-review', icon: 'fa-brands fa-linkedin', label: 'LinkedIn Reviewer', href: 'linkedin-review' },
+    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Career Chat', href: 'ai-assistant' },
+    
+    { group: 'System' },
+    { key: 'job-search', icon: 'fa-briefcase', label: 'Find Jobs', href: 'job-search' },
     { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile' },
-    { group: 'Explore' },
-    { key: 'about', icon: 'fa-circle-info', label: 'About', href: 'about' },
-    { key: 'contact', icon: 'fa-envelope-open-text', label: 'Contact', href: 'contact' },
   ];
 
   function navHtml(active) {
     return NAV_ITEMS.map((item) => {
       if (item.group) return `<div class="nav-group-label">${item.group}</div>`;
       const cls = item.key === active ? 'active' : '';
-      return `<a href="${item.href}" class="${cls}"><i class="fa-solid ${item.icon}"></i> ${item.label}</a>`;
+      const iconClass = item.icon.startsWith('fa-') && !item.icon.includes(' ') ? `fa-solid ${item.icon}` : item.icon;
+      return `<a href="${item.href}" class="${cls}"><i class="${iconClass}"></i> ${item.label}</a>`;
     }).join('');
   }
 
@@ -28,17 +35,27 @@ const AppShell = (() => {
     const root = document.getElementById('appShellRoot');
     if (!root) return;
 
+    // Apply saved theme immediately
+    const savedTheme = localStorage.getItem('rf_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+
+    const currentThemeIcon = savedTheme === 'light' ? 'fa-moon' : 'fa-sun';
+
     root.innerHTML = `
       <div class="app-shell">
         <aside class="app-sidebar" id="appSidebar">
           <a href="../index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
           <nav class="side-nav">${navHtml(active)}</nav>
           <div class="sidebar-upgrade">
-            <p><strong style="color:white">Free plan</strong><br>Upgrade for unlimited scans &amp; exports.</p>
-            <a href="../index.html#pricing" class="btn btn-accent">Upgrade to Pro</a>
+            <p><strong style="color:var(--ink-100)">Pro Account</strong><br>Access unlimited AI insights.</p>
+            <a href="../index.html#pricing" class="btn btn-accent btn-block" style="text-align:center; display:block; padding:10px 0; margin-top:8px;">Plan details</a>
           </div>
         </aside>
-
+ 
         <div class="app-main">
           <header class="app-topbar">
             <div style="display:flex; align-items:center; gap:14px;">
@@ -46,12 +63,13 @@ const AppShell = (() => {
               <h1>${title}</h1>
             </div>
             <div class="topbar-actions">
+              <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle Theme"><i class="fa-solid ${currentThemeIcon}"></i></button>
               <button class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span class="badge"></span></button>
               <div class="user-menu" id="userMenuTrigger">
                 <div class="avatar" id="userAvatar">··</div>
                 <div>
                   <div class="name" id="userName">Loading…</div>
-                  <div class="role">Free plan</div>
+                  <div class="role">Pro plan</div>
                 </div>
                 <i class="fa-solid fa-chevron-down" style="font-size:11px; color:var(--ink-600)"></i>
               </div>
@@ -59,7 +77,7 @@ const AppShell = (() => {
           </header>
           <main class="app-content" id="appContent"></main>
         </div>
-
+ 
         <div class="mobile-bottom-dock">
           <a href="dashboard" class="${active === 'dashboard' ? 'active' : ''}"><i class="fa-solid fa-table-columns"></i><span>Dash</span></a>
           <a href="resume-builder" class="${active === 'resume-builder' ? 'active' : ''}"><i class="fa-solid fa-pen-ruler"></i><span>Builder</span></a>
@@ -72,6 +90,15 @@ const AppShell = (() => {
 
     document.getElementById('sidebarToggle')?.addEventListener('click', () => {
       document.getElementById('appSidebar').classList.toggle('is-open');
+    });
+
+    document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
+      const isLight = document.body.classList.toggle('light-theme');
+      localStorage.setItem('rf_theme', isLight ? 'light' : 'dark');
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) {
+        themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+      }
     });
 
     document.getElementById('userMenuTrigger')?.addEventListener('click', () => {
@@ -93,7 +120,6 @@ const AppShell = (() => {
       if (nameEl) nameEl.textContent = fullName;
       if (avatarEl) avatarEl.textContent = initials;
     } catch (err) {
-      // Non-fatal on dashboard shell — backend may not be running yet
       console.warn('Could not load user:', err.message);
     }
   }

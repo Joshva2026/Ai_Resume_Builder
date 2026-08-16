@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Jobs — ResumeForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<style>
+.search-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--sp-5);
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .search-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.search-card {
+  background: var(--paper-100);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--sp-4);
+}
+.search-form {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.search-form .field {
+  flex: 1;
+}
+@media (max-width: 600px) {
+  .search-form {
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+}
+.job-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.job-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-4);
+  background: rgba(255, 255, 255, 0.01);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all var(--dur-base) ease;
+}
+.job-item:hover {
+  border-color: var(--signal-500);
+  background: rgba(255, 255, 255, 0.03);
+}
+.job-details h4 {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--ink-100);
+  margin-bottom: 4px;
+}
+.job-details p {
+  color: var(--ink-500);
+  font-size: var(--fs-xs);
+}
+.job-meta-row {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  font-size: var(--fs-2xs);
+  color: var(--ink-600);
+}
+.empty-config-state {
+  text-align: center;
+  padding: var(--sp-6) var(--sp-4);
+  border: 2px dashed var(--score-low);
+  border-radius: var(--radius-md);
+  background: var(--score-low-bg);
+  color: #FFC043;
+  font-size: var(--fs-xs);
+}
+.empty-config-state i {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--sp-2);
+}
+.saved-jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.saved-job-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  padding: var(--sp-3);
+  background: rgba(255, 255, 255, 0.01);
+  font-size: var(--fs-xs);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.saved-job-item .title {
+  font-weight: 600;
+  color: var(--ink-200);
+}
+.saved-job-item .company {
+  font-size: var(--fs-2xs);
+  color: var(--ink-600);
+}
+</style>
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="searchTemplate">
+  <div class="search-layout">
+    <!-- Main Search Area -->
+    <div>
+      <div class="search-card">
+        <h3>Find Career Vacancies</h3>
+        <p class="sub" style="margin-bottom:var(--sp-4)">Scan global vacancy listings. Connect directly to search queries and evaluate matches.</p>
+        
+        <div class="search-form">
+          <div class="field">
+            <input type="text" id="searchQuery" placeholder="Job Title / Role (e.g. Node developer)">
+          </div>
+          <div class="field">
+            <input type="text" id="searchLocation" placeholder="Location (e.g. London)">
+          </div>
+          <button class="btn btn-primary" id="btnSearch" style="padding:10px 24px"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        </div>
+      </div>
+
+      <!-- Config warning / results container -->
+      <div id="resultsWrapper">
+        <div class="job-list" id="jobResultsList">
+          <div class="empty-results" style="text-align:center; padding:var(--sp-6)">
+            <i class="fa-solid fa-briefcase" style="font-size:var(--fs-2xl); color:var(--ink-600)"></i>
+            <h4 style="color:var(--ink-200); margin-top:12px">Search for jobs</h4>
+            <p style="color:var(--ink-600); font-size:var(--fs-xs)">Enter criteria above and click search.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Saved Bookmarks Sidebar -->
+    <div class="search-card">
+      <h3>Bookmarked Jobs</h3>
+      <p class="sub" style="margin-bottom:var(--sp-4)">Keep track of positions you intend to apply for.</p>
+      
+      <div class="saved-jobs-list" id="savedJobsList">
+        <p style="color:var(--ink-600); font-size:var(--fs-xs)">No saved job listings yet.</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'job-search', title: 'Find Jobs' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('searchTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/job-search.js"></script>
+<a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>

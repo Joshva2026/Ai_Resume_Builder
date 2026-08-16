@@ -21,6 +21,7 @@
     awards: [],
     publications: [],
     sectionOrder: ['personal', 'summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'languages', 'volunteer', 'awards', 'publications'],
+    styling: { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' }
   };
 
   let saveTimer = null;
@@ -41,6 +42,7 @@
     bindRepeatBlocks();
     bindAiButtons();
     bindToolbar();
+    bindStylingControls();
 
     if (resumeId) loadExistingResume(resumeId);
     else {
@@ -113,6 +115,46 @@
       const el = document.getElementById(id);
       el.addEventListener('input', () => {
         map[id](el.value);
+        renderPreview();
+        scheduleSave();
+      });
+    });
+  }
+
+  function bindStylingControls() {
+    state.styling = state.styling || { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' };
+    
+    const selTemplate = document.getElementById('selTemplate');
+    const selFont = document.getElementById('selFont');
+    const rngSpacing = document.getElementById('rngSpacing');
+    
+    if (selTemplate) {
+      selTemplate.addEventListener('change', () => {
+        state.styling.template = selTemplate.value;
+        renderPreview();
+        scheduleSave();
+      });
+    }
+    if (selFont) {
+      selFont.addEventListener('change', () => {
+        state.styling.font = selFont.value;
+        renderPreview();
+        scheduleSave();
+      });
+    }
+    if (rngSpacing) {
+      rngSpacing.addEventListener('input', () => {
+        state.styling.spacing = parseFloat(rngSpacing.value);
+        renderPreview();
+        scheduleSave();
+      });
+    }
+    
+    document.querySelectorAll('.accent-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        state.styling.accent = dot.dataset.color;
         renderPreview();
         scheduleSave();
       });
@@ -377,49 +419,85 @@
     const el = document.getElementById('livePreview');
     if (!el) return;
 
+    state.styling = state.styling || { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' };
+    const st = state.styling;
+
+    // Apply basic font settings
+    el.style.fontFamily = st.font === 'serif' ? 'Georgia, serif' : st.font === 'mono' ? '"IBM Plex Mono", monospace' : 'Inter, sans-serif';
+    el.style.lineHeight = st.spacing;
+    el.style.color = '#333';
+    el.style.fontSize = '12px';
+
     const skillsArr = state.skills.split(',').map((s) => s.trim()).filter(Boolean);
     const certsArr = state.certifications.split('\n').map((s) => s.trim()).filter(Boolean);
 
-    el.innerHTML = `
-      <div class="p-name">${esc(p.fullName) || 'Your Name'}</div>
-      <div class="p-title">${esc(p.headline) || 'Professional Title'}</div>
-      <div class="p-contact">${[p.email, p.phone, p.location, p.link].filter(Boolean).map(esc).join('  ·  ') || 'email · phone · location'}</div>
+    function headingHtml(text) {
+      if (st.template === 'executive') {
+        return `<div class="p-heading" style="text-align: center; border-bottom: 2px double ${st.accent}; color: ${st.accent}; text-transform: uppercase; font-weight: 700; margin-top: 16px; margin-bottom: 8px; font-size: 13px">${esc(text)}</div>`;
+      } else if (st.template === 'minimal') {
+        return `<div class="p-heading" style="border: none; color: #111; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-top: 14px; margin-bottom: 4px; font-size: 11px">${esc(text)}</div>`;
+      } else if (st.template === 'academic') {
+        return `<div class="p-heading" style="border-bottom: 1px solid #333; color: #111; font-weight: 700; margin-top: 12px; margin-bottom: 6px; font-size: 12px">${esc(text)}</div>`;
+      } else { // modern
+        return `<div class="p-heading" style="border-bottom: 1px solid ${st.accent}; color: ${st.accent}; font-weight: 700; margin-top: 16px; margin-bottom: 8px; font-size: 13px">${esc(text)}</div>`;
+      }
+    }
 
-      ${state.summary ? `<div class="p-section"><div class="p-heading">Summary</div><div>${esc(state.summary)}</div></div>` : ''}
+    let headerHtml = '';
+    if (st.template === 'executive') {
+      headerHtml = `
+        <div style="text-align: center; margin-bottom: 16px">
+          <div class="p-name" style="font-size: 24px; font-weight: 700; color: #111">${esc(p.fullName) || 'Your Name'}</div>
+          <div class="p-title" style="font-style: italic; color: #444; font-size: 14px; margin-top: 4px">${esc(p.headline) || 'Professional Title'}</div>
+          <div class="p-contact" style="font-size: 11px; color: #666; margin-top: 6px">${[p.email, p.phone, p.location, p.link].filter(Boolean).map(esc).join('  |  ') || 'email | phone | location'}</div>
+        </div>
+      `;
+    } else {
+      headerHtml = `
+        <div class="p-name" style="font-size: 22px; font-weight: 700; color: ${st.template === 'modern' ? st.accent : '#111'}">${esc(p.fullName) || 'Your Name'}</div>
+        <div class="p-title" style="font-size: 14px; font-weight: 600; color: #555">${esc(p.headline) || 'Professional Title'}</div>
+        <div class="p-contact" style="font-size: 11px; color: #666; margin-top: 4px; margin-bottom: 12px">${[p.email, p.phone, p.location, p.link].filter(Boolean).map(esc).join('  ·  ') || 'email · phone · location'}</div>
+      `;
+    }
+
+    el.innerHTML = `
+      ${headerHtml}
+
+      ${state.summary ? `${headingHtml('Summary')}<div>${esc(state.summary)}</div>` : ''}
 
       <div class="p-section">
-        <div class="p-heading">Experience</div>
+        ${headingHtml('Experience')}
         ${state.experience.length ? state.experience.map((e) => `
-          <div class="p-entry">
-            <div class="p-entry-head"><span>${esc(e.role) || 'Role'} · ${esc(e.company) || 'Company'}</span><span>${esc(e.start)} – ${esc(e.end)}</span></div>
-            ${e.bullets ? `<ul>${e.bullets.split('\n').filter(Boolean).map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
+          <div class="p-entry" style="margin-bottom: 10px">
+            <div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600; color: #222"><span>${esc(e.role) || 'Role'} · ${esc(e.company) || 'Company'}</span><span style="font-weight: 500">${esc(e.start)} – ${esc(e.end)}</span></div>
+            ${e.bullets ? `<ul style="margin: 4px 0 0 18px; padding: 0">${e.bullets.split('\n').filter(Boolean).map((b) => `<li style="list-style-type: disc">${esc(b)}</li>`).join('')}</ul>` : ''}
           </div>`).join('') : '<div class="p-empty">No experience added yet</div>'}
       </div>
 
       <div class="p-section">
-        <div class="p-heading">Education</div>
+        ${headingHtml('Education')}
         ${state.education.length ? state.education.map((e) => `
-          <div class="p-entry">
-            <div class="p-entry-head"><span>${esc(e.degree) || 'Degree'}</span><span>${esc(e.start)} – ${esc(e.end)}</span></div>
-            <div class="p-entry-sub">${esc(e.school)}</div>
+          <div class="p-entry" style="margin-bottom: 10px">
+            <div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600; color: #222"><span>${esc(e.degree) || 'Degree'}</span><span style="font-weight: 500">${esc(e.start)} – ${esc(e.end)}</span></div>
+            <div class="p-entry-sub" style="color: #666">${esc(e.school)}</div>
           </div>`).join('') : '<div class="p-empty">No education added yet</div>'}
       </div>
 
-      ${state.projects.length ? `<div class="p-section"><div class="p-heading">Projects</div>${state.projects.map((pr) => `
-          <div class="p-entry"><div class="p-entry-head">${esc(pr.name)}</div><div>${esc(pr.description)}</div></div>`).join('')}</div>` : ''}
+      ${state.projects.length ? `<div class="p-section">${headingHtml('Projects')}${state.projects.map((pr) => `
+          <div class="p-entry" style="margin-bottom: 8px"><div class="p-entry-head" style="font-weight: 600; color: #222">${esc(pr.name)}</div><div>${esc(pr.description)}</div></div>`).join('')}</div>` : ''}
 
-      ${skillsArr.length ? `<div class="p-section"><div class="p-heading">Skills</div><div>${skillsArr.map(esc).join(' · ')}</div></div>` : ''}
+      ${skillsArr.length ? `<div class="p-section">${headingHtml('Skills')}<div>${skillsArr.map(esc).join(' · ')}</div></div>` : ''}
 
-      ${certsArr.length ? `<div class="p-section"><div class="p-heading">Certifications</div><ul>${certsArr.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
+      ${certsArr.length ? `<div class="p-section">${headingHtml('Certifications')}<ul style="margin: 4px 0 0 18px; padding: 0">${certsArr.map((c) => `<li style="list-style-type: disc">${esc(c)}</li>`).join('')}</ul></div>` : ''}
 
-      ${state.languages && state.languages.length ? `<div class="p-section"><div class="p-heading">Languages</div><div>${state.languages.map(l => `<span style="margin-right:16px"><strong>${esc(l.language)}</strong> — ${esc(l.proficiency)}</span>`).join('')}</div></div>` : ''}
+      ${state.languages && state.languages.length ? `<div class="p-section">${headingHtml('Languages')}<div>${state.languages.map(l => `<span style="margin-right:16px"><strong>${esc(l.language)}</strong> — ${esc(l.proficiency)}</span>`).join('')}</div></div>` : ''}
 
-      ${state.volunteer && state.volunteer.length ? `<div class="p-section"><div class="p-heading">Volunteer Work</div>${state.volunteer.map(v => `
-          <div class="p-entry"><div class="p-entry-head"><span>${esc(v.role)} · ${esc(v.organization)}</span><span>${esc(v.period)}</span></div>${v.description ? `<div>${esc(v.description)}</div>` : ''}</div>`).join('')}</div>` : ''}
+      ${state.volunteer && state.volunteer.length ? `<div class="p-section">${headingHtml('Volunteer Work')}${state.volunteer.map(v => `
+          <div class="p-entry" style="margin-bottom: 8px"><div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600"><span>${esc(v.role)} · ${esc(v.organization)}</span><span style="font-weight: 500">${esc(v.period)}</span></div>${v.description ? `<div>${esc(v.description)}</div>` : ''}</div>`).join('')}</div>` : ''}
 
-      ${state.awards && state.awards.length ? `<div class="p-section"><div class="p-heading">Awards &amp; Honours</div><ul>${state.awards.map(a => `<li><strong>${esc(a.title)}</strong>${a.issuer ? ` — ${esc(a.issuer)}` : ''}${a.year ? `, ${esc(a.year)}` : ''}</li>`).join('')}</ul></div>` : ''}
+      ${state.awards && state.awards.length ? `<div class="p-section">${headingHtml('Awards &amp; Honours')}<ul style="margin: 4px 0 0 18px; padding: 0">${state.awards.map(a => `<li style="list-style-type: disc"><strong>${esc(a.title)}</strong>${a.issuer ? ` — ${esc(a.issuer)}` : ''}${a.year ? `, ${esc(a.year)}` : ''}</li>`).join('')}</ul></div>` : ''}
 
-      ${state.publications && state.publications.length ? `<div class="p-section"><div class="p-heading">Publications</div><ul>${state.publications.map(p => `<li><em>${esc(p.title)}</em>${p.journal ? `, ${esc(p.journal)}` : ''}${p.year ? ` (${esc(p.year)})` : ''}${p.url ? ` <a href="${esc(p.url)}" style="color:var(--signal-600)">[link]</a>` : ''}</li>`).join('')}</ul></div>` : ''}
+      ${state.publications && state.publications.length ? `<div class="p-section">${headingHtml('Publications')}<ul style="margin: 4px 0 0 18px; padding: 0">${state.publications.map(p => `<li style="list-style-type: disc"><em>${esc(p.title)}</em>${p.journal ? `, ${esc(p.journal)}` : ''}${p.year ? ` (${esc(p.year)})` : ''}${p.url ? ` <a href="${esc(p.url)}" style="color:var(--signal-600)">[link]</a>` : ''}</li>`).join('')}</ul></div>` : ''}
     `;
   }
 
@@ -478,6 +556,20 @@
       document.getElementById('f_skills').value = state.skills || '';
       document.getElementById('f_certs').value = state.certifications || '';
 
+      // Repopulate style selections
+      if (state.styling) {
+        document.getElementById('selTemplate').value = state.styling.template || 'modern';
+        document.getElementById('selFont').value = state.styling.font || 'sans';
+        document.getElementById('rngSpacing').value = state.styling.spacing || 1.4;
+        
+        document.querySelectorAll('.accent-dot').forEach(dot => {
+          if (dot.dataset.color === state.styling.accent) {
+            document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+            dot.classList.add('active');
+          }
+        });
+      }
+
       document.getElementById('experienceBlocks').innerHTML = '';
       document.getElementById('educationBlocks').innerHTML = '';
       document.getElementById('projectBlocks').innerHTML = '';
@@ -529,8 +621,41 @@
       }
     });
 
-    document.getElementById('btnHistory').addEventListener('click', () => {
-      alert('Version history is available once this resume has been saved with the backend connected.');
+    document.getElementById('btnHistory').addEventListener('click', async () => {
+      if (!currentResumeId) {
+        return alert('Save your resume first.');
+      }
+      try {
+        const versions = await ApiService.resumes.getVersions(currentResumeId);
+        if (versions.length === 0) {
+          alert('No saved versions found for this resume. Version checkpoints are generated automatically upon restoring.');
+          return;
+        }
+        
+        const listStr = versions.map(v => 
+          `Version ${v.version_number} - Saved on ${new Date(v.created_at).toLocaleString()}`
+        ).join('\n');
+        
+        const choice = prompt(
+          `Versions found for this resume:\n\n${listStr}\n\nEnter a Version Number to restore (e.g. 1):`
+        );
+        
+        if (choice) {
+          const verNo = parseInt(choice);
+          const targetVersion = versions.find(v => v.version_number === verNo);
+          if (!targetVersion) {
+            alert('Invalid version number selected.');
+            return;
+          }
+          if (confirm(`Are you sure you want to restore Version ${verNo}? Your current resume state will be safely saved as a new version checkpoint.`)) {
+            await ApiService.resumes.restoreVersion(currentResumeId, targetVersion.id);
+            alert('Resume restored successfully.');
+            window.location.reload();
+          }
+        }
+      } catch (err) {
+        alert('Failed to load version history: ' + err.message);
+      }
     });
   }
 })();

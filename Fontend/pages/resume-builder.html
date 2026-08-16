@@ -11,6 +11,78 @@
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
 <link rel="stylesheet" href="../css/builder.css">
+<style>
+.preview-style-bar {
+  display: flex;
+  gap: var(--sp-4);
+  background: var(--paper-100);
+  border-bottom: 1px solid var(--line);
+  padding: var(--sp-3) var(--sp-4);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.style-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.style-group label {
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  color: var(--ink-600);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.style-group select {
+  font-size: var(--fs-xs);
+  padding: 4px 8px;
+  background: var(--paper-200);
+  border: 1px solid var(--line);
+  color: var(--ink-100);
+  border-radius: var(--radius-xs);
+  font-family: inherit;
+}
+.style-group input[type="range"] {
+  width: 90px;
+  height: 6px;
+  background: var(--line);
+  border-radius: var(--radius-pill);
+  outline: none;
+  cursor: pointer;
+}
+.accent-pickers {
+  display: flex;
+  gap: 6px;
+}
+.accent-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+.accent-dot:hover {
+  transform: scale(1.2);
+}
+.accent-dot.active {
+  border-color: var(--signal-400);
+  box-shadow: 0 0 6px var(--signal-500);
+}
+.paper-container {
+  padding: var(--sp-5);
+  background: var(--paper-200);
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 500px;
+}
+</style>
 </head>
 <body>
 
@@ -23,7 +95,7 @@
       <span class="save-indicator" id="saveIndicator"><span class="dot"></span> All changes saved</span>
       <button class="btn btn-ghost" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
       <a href="ats-checker.html" class="btn btn-ghost"><i class="fa-solid fa-gauge-high"></i> Check ATS Score</a>
-      <button class="btn btn-primary" id="btnDownload"><i class="fa-solid fa-download"></i> Download</button>
+      <button class="btn btn-primary" id="btnDownload"><i class="fa-solid fa-download"></i> Download PDF</button>
     </div>
   </div>
 
@@ -46,7 +118,6 @@
 
     <!-- Editor -->
     <section class="editor-pane">
-
       <div class="editor-section active" data-section="personal">
         <h3>Personal Information</h3>
         <div class="field-row">
@@ -67,7 +138,7 @@
         <h3>Career Summary</h3>
         <div class="field">
           <label>Summary</label>
-          <textarea id="f_summary" rows="6" placeholder="Two to three sentences on your background and what you're looking for next. Only describe what's true today."></textarea>
+          <textarea id="f_summary" rows="6" placeholder="Two to three sentences on your background and what you're looking for next."></textarea>
           <button class="ai-inline-btn" data-ai="summary"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI</button>
         </div>
       </div>
@@ -130,12 +201,49 @@
         <div id="publicationBlocks"></div>
         <button class="btn btn-ghost" id="addPublication"><i class="fa-solid fa-plus"></i> Add Publication</button>
       </div>
-
     </section>
 
-    <!-- Live preview -->
+    <!-- Live preview panel with styling bar -->
     <aside class="preview-pane">
-      <div class="paper" id="livePreview"></div>
+      <div class="preview-style-bar">
+        <div class="style-group">
+          <label><i class="fa-solid fa-file-invoice"></i> Template</label>
+          <select id="selTemplate" aria-label="Select Template">
+            <option value="modern" selected>Modern (SaaS/Tech)</option>
+            <option value="executive">Executive (Classic)</option>
+            <option value="minimal">Minimalist (Clean)</option>
+            <option value="academic">Academic (Detailed)</option>
+          </select>
+        </div>
+
+        <div class="style-group">
+          <label><i class="fa-solid fa-font"></i> Font</label>
+          <select id="selFont" aria-label="Select Font">
+            <option value="sans" selected>Sans-Serif (Inter)</option>
+            <option value="serif">Serif (Georgia)</option>
+            <option value="mono">Monospace (IBM Plex)</option>
+          </select>
+        </div>
+
+        <div class="style-group">
+          <label><i class="fa-solid fa-arrows-up-down"></i> Spacing</label>
+          <input type="range" id="rngSpacing" min="1.1" max="1.8" step="0.1" value="1.4" aria-label="Line spacing slider">
+        </div>
+
+        <div class="style-group">
+          <label><i class="fa-solid fa-palette"></i> Accent</label>
+          <div class="accent-pickers">
+            <button type="button" class="accent-dot active" data-color="#4F46E5" style="background:#4F46E5" title="Indigo" aria-label="Indigo accent"></button>
+            <button type="button" class="accent-dot" data-color="#0ea5e9" style="background:#0ea5e9" title="Teal" aria-label="Teal accent"></button>
+            <button type="button" class="accent-dot" data-color="#10b981" style="background:#10b981" title="Emerald" aria-label="Emerald accent"></button>
+            <button type="button" class="accent-dot" data-color="#e11d48" style="background:#e11d48" title="Crimson" aria-label="Crimson accent"></button>
+            <button type="button" class="accent-dot" data-color="#4b5563" style="background:#4b5563" title="Charcoal" aria-label="Charcoal accent"></button>
+          </div>
+        </div>
+      </div>
+      <div class="paper-container">
+        <div class="paper" id="livePreview"></div>
+      </div>
     </aside>
   </div>
 </template>
@@ -149,6 +257,6 @@ const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('builderTemplate').content.cloneNode(true));
 </script>
 <script src="../js/pages/resume-builder.js"></script>
-  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+<a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
 </body>
 </html>

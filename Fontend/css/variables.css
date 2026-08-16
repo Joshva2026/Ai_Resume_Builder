@@ -96,6 +96,47 @@
   --container-max: 1220px;
 }
 
+/* ==========================================================================
+   LIGHT THEME OVERRIDES
+   ========================================================================== */
+.light-theme {
+  --bg-ocean: radial-gradient(circle at 50% 0%, #f8fafc 0%, #e2e8f0 100%);
+  --bg-ocean-fallback: #f8fafc;
+  
+  --ink-950: #f8fafc;
+  --ink-900: #f1f5f9;
+  --ink-800: #e2e8f0;
+  --ink-700: #cbd5e1;
+  --ink-600: #94a3b8;
+  --ink-400: #64748b;
+  --ink-200: #334155;
+  --ink-100: #0f172a;
+
+  --paper-0: #ffffff;
+  --paper-50: #f8fafc;
+  --paper-100: #f1f5f9;
+
+  --signal-600: #4f46e5;
+  --signal-500: #6366f1;
+  --signal-400: #818cf8;
+  --signal-100: rgba(79, 70, 229, 0.1);
+
+  --line: rgba(15, 23, 42, 0.08);
+  --line-strong: rgba(15, 23, 42, 0.15);
+
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-border-focus: rgba(79, 70, 229, 0.35);
+  --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

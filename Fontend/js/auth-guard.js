@@ -11,7 +11,8 @@
   const PROTECTED_PAGES = [
     'dashboard', 'profile', 'resume-builder', 'resume-preview',
     'ats-checker', 'ai-assistant', 'cover-letter', 'my-resumes',
-    'download-center', 'settings',
+    'download-center', 'settings', 'linkedin-review',
+    'job-match', 'job-search', 'applications',
   ];
   const AUTH_PAGES = ['login', 'register'];
 

@@ -306,11 +306,179 @@ async function getAtsQualitativeFeedback(jobDescription, resumeText, missingKeyw
   }
 }
 
+
+async function generateLinkedInReview(profileText) {
+  const ai = getAiClient();
+  if (!ai) {
+    throw new Error('AI service is not configured.');
+  }
+
+  try {
+    const prompt = `You are a professional LinkedIn optimizer and recruiter.
+    Analyze the following pasted LinkedIn profile text. Evaluate its strength, headline, about section, experience description, and search/recruiter friendliness.
+    
+    Profile Text:
+    ${profileText}
+    
+    Return ONLY a JSON object matching this schema, with no markdown code blocks:
+    {
+      "overall_score": 75,
+      "headline_review": "Feedback on headline",
+      "about_review": "Feedback on about section",
+      "experience_review": "Feedback on experience description",
+      "suggestions": ["suggestion 1", "suggestion 2"],
+      "keyword_density": [
+        { "keyword": "React", "count": 2, "density": "Low" }
+      ]
+    }`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    return JSON.parse(response.text);
+  } catch (error) {
+    console.error('Gemini LinkedIn API Error:', error.message);
+    throw new Error('Failed to analyze LinkedIn profile with AI');
+  }
+}
+
+
+async function generateJobMatch(resumeText, jobDescription) {
+  const ai = getAiClient();
+  if (!ai) {
+    throw new Error('AI service is not configured.');
+  }
+
+  try {
+    const prompt = `You are an expert recruiter and Applicant Tracking System (ATS) matching system.
+    Compare the following resume against the job description.
+    
+    Resume Text:
+    ${resumeText}
+    
+    Job Description:
+    ${jobDescription}
+    
+    Analyze the match percentage based on skills, experience level, and certifications. Identify matched keywords, missing keywords, and detailed suggestions.
+    
+    Return ONLY a JSON object matching this schema, with no markdown code blocks:
+    {
+      "match_percentage": 78,
+      "strong_matches": ["skill 1", "experience match description"],
+      "missing_matches": ["skill A", "AWS Experience"],
+      "recommendations": ["suggestion 1", "suggestion 2"]
+    }`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    return JSON.parse(response.text);
+  } catch (error) {
+    console.error('Gemini Job Match API Error:', error.message);
+    throw new Error('Failed to analyze job match with AI');
+  }
+}
+
+async function generateOptimizationPlan(resumeText) {
+  const ai = getAiClient();
+  if (!ai) {
+    throw new Error('AI service is not configured.');
+  }
+
+  try {
+    const prompt = `You are a premium resume optimization service.
+    Analyze the following resume and return an improvement plan. Evaluate action verbs, quantifiable achievements, formatting, skills layout, and professional summary.
+    
+    Resume Text:
+    ${resumeText}
+    
+    Return ONLY a JSON object matching this schema, with no markdown code blocks:
+    {
+      "overall_score": 82,
+      "formatting_status": "Good",
+      "strengths": ["Strong skills section", "Good contact info"],
+      "improvements": [
+        {
+          "type": "experience",
+          "severity": "Warning",
+          "message": "Too many vague verbs like 'Worked on'",
+          "details": "Action verbs capture impact much better than passive descriptions.",
+          "fix": "Rewrite to start with 'Spearheaded' or 'Orchestrated'."
+        }
+      ]
+    }`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    return JSON.parse(response.text);
+  } catch (error) {
+    console.error('Gemini Optimize API Error:', error.message);
+    throw new Error('Failed to generate resume optimization plan');
+  }
+}
+
+async function generateCoverLetter(resumeText, jobTitle, companyName, jobDescription = '') {
+  const ai = getAiClient();
+  if (!ai) {
+    throw new Error('AI service is not configured.');
+  }
+
+  try {
+    const prompt = `You are a professional cover letter writer.
+    Generate a tailored cover letter for the role of "${jobTitle}" at "${companyName}".
+    Use the following resume context to extract relevant achievements and skills. Only use information provided in the resume context, do not fabricate accomplishments.
+    
+    Resume Context:
+    ${resumeText}
+    
+    Job Description (if provided):
+    ${jobDescription}
+    
+    Return ONLY a JSON object matching this schema, with no markdown code blocks:
+    {
+      "letter": "Dear Hiring Manager... \\n\\nSincerely, \\n[Name]"
+    }`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    return JSON.parse(response.text);
+  } catch (error) {
+    console.error('Gemini Cover Letter API Error:', error.message);
+    throw new Error('Failed to generate cover letter with AI');
+  }
+}
+
 module.exports = {
   ACTION_VERBS,
   assistantChat,
   rewriteText,
   generateSummary,
   getKeywords,
-  getAtsQualitativeFeedback
+  getAtsQualitativeFeedback,
+  generateLinkedInReview,
+  generateJobMatch,
+  generateOptimizationPlan,
+  generateCoverLetter
 };

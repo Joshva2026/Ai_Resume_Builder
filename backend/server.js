@@ -19,7 +19,7 @@ const multer = require('multer');
 const aiService = require('./ai-service');
 const atsEngine = require('./ats-engine');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // ==========================================
 // ENVIRONMENT CONFIGURATION
@@ -132,6 +132,9 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+app.use('/pages', express.static(path.join(__dirname, '../Fontend/pages'), { extensions: ['html'] }));
+app.use(express.static(path.join(__dirname, '../Fontend/pages'), { extensions: ['html'] }));
+app.use(express.static(path.join(__dirname, '../Fontend')));
 
 // File upload configuration
 const uploadDir = path.join(__dirname, 'uploads');
@@ -475,6 +478,82 @@ const initializeDatabase = async () => {
         INDEX idx_portfolio_id (portfolio_id)
       )
     `);
+
+
+
+    // Create job_matches table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS job_matches (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        resume_id INT NOT NULL,
+        job_title VARCHAR(255) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        match_percentage INT DEFAULT 0,
+        strong_matches JSON,
+        missing_matches JSON,
+        recommendations JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE,
+        INDEX idx_user_id (user_id),
+        INDEX idx_resume_id (resume_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Create saved_jobs table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS saved_jobs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        location VARCHAR(255),
+        type VARCHAR(100),
+        url VARCHAR(500),
+        posted_date VARCHAR(100),
+        match_pct INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_user_id (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Create applications table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS applications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        url VARCHAR(500),
+        status VARCHAR(100) DEFAULT 'Wishlist',
+        applied_date DATE,
+        interview_date DATETIME,
+        notes TEXT,
+        resume_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE SET NULL,
+        INDEX idx_user_id (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Create linkedin_reviews table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS linkedin_reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        score INT DEFAULT 0,
+        suggestions JSON,
+        details JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_user_id (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+
 
     connection.release();
     console.log('Database initialized successfully');
@@ -1747,6 +1826,549 @@ app.get('/api/download/history', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Get download history error:', error);
     res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
+
+// ==========================================
+// LINKEDIN REVIEW ROUTES
+// ==========================================
+
+app.post('/api/linkedin/review', authenticateToken, async (req, res) => {
+  const { profileText } = req.body;
+  if (!profileText || !profileText.trim()) {
+    return res.status(400).json({ error: 'LinkedIn profile text is required' });
+  }
+  try {
+    const review = await aiService.generateLinkedInReview(profileText);
+    
+    const connection = await pool.getConnection();
+    await connection.query(
+      'INSERT INTO linkedin_reviews (user_id, score, suggestions, details) VALUES (?, ?, ?, ?)',
+      [req.user.id, review.overall_score, JSON.stringify(review.suggestions), JSON.stringify(review)]
+    );
+    connection.release();
+    
+    res.json(review);
+  } catch (error) {
+    console.error('LinkedIn Review API Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to analyze LinkedIn profile' });
+  }
+});
+
+app.get('/api/linkedin/history', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [reviews] = await connection.query(
+      'SELECT id, score, suggestions, created_at FROM linkedin_reviews WHERE user_id = ? ORDER BY created_at DESC LIMIT 5',
+      [req.user.id]
+    );
+    connection.release();
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch LinkedIn review history' });
+  }
+});
+
+
+// ==========================================
+// JOB MATCH ROUTES
+// ==========================================
+
+app.post('/api/job-match', authenticateToken, async (req, res) => {
+  const { resumeId, jobDescription, jobTitle = 'Unknown Role', company = 'Unknown Company' } = req.body;
+  if (!resumeId || !jobDescription || !jobDescription.trim()) {
+    return res.status(400).json({ error: 'Resume ID and Job Description are required' });
+  }
+  try {
+    const connection = await pool.getConnection();
+    const [resumes] = await connection.query(
+      'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
+      [resumeId, req.user.id]
+    );
+    if (resumes.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    const resume = resumes[0];
+    let resumeText = resume.raw_text;
+    if (!resumeText && resume.content) {
+      resumeText = aiService.getResumeContext(resume.content);
+    }
+    if (!resumeText) {
+      connection.release();
+      return res.status(400).json({ error: 'Resume has no content' });
+    }
+    
+    const match = await aiService.generateJobMatch(resumeText, jobDescription);
+    
+    await connection.query(
+      'INSERT INTO job_matches (user_id, resume_id, job_title, company, match_percentage, strong_matches, missing_matches, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        req.user.id,
+        resumeId,
+        jobTitle,
+        company,
+        match.match_percentage,
+        JSON.stringify(match.strong_matches),
+        JSON.stringify(match.missing_matches),
+        JSON.stringify(match.recommendations)
+      ]
+    );
+    connection.release();
+    res.json(match);
+  } catch (error) {
+    console.error('Job Match API Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to match job description' });
+  }
+});
+
+app.get('/api/job-match/history', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [history] = await connection.query(
+      'SELECT jm.*, r.title as resume_title FROM job_matches jm LEFT JOIN resumes r ON jm.resume_id = r.id WHERE jm.user_id = ? ORDER BY jm.created_at DESC',
+      [req.user.id]
+    );
+    connection.release();
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch match history' });
+  }
+});
+
+// ==========================================
+// RESUME OPTIMIZER ROUTE
+// ==========================================
+
+app.post('/api/ai/optimize', authenticateToken, async (req, res) => {
+  const { resumeId } = req.body;
+  if (!resumeId) {
+    return res.status(400).json({ error: 'Resume ID is required' });
+  }
+  try {
+    const connection = await pool.getConnection();
+    const [resumes] = await connection.query(
+      'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
+      [resumeId, req.user.id]
+    );
+    if (resumes.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    const resume = resumes[0];
+    let resumeText = resume.raw_text;
+    if (!resumeText && resume.content) {
+      resumeText = aiService.getResumeContext(resume.content);
+    }
+    if (!resumeText) {
+      connection.release();
+      return res.status(400).json({ error: 'Resume has no content' });
+    }
+    
+    const optimizationPlan = await aiService.generateOptimizationPlan(resumeText);
+    connection.release();
+    res.json(optimizationPlan);
+  } catch (error) {
+    console.error('Optimize API Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate resume optimization plan' });
+  }
+});
+
+// ==========================================
+// JOB SEARCH & SAVED JOBS ROUTES
+// ==========================================
+
+app.get('/api/jobs/search', authenticateToken, async (req, res) => {
+  const { q, l } = req.query;
+  const appId = process.env.ADZUNA_APP_ID;
+  const appKey = process.env.ADZUNA_APP_KEY;
+  
+  if (!appId || !appKey) {
+    return res.json({
+      jobs: [],
+      providerConfigured: false,
+      message: 'External Job Search Provider (Adzuna) is not configured. Please set ADZUNA_APP_ID and ADZUNA_APP_KEY in your .env file to enable real-time job searching.'
+    });
+  }
+  
+  try {
+    const axios = require('axios');
+    const response = await axios.get(`https://api.adzuna.com/v1/api/jobs/gb/search/1`, {
+      params: {
+        app_id: appId,
+        app_key: appKey,
+        what: q || 'software engineer',
+        where: l || '',
+        results_per_page: 20
+      }
+    });
+    
+    const jobs = (response.data.results || []).map(job => ({
+      id: job.id,
+      title: job.title,
+      company: job.company.display_name,
+      location: job.location.display_name,
+      type: job.contract_type || 'Full Time',
+      url: job.redirect_url,
+      posted_date: new Date(job.created).toLocaleDateString(),
+      match_pct: 75
+    }));
+    
+    res.json({
+      jobs,
+      providerConfigured: true
+    });
+  } catch (error) {
+    console.error('Job Search API Error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch jobs from provider' });
+  }
+});
+
+app.get('/api/jobs/saved', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [saved] = await connection.query(
+      'SELECT * FROM saved_jobs WHERE user_id = ? ORDER BY created_at DESC',
+      [req.user.id]
+    );
+    connection.release();
+    res.json(saved);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch saved jobs' });
+  }
+});
+
+app.post('/api/jobs/saved', authenticateToken, async (req, res) => {
+  const { title, company, location, type, url, posted_date, match_pct } = req.body;
+  if (!title || !company) {
+    return res.status(400).json({ error: 'Job title and company are required' });
+  }
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'INSERT INTO saved_jobs (user_id, title, company, location, type, url, posted_date, match_pct) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.user.id, title, company, location, type, url, posted_date, match_pct || 0]
+    );
+    connection.release();
+    res.status(201).json({ message: 'Job bookmarked successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save job' });
+  }
+});
+
+app.delete('/api/jobs/saved/:id', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'DELETE FROM saved_jobs WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    connection.release();
+    res.json({ message: 'Job bookmark removed' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove bookmarked job' });
+  }
+});
+
+// ==========================================
+// APPLICATION TRACKER ROUTES
+// ==========================================
+
+app.get('/api/applications', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [apps] = await connection.query(
+      'SELECT a.*, r.title as resume_title FROM applications a LEFT JOIN resumes r ON a.resume_id = r.id WHERE a.user_id = ? ORDER BY a.applied_date DESC',
+      [req.user.id]
+    );
+    connection.release();
+    res.json(apps);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch job applications' });
+  }
+});
+
+app.post('/api/applications', authenticateToken, async (req, res) => {
+  const { company, title, url, status = 'Wishlist', applied_date, interview_date, notes, resume_id } = req.body;
+  if (!company || !title) {
+    return res.status(400).json({ error: 'Company and Job Title are required' });
+  }
+  try {
+    const connection = await pool.getConnection();
+    const [result] = await connection.query(
+      'INSERT INTO applications (user_id, company, title, url, status, applied_date, interview_date, notes, resume_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.user.id, company, title, url, status, applied_date || null, interview_date || null, notes, resume_id || null]
+    );
+    connection.release();
+    res.status(201).json({ id: result.insertId, message: 'Application created successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create application' });
+  }
+});
+
+app.put('/api/applications/:id', authenticateToken, async (req, res) => {
+  const { company, title, url, status, applied_date, interview_date, notes, resume_id } = req.body;
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'UPDATE applications SET company = ?, title = ?, url = ?, status = ?, applied_date = ?, interview_date = ?, notes = ?, resume_id = ? WHERE id = ? AND user_id = ?',
+      [company, title, url, status, applied_date || null, interview_date || null, notes, resume_id || null, req.params.id, req.user.id]
+    );
+    connection.release();
+    res.json({ message: 'Application updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update application' });
+  }
+});
+
+app.patch('/api/applications/:id/status', authenticateToken, async (req, res) => {
+  const { status } = req.body;
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'UPDATE applications SET status = ? WHERE id = ? AND user_id = ?',
+      [status, req.params.id, req.user.id]
+    );
+    connection.release();
+    res.json({ message: 'Application status updated' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update application status' });
+  }
+});
+
+app.delete('/api/applications/:id', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'DELETE FROM applications WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    connection.release();
+    res.json({ message: 'Application deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete application' });
+  }
+});
+
+// ==========================================
+// RESUME VERSION HISTORY ROUTES
+// ==========================================
+
+app.get('/api/resumes/:id/versions', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [versions] = await connection.query(
+      'SELECT id, version_number, created_at FROM resume_versions WHERE resume_id = ? ORDER BY version_number DESC',
+      [req.params.id]
+    );
+    connection.release();
+    res.json(versions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch resume versions' });
+  }
+});
+
+app.get('/api/resumes/:id/versions/:versionId', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [versions] = await connection.query(
+      'SELECT * FROM resume_versions WHERE id = ? AND resume_id = ?',
+      [req.params.versionId, req.params.id]
+    );
+    connection.release();
+    if (versions.length === 0) {
+      return res.status(404).json({ error: 'Version not found' });
+    }
+    res.json(versions[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch version content' });
+  }
+});
+
+app.post('/api/resumes/:id/versions', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [resumes] = await connection.query(
+      'SELECT content FROM resumes WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    if (resumes.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    
+    const [maxVer] = await connection.query(
+      'SELECT MAX(version_number) as max_v FROM resume_versions WHERE resume_id = ?',
+      [req.params.id]
+    );
+    const nextVer = (maxVer[0].max_v || 0) + 1;
+    
+    await connection.query(
+      'INSERT INTO resume_versions (resume_id, version_number, content) VALUES (?, ?, ?)',
+      [req.params.id, nextVer, JSON.stringify(resumes[0].content)]
+    );
+    
+    connection.release();
+    res.status(201).json({ message: `Version ${nextVer} saved successfully`, versionNumber: nextVer });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save version' });
+  }
+});
+
+app.post('/api/resumes/:id/versions/:versionId/restore', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [resumes] = await connection.query(
+      'SELECT content, title FROM resumes WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    if (resumes.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    
+    const [versions] = await connection.query(
+      'SELECT content FROM resume_versions WHERE id = ? AND resume_id = ?',
+      [req.params.versionId, req.params.id]
+    );
+    if (versions.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Target version not found' });
+    }
+    
+    const currentContent = resumes[0].content;
+    const restoredContent = versions[0].content;
+    
+    const [maxVer] = await connection.query(
+      'SELECT MAX(version_number) as max_v FROM resume_versions WHERE resume_id = ?',
+      [req.params.id]
+    );
+    const nextVer = (maxVer[0].max_v || 0) + 1;
+    
+    await connection.query(
+      'INSERT INTO resume_versions (resume_id, version_number, content) VALUES (?, ?, ?)',
+      [req.params.id, nextVer, JSON.stringify(currentContent)]
+    );
+    
+    await connection.query(
+      'UPDATE resumes SET content = ? WHERE id = ? AND user_id = ?',
+      [JSON.stringify(restoredContent), req.params.id, req.user.id]
+    );
+    
+    connection.release();
+    res.json({ message: 'Resume restored successfully. Previous state archived as version ' + nextVer, content: restoredContent });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to restore version safely' });
+  }
+});
+
+// ==========================================
+// COVER LETTER ROUTES
+// ==========================================
+
+app.post('/api/cover-letter', authenticateToken, async (req, res) => {
+  const { resumeId, jobTitle, companyName, jobDescription } = req.body;
+  if (!resumeId || !jobTitle || !companyName) {
+    return res.status(400).json({ error: 'Resume ID, Job Title, and Company Name are required' });
+  }
+  try {
+    const connection = await pool.getConnection();
+    const [resumes] = await connection.query(
+      'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
+      [resumeId, req.user.id]
+    );
+    if (resumes.length === 0) {
+      connection.release();
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    const resume = resumes[0];
+    let resumeText = resume.raw_text;
+    if (!resumeText && resume.content) {
+      resumeText = aiService.getResumeContext(resume.content);
+    }
+    if (!resumeText) {
+      connection.release();
+      return res.status(400).json({ error: 'Resume content is empty. Please fill in details before generating cover letter.' });
+    }
+
+    const aiResult = await aiService.generateCoverLetter(resumeText, jobTitle, companyName, jobDescription);
+    const content = aiResult.letter;
+
+    const [result] = await connection.query(
+      'INSERT INTO cover_letters (user_id, resume_id, title, content) VALUES (?, ?, ?, ?)',
+      [req.user.id, resumeId, `Cover Letter - ${jobTitle} at ${companyName}`, content]
+    );
+
+    connection.release();
+    res.status(201).json({
+      id: result.insertId,
+      title: `Cover Letter - ${jobTitle} at ${companyName}`,
+      content
+    });
+  } catch (error) {
+    console.error('Cover Letter API Error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate cover letter' });
+  }
+});
+
+app.get('/api/cover-letter', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [letters] = await connection.query(
+      'SELECT id, resume_id, title, content, created_at FROM cover_letters WHERE user_id = ? ORDER BY created_at DESC',
+      [req.user.id]
+    );
+    connection.release();
+    res.json(letters);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch cover letters' });
+  }
+});
+
+app.get('/api/cover-letter/:id', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    const [letters] = await connection.query(
+      'SELECT * FROM cover_letters WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    connection.release();
+    if (letters.length === 0) {
+      return res.status(404).json({ error: 'Cover letter not found' });
+    }
+    res.json(letters[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch cover letter' });
+  }
+});
+
+app.put('/api/cover-letter/:id', authenticateToken, async (req, res) => {
+  const { title, content } = req.body;
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'UPDATE cover_letters SET title = ?, content = ? WHERE id = ? AND user_id = ?',
+      [title, content, req.params.id, req.user.id]
+    );
+    connection.release();
+    res.json({ message: 'Cover letter updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update cover letter' });
+  }
+});
+
+app.delete('/api/cover-letter/:id', authenticateToken, async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.query(
+      'DELETE FROM cover_letters WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.id]
+    );
+    connection.release();
+    res.json({ message: 'Cover letter deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete cover letter' });
   }
 });
 

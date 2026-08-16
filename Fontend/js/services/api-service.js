@@ -271,6 +271,10 @@ const ApiService = (() => {
     update: (id, data) => request(`/resumes/${id}`, { method: 'PUT', body: data }),
     remove: (id) => request(`/resumes/${id}`, { method: 'DELETE' }),
     duplicate: (id) => request(`/resumes/${id}/duplicate`, { method: 'POST' }),
+    getVersions: (id) => request(`/resumes/${id}/versions`),
+    getVersion: (id, versionId) => request(`/resumes/${id}/versions/${versionId}`),
+    saveVersion: (id) => request(`/resumes/${id}/versions`, { method: 'POST' }),
+    restoreVersion: (id, versionId) => request(`/resumes/${id}/versions/${versionId}/restore`, { method: 'POST' }),
   };
 
   // ── ATS ──────────────────────────────────────────────────────────────
@@ -314,6 +318,51 @@ const ApiService = (() => {
     summary: (careerSummary) => request('/ai/summary', { method: 'POST', body: { careerSummary } }),
     keywords: (jobRole) => request('/ai/keywords', { method: 'POST', body: { jobRole } }),
     actionVerbs: () => request('/ai/action-verbs', { method: 'POST' }),
+    optimize: (resumeId) => request('/ai/optimize', { method: 'POST', body: { resumeId } }),
+  };
+
+
+
+  // ── LINKEDIN ─────────────────────────────────────────────────────────
+  const linkedin = {
+    review: (profileText) => request('/linkedin/review', { method: 'POST', body: { profileText } }),
+    history: () => request('/linkedin/history'),
+  };
+
+
+
+  // ── JOB MATCH ────────────────────────────────────────────────────────
+  const jobMatch = {
+    analyze: (resumeId, jobDescription, jobTitle, company) => request('/job-match', { method: 'POST', body: { resumeId, jobDescription, jobTitle, company } }),
+    history: () => request('/job-match/history'),
+  };
+
+  // ── JOBS ─────────────────────────────────────────────────────────────
+  const jobs = {
+    search: (q, l) => request(`/jobs/search?q=${encodeURIComponent(q || '')}&l=${encodeURIComponent(l || '')}`),
+    saved: {
+      list: () => request('/jobs/saved'),
+      save: (job) => request('/jobs/saved', { method: 'POST', body: job }),
+      remove: (id) => request(`/jobs/saved/${id}`, { method: 'DELETE' }),
+    }
+  };
+
+  // ── APPLICATIONS ─────────────────────────────────────────────────────
+  const applications = {
+    list: () => request('/applications'),
+    create: (appData) => request('/applications', { method: 'POST', body: appData }),
+    update: (id, appData) => request(`/applications/${id}`, { method: 'PUT', body: appData }),
+    updateStatus: (id, status) => request(`/applications/${id}/status`, { method: 'PATCH', body: { status } }),
+    remove: (id) => request(`/applications/${id}`, { method: 'DELETE' }),
+  };
+
+  // ── COVER LETTERS ────────────────────────────────────────────────────
+  const coverLetters = {
+    generate: (resumeId, jobTitle, companyName, jobDescription) => request('/cover-letter', { method: 'POST', body: { resumeId, jobTitle, companyName, jobDescription } }),
+    list: () => request('/cover-letter'),
+    get: (id) => request(`/cover-letter/${id}`),
+    update: (id, data) => request(`/cover-letter/${id}`, { method: 'PUT', body: data }),
+    remove: (id) => request(`/cover-letter/${id}`, { method: 'DELETE' }),
   };
 
   // ── TEMPLATES ─────────────────────────────────────────────────────────
@@ -341,6 +390,11 @@ const ApiService = (() => {
     resumes,
     ats,
     ai,
+    linkedin,
+    jobMatch,
+    jobs,
+    applications,
+    coverLetters,
     templates,
     downloads,
   };
