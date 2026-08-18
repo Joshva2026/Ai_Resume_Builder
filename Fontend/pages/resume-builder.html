@@ -83,7 +83,11 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Location</label><input type="text" id="f_location" placeholder="New York, NY"></div>
-          <div class="field"><label>LinkedIn / Link</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
+          <div class="field"><label>LinkedIn URL</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>GitHub URL</label><input type="text" id="f_github" placeholder="github.com/janedoe"></div>
+          <div class="field"><label>&nbsp;</label><span style="font-size:var(--fs-2xs);color:var(--ink-500);display:block;padding-top:8px;"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> LinkedIn &amp; GitHub appear as clickable icons in supported templates.</span></div>
         </div>
         <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
@@ -209,6 +213,7 @@
             <option value="executive">Executive (Classic style)</option>
             <option value="minimal">Minimalist (Space-saving)</option>
             <option value="academic">Academic (Formal)</option>
+            <option value="classic-academic">Classic Academic (ATS Pro)</option>
           </select>
         </div>
 

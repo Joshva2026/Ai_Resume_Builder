@@ -297,6 +297,7 @@ Candidate`
       { id: '2', name: 'Modern', atsScore: 95 },
       { id: '3', name: 'Creative', atsScore: 90 },
       { id: '4', name: 'Academic', atsScore: 97 },
+      { id: '5', name: 'Classic Academic', category: 'Classic', atsScore: 99 },
     ];
 
     // Auth me

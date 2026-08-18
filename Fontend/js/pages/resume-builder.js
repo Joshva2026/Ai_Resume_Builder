@@ -9,7 +9,7 @@
   const resumeId = urlParams.get('id');
 
   let state = {
-    personal: { fullName: '', headline: '', email: '', phone: '', location: '', link: '' },
+    personal: { fullName: '', headline: '', email: '', phone: '', location: '', link: '', github: '' },
     summary: '',
     experience: [],
     education: [],
@@ -112,6 +112,8 @@ function undo() {
   document.getElementById('f_phone').value = state.personal.phone || '';
   document.getElementById('f_location').value = state.personal.location || '';
   document.getElementById('f_link').value = state.personal.link || '';
+  const ghEl = document.getElementById('f_github');
+  if (ghEl) ghEl.value = state.personal.github || '';
   document.getElementById('f_summary').value = state.summary || '';
   document.getElementById('f_skills').value = state.skills || '';
   document.getElementById('f_certs').value = state.certifications || '';
@@ -169,13 +171,22 @@ function bindUndo() {
     };
     Object.keys(map).forEach((id) => {
       const el = document.getElementById(id);
+      if (!el) return;
       el.addEventListener('input', () => {
         map[id](el.value);
         pushState();
         renderPreview();
-        // scheduleSave(); // Auto-save disabled
       });
     });
+    // GitHub field (optional, may not exist on older saved resumes)
+    const ghEl = document.getElementById('f_github');
+    if (ghEl) {
+      ghEl.addEventListener('input', () => {
+        state.personal.github = ghEl.value;
+        pushState();
+        renderPreview();
+      });
+    }
   }
 
   function bindStylingControls() {
@@ -498,6 +509,190 @@ function renderPreview() {
     state.styling = state.styling || { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' };
     const st = state.styling;
 
+    // ─── CLASSIC ACADEMIC TEMPLATE ────────────────────────────────────────
+    if (st.template === 'classic-academic') {
+      el.style.fontFamily = '"Times New Roman", Times, Georgia, serif';
+      el.style.lineHeight = '1.45';
+      el.style.color = '#111';
+      el.style.fontSize = '11px';
+      el.style.background = '#fff';
+
+      const skillsArr = state.skills.split(',').map(s => s.trim()).filter(Boolean);
+      const certsArr  = state.certifications.split('\n').map(s => s.trim()).filter(Boolean);
+
+      // Section heading — bold text with solid bottom border
+      function caHeading(text) {
+        return `<div style="font-size:12px;font-weight:700;color:#111;border-bottom:1.5px solid #111;padding-bottom:2px;margin:12px 0 6px 0;letter-spacing:0.01em;">${esc(text)}</div>`;
+      }
+
+      // Contact items with inline icons — only shown if data exists
+      const contactParts = [];
+      if (p.phone)    contactParts.push(`<span>&#9990;&nbsp;${esc(p.phone)}</span>`);
+      if (p.email)    contactParts.push(`<span>&#9993;&nbsp;${esc(p.email)}</span>`);
+      if (p.link) {
+        const linkedInDisplay = p.link.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+        contactParts.push(`<span>&#128279;&nbsp;${esc(linkedInDisplay)}</span>`);
+      }
+      if (p.github) {
+        const githubDisplay = p.github.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+        contactParts.push(`<span>&#9729;&nbsp;${esc(githubDisplay)}</span>`);
+      }
+      if (p.location) contactParts.push(`<span>&#128205;&nbsp;${esc(p.location)}</span>`);
+
+      // Header block — large centered spaced uppercase name
+      const caHeader = `
+        <div style="text-align:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1.5px solid #111;">
+          <div style="font-size:22px;font-weight:900;letter-spacing:0.18em;text-transform:uppercase;color:#111;margin-bottom:4px;">
+            ${esc(p.fullName) || 'YOUR NAME'}
+          </div>
+          ${p.headline ? `<div style="font-size:11px;color:#444;font-style:italic;margin-bottom:5px;">${esc(p.headline)}</div>` : ''}
+          <div style="font-size:9.5px;color:#333;display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:3px;">
+            ${contactParts.join('') || '<span style="color:#999">Add contact info in Personal Info section</span>'}
+          </div>
+        </div>`;
+
+      // Profile Summary
+      const caSummary = state.summary ? `
+        <div>
+          ${caHeading('Profile Summary')}
+          <ul style="margin:0 0 0 18px;padding:0;">
+            ${state.summary.split('\n').filter(Boolean).map(line =>
+              `<li style="list-style-type:disc;margin-bottom:3px;">${esc(line)}</li>`
+            ).join('') || `<li style="list-style-type:disc;">${esc(state.summary)}</li>`}
+          </ul>
+        </div>` : '';
+
+      // Experience
+      const caExperience = state.experience && state.experience.length ? `
+        <div>
+          ${caHeading('Experience')}
+          ${state.experience.map(e => `
+            <div style="margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="font-weight:700;font-size:11px;">${esc(e.company) || 'Company'} &mdash; <span style="font-weight:600;font-style:italic;">${esc(e.role) || 'Role'}</span></span>
+                <span style="font-size:10px;color:#444;white-space:nowrap;margin-left:8px;">${esc(e.start)}${e.end ? ` &ndash; ${esc(e.end)}` : ''}</span>
+              </div>
+              ${e.bullets ? `<ul style="margin:3px 0 0 18px;padding:0;">
+                ${e.bullets.split('\n').filter(Boolean).map(b => `<li style="list-style-type:disc;margin-bottom:2px;">${esc(b)}</li>`).join('')}
+              </ul>` : ''}
+            </div>`).join('')}
+        </div>` : '';
+
+      // Projects
+      const caProjects = state.projects && state.projects.length ? `
+        <div>
+          ${caHeading('Projects')}
+          ${state.projects.map(pr => `
+            <div style="margin-bottom:8px;">
+              <div style="font-weight:700;font-size:11px;">${esc(pr.name)}</div>
+              ${pr.description ? `<ul style="margin:3px 0 0 18px;padding:0;">
+                ${pr.description.split('\n').filter(Boolean).map(line => `<li style="list-style-type:disc;margin-bottom:2px;">${esc(line)}</li>`).join('')
+                  || `<li style="list-style-type:disc;">${esc(pr.description)}</li>`}
+              </ul>` : ''}
+            </div>`).join('')}
+        </div>` : '';
+
+      // Skills — 4-column grid matching reference
+      const caSkills = skillsArr.length ? `
+        <div>
+          ${caHeading('Technical Skills')}
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px 8px;margin:0;">
+            ${skillsArr.map(s => `<span style="font-size:10.5px;">&#8226; ${esc(s)}</span>`).join('')}
+          </div>
+        </div>` : '';
+
+      // Education
+      const caEducation = state.education && state.education.length ? `
+        <div>
+          ${caHeading('Education')}
+          ${state.education.map(e => `
+            <div style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="font-weight:700;">${esc(e.school) || 'Institution'}</span>
+                <span style="font-size:10px;color:#444;white-space:nowrap;margin-left:8px;">${esc(e.start)}${e.end ? ` &ndash; ${esc(e.end)}` : ''}</span>
+              </div>
+              <div style="color:#333;font-size:10.5px;font-style:italic;">
+                ${esc(e.degree) || 'Degree'}
+                ${e.gpa ? ` &mdash; <strong>CGPA: ${esc(e.gpa)}</strong>` : ''}
+              </div>
+              ${e.location ? `<div style="color:#555;font-size:10px;">${esc(e.location)}</div>` : ''}
+            </div>`).join('')}
+        </div>` : '';
+
+      // Certifications / Extracurricular
+      const caCerts = certsArr.length ? `
+        <div>
+          ${caHeading('Extracurricular / Certifications')}
+          <ul style="margin:0 0 0 18px;padding:0;">
+            ${certsArr.map(c => `<li style="list-style-type:disc;margin-bottom:3px;">${esc(c)}</li>`).join('')}
+          </ul>
+        </div>` : '';
+
+      // Languages
+      const caLanguages = state.languages && state.languages.length ? `
+        <div>
+          ${caHeading('Languages')}
+          <div>${state.languages.map(l => `<span style="margin-right:20px;"><strong>${esc(l.language)}</strong>${l.proficiency ? ` (${esc(l.proficiency)})` : ''}</span>`).join('')}</div>
+        </div>` : '';
+
+      // Volunteer
+      const caVolunteer = state.volunteer && state.volunteer.length ? `
+        <div>
+          ${caHeading('Volunteer Work')}
+          ${state.volunteer.map(v => `
+            <div style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="font-weight:700;">${esc(v.role)}${v.organization ? ` &mdash; ${esc(v.organization)}` : ''}</span>
+                <span style="font-size:10px;color:#444;">${esc(v.period)}</span>
+              </div>
+              ${v.description ? `<div>${esc(v.description)}</div>` : ''}
+            </div>`).join('')}
+        </div>` : '';
+
+      // Awards
+      const caAwards = state.awards && state.awards.length ? `
+        <div>
+          ${caHeading('Awards & Honours')}
+          <ul style="margin:0 0 0 18px;padding:0;">
+            ${state.awards.map(a => `<li style="list-style-type:disc;margin-bottom:3px;"><strong>${esc(a.title)}</strong>${a.issuer ? ` &mdash; ${esc(a.issuer)}` : ''}${a.year ? `, ${esc(a.year)}` : ''}</li>`).join('')}
+          </ul>
+        </div>` : '';
+
+      // Publications
+      const caPublications = state.publications && state.publications.length ? `
+        <div>
+          ${caHeading('Publications')}
+          <ul style="margin:0 0 0 18px;padding:0;">
+            ${state.publications.map(pub => `<li style="list-style-type:disc;margin-bottom:3px;"><em>${esc(pub.title)}</em>${pub.journal ? `, ${esc(pub.journal)}` : ''}${pub.year ? ` (${esc(pub.year)})` : ''}</li>`).join('')}
+          </ul>
+        </div>` : '';
+
+      // Ordered sections map for classic-academic
+      const caMap = {
+        summary: caSummary,
+        experience: caExperience,
+        projects: caProjects,
+        skills: caSkills,
+        education: caEducation,
+        certifications: caCerts,
+        languages: caLanguages,
+        volunteer: caVolunteer,
+        awards: caAwards,
+        publications: caPublications,
+      };
+
+      const orderedOrder = state.sectionOrder || ['personal','summary','experience','education','projects','skills','certifications','languages','volunteer','awards','publications'];
+      const caBody = orderedOrder.map(k => caMap[k] || '').filter(Boolean).join('\n');
+
+      el.innerHTML = `
+        <div style="padding:20px 24px;font-family:'Times New Roman',Times,Georgia,serif;font-size:11px;line-height:1.45;color:#111;background:#fff;max-width:100%;">
+          ${caHeader}
+          ${caBody}
+        </div>`;
+      return; // early return — no further rendering needed for this template
+    }
+    // ─── END CLASSIC ACADEMIC ─────────────────────────────────────────────
+
     // Apply basic font settings
     el.style.fontFamily = st.font === 'serif' ? 'Georgia, serif' : st.font === 'mono' ? '"IBM Plex Mono", monospace' : 'Inter, sans-serif';
     el.style.lineHeight = st.spacing;
@@ -525,14 +720,14 @@ function renderPreview() {
         <div style="text-align: center; margin-bottom: 16px">
           <div class="p-name" style="font-size: 24px; font-weight: 700; color: #111">${esc(p.fullName) || 'Your Name'}</div>
           <div class="p-title" style="font-style: italic; color: #444; font-size: 14px; margin-top: 4px">${esc(p.headline) || 'Professional Title'}</div>
-          <div class="p-contact" style="font-size: 11px; color: #666; margin-top: 6px">${[p.email, p.phone, p.location, p.link].filter(Boolean).map(esc).join('  |  ') || 'email | phone | location'}</div>
+          <div class="p-contact" style="font-size: 11px; color: #666; margin-top: 6px">${[p.email, p.phone, p.location, p.link, p.github].filter(Boolean).map(esc).join('  |  ') || 'email | phone | location'}</div>
         </div>
       `;
     } else {
       headerHtml = `
         <div class="p-name" style="font-size: 22px; font-weight: 700; color: ${st.template === 'modern' ? st.accent : '#111'}">${esc(p.fullName) || 'Your Name'}</div>
         <div class="p-title" style="font-size: 14px; font-weight: 600; color: #555">${esc(p.headline) || 'Professional Title'}</div>
-        <div class="p-contact" style="font-size: 11px; color: #666; margin-top: 4px; margin-bottom: 12px">${[p.email, p.phone, p.location, p.link].filter(Boolean).map(esc).join('  ·  ') || 'email · phone · location'}</div>
+        <div class="p-contact" style="font-size: 11px; color: #666; margin-top: 4px; margin-bottom: 12px">${[p.email, p.phone, p.location, p.link, p.github].filter(Boolean).map(esc).join('  ·  ') || 'email · phone · location'}</div>
       `;
     }
 
@@ -640,6 +835,8 @@ function loadDraftFromLocalStorage() {
       document.getElementById('f_phone').value = state.personal.phone || '';
       document.getElementById('f_location').value = state.personal.location || '';
       document.getElementById('f_link').value = state.personal.link || '';
+      const ghLoadEl = document.getElementById('f_github');
+      if (ghLoadEl) ghLoadEl.value = state.personal.github || '';
       document.getElementById('f_summary').value = state.summary || '';
       document.getElementById('f_skills').value = state.skills || '';
       document.getElementById('f_certs').value = state.certifications || '';

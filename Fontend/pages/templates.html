@@ -196,6 +196,7 @@
         <button class="filter-btn" data-filter="Classic">Classic</button>
         <button class="filter-btn" data-filter="Minimalist">Minimalist</button>
         <button class="filter-btn" data-filter="Academic">Academic</button>
+        <button class="filter-btn" data-filter="Classic Academic">ATS Pro</button>
       </div>
     </div>
 
@@ -243,6 +244,20 @@
           <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
         </div>`;
       }
+      if (cat === 'classic academic') {
+        return `<div class="tpl-mock" style="font-family:'Times New Roman',Times,serif;">
+          <div style="text-align:center;border-bottom:1px solid #111;padding-bottom:3px;margin-bottom:4px;">
+            <div class="tpl-mock-name" style="letter-spacing:0.1em;text-transform:uppercase;font-size:7px;">JANE DOE</div>
+            <div class="tpl-mock-sub" style="font-size:5px;color:#555;">Data Analyst</div>
+            <div style="font-size:4px;color:#444;">&#9990; +1 555 | &#9993; jane@email.com</div>
+          </div>
+          <div class="tpl-mock-section" style="color:#111;border-bottom:0.5px solid #111;font-size:5px;">Profile Summary</div>
+          <div class="tpl-mock-line" style="height:2px;"></div><div class="tpl-mock-line short" style="height:2px;"></div>
+          <div class="tpl-mock-section" style="color:#111;border-bottom:0.5px solid #111;font-size:5px;margin-top:3px;">Experience</div>
+          <div style="display:flex;justify-content:space-between;"><div class="tpl-mock-line" style="height:2px;width:55%;"></div><div class="tpl-mock-line xshort" style="height:2px;width:25%;"></div></div>
+          <div class="tpl-mock-line short" style="height:2px;"></div>
+        </div>`;
+      }
       // default / modern
       return `<div class="tpl-mock">
         <div class="tpl-mock-header" style="background:${accent};"></div>
@@ -267,6 +282,7 @@
             'executive': '2',
             'minimal': '3',
             'academic': '4',
+            'classic-academic': '5',
             'creative': '3'
           };
           currentTpl = nameToId[draft.styling.template.toLowerCase()] || currentTpl;
@@ -275,8 +291,9 @@
     }
 
     function renderCard(t) {
-      const colors = { 1: '#2563EB', 2: '#1D4ED8', 3: '#475569', 4: '#0D9488' };
+      const colors = { 1: '#2563EB', 2: '#1D4ED8', 3: '#475569', 4: '#0D9488', 5: '#334155' };
       t.accent = colors[t.id] || '#2563EB';
+      if (!t.category) t.category = t.id === '1' ? 'Modern' : t.id === '2' ? 'Modern' : t.id === '3' ? 'Minimalist' : t.id === '4' ? 'Academic' : 'Classic Academic';
 
       const isSelected = t.id.toString() === currentTpl.toString();
 
@@ -332,7 +349,8 @@
         '1': 'modern',
         '2': 'executive',
         '3': 'minimal',
-        '4': 'academic'
+        '4': 'academic',
+        '5': 'classic-academic'
       };
       const tplStyleName = idToName[templateId] || 'modern';
 
