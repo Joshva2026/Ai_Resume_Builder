@@ -290,6 +290,27 @@
       </div>
     </div>
   </div>
+
+  <!-- AI Suggestions Panel (Modal) -->
+  <div id="aiImprovementsModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(9,9,11,0.7); backdrop-filter:blur(6px); z-index:2000; align-items:center; justify-content:center; padding:var(--sp-4);">
+    <div class="modal-card" style="width:100%; max-width:700px; background:var(--paper-0); border:1px solid var(--line); border-radius:var(--radius-lg); box-shadow:var(--shadow-xl); max-height:85vh; display:flex; flex-direction:column; overflow:hidden; color:var(--ink-950);">
+      <div class="modal-header" style="padding:var(--sp-4) var(--sp-5); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; background:var(--paper-50);">
+        <h3 style="margin:0; font-size:var(--fs-md); font-weight:800; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary);"></i> AI Improvement Suggestions</h3>
+        <button type="button" class="btn-close" id="closeImprovementsModal" style="background:none; border:none; font-size:16px; color:var(--ink-600); cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="improvementsModalBody" style="padding:var(--sp-5); overflow-y:auto; flex:1; font-size:var(--fs-xs); line-height:1.5;">
+        <!-- Content loaded dynamically -->
+        <div style="text-align:center; padding:var(--sp-8) 0;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size:32px; color:var(--primary); margin-bottom:12px;"></i>
+          <p>Analyzing resume against job description using Gemini AI...</p>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:var(--sp-4) var(--sp-5); border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:12px; background:var(--paper-50);">
+        <button type="button" class="btn btn-ghost" id="cancelImprovements">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmEditResume"><i class="fa-solid fa-pen-to-square"></i> Edit & Improve Resume</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script src="../js/services/api-service.js"></script>

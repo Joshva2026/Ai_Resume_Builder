@@ -21,7 +21,8 @@
     awards: [],
     publications: [],
     sectionOrder: ['personal', 'summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'languages', 'volunteer', 'awards', 'publications'],
-    styling: { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' }
+    styling: { template: 'modern', font: 'sans', spacing: 1.4, accent: '#4F46E5' },
+    experienceLevel: 'fresher'
   };
 
   // let saveTimer = null; // Auto-save timer disabled
@@ -44,6 +45,7 @@
     bindUndo();
     bindToolbar();
     bindStylingControls();
+    bindExperienceTier();
 
     if (resumeId) {
       loadExistingResume(resumeId);
@@ -58,6 +60,10 @@
         renderPreview();
       }
     }
+    
+    renderSectionRail();
+    updateExperienceTierUI();
+    setupAiSuggestionsDrawer();
 
     // Apply template from query parameter if provided
     const tplParam = urlParams.get('template');
@@ -530,44 +536,44 @@ function renderPreview() {
       `;
     }
 
-    el.innerHTML = `
-      ${headerHtml}
-
-      ${state.summary ? `${headingHtml('Summary')}<div>${esc(state.summary)}</div>` : ''}
-
-      <div class="p-section">
+    const sectionsHtml = {
+      summary: state.summary ? `<div class="p-section">${headingHtml('Summary')}<div>${esc(state.summary)}</div></div>` : '',
+      experience: `<div class="p-section">
         ${headingHtml('Experience')}
-        ${state.experience.length ? state.experience.map((e) => `
+        ${state.experience && state.experience.length ? state.experience.map((e) => `
           <div class="p-entry" style="margin-bottom: 10px">
             <div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600; color: #222"><span>${esc(e.role) || 'Role'} · ${esc(e.company) || 'Company'}</span><span style="font-weight: 500">${esc(e.start)} – ${esc(e.end)}</span></div>
             ${e.bullets ? `<ul style="margin: 4px 0 0 18px; padding: 0">${e.bullets.split('\n').filter(Boolean).map((b) => `<li style="list-style-type: disc">${esc(b)}</li>`).join('')}</ul>` : ''}
           </div>`).join('') : '<div class="p-empty">No experience added yet</div>'}
-      </div>
-
-      <div class="p-section">
+      </div>`,
+      education: `<div class="p-section">
         ${headingHtml('Education')}
-        ${state.education.length ? state.education.map((e) => `
+        ${state.education && state.education.length ? state.education.map((e) => `
           <div class="p-entry" style="margin-bottom: 10px">
             <div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600; color: #222"><span>${esc(e.degree) || 'Degree'}</span><span style="font-weight: 500">${esc(e.start)} – ${esc(e.end)}</span></div>
             <div class="p-entry-sub" style="color: #666">${esc(e.school)}</div>
           </div>`).join('') : '<div class="p-empty">No education added yet</div>'}
-      </div>
+      </div>`,
+      projects: state.projects && state.projects.length ? `<div class="p-section">${headingHtml('Projects')}${state.projects.map((pr) => `
+          <div class="p-entry" style="margin-bottom: 8px"><div class="p-entry-head" style="font-weight: 600; color: #222">${esc(pr.name)}</div><div>${esc(pr.description)}</div></div>`).join('')}</div>` : '',
+      skills: skillsArr.length ? `<div class="p-section">${headingHtml('Skills')}<div>${skillsArr.map(esc).join(' · ')}</div></div>` : '',
+      certifications: certsArr.length ? `<div class="p-section">${headingHtml('Certifications')}<ul style="margin: 4px 0 0 18px; padding: 0">${certsArr.map((c) => `<li style="list-style-type: disc">${esc(c)}</li>`).join('')}</ul></div>` : '',
+      languages: state.languages && state.languages.length ? `<div class="p-section">${headingHtml('Languages')}<div>${state.languages.map(l => `<span style="margin-right:16px"><strong>${esc(l.language)}</strong> — ${esc(l.proficiency)}</span>`).join('')}</div></div>` : '',
+      volunteer: state.volunteer && state.volunteer.length ? `<div class="p-section">${headingHtml('Volunteer Work')}${state.volunteer.map(v => `
+          <div class="p-entry" style="margin-bottom: 8px"><div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600"><span>${esc(v.role)} · ${esc(v.organization)}</span><span style="font-weight: 500">${esc(v.period)}</span></div>${v.description ? `<div>${esc(v.description)}</div>` : ''}</div>`).join('')}</div>` : '',
+      awards: state.awards && state.awards.length ? `<div class="p-section">${headingHtml('Awards &amp; Honours')}<ul style="margin: 4px 0 0 18px; padding: 0">${state.awards.map(a => `<li style="list-style-type: disc"><strong>${esc(a.title)}</strong>${a.issuer ? ` — ${esc(a.issuer)}` : ''}${a.year ? `, ${esc(a.year)}` : ''}</li>`).join('')}</ul></div>` : '',
+      publications: state.publications && state.publications.length ? `<div class="p-section">${headingHtml('Publications')}<ul style="margin: 4px 0 0 18px; padding: 0">${state.publications.map(p => `<li style="list-style-type: disc"><em>${esc(p.title)}</em>${p.journal ? `, ${esc(p.journal)}` : ''}${p.year ? ` (${esc(p.year)})` : ''}${p.url ? ` <a href="${esc(p.url)}" style="color:var(--signal-600)">[link]</a>` : ''}</li>`).join('')}</ul></div>` : ''
+    };
 
-      ${state.projects.length ? `<div class="p-section">${headingHtml('Projects')}${state.projects.map((pr) => `
-          <div class="p-entry" style="margin-bottom: 8px"><div class="p-entry-head" style="font-weight: 600; color: #222">${esc(pr.name)}</div><div>${esc(pr.description)}</div></div>`).join('')}</div>` : ''}
+    const orderedOrder = state.sectionOrder || ['personal', 'summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'languages', 'volunteer', 'awards', 'publications'];
+    const orderedHtml = orderedOrder
+      .map(key => sectionsHtml[key] || '')
+      .filter(Boolean)
+      .join('\n');
 
-      ${skillsArr.length ? `<div class="p-section">${headingHtml('Skills')}<div>${skillsArr.map(esc).join(' · ')}</div></div>` : ''}
-
-      ${certsArr.length ? `<div class="p-section">${headingHtml('Certifications')}<ul style="margin: 4px 0 0 18px; padding: 0">${certsArr.map((c) => `<li style="list-style-type: disc">${esc(c)}</li>`).join('')}</ul></div>` : ''}
-
-      ${state.languages && state.languages.length ? `<div class="p-section">${headingHtml('Languages')}<div>${state.languages.map(l => `<span style="margin-right:16px"><strong>${esc(l.language)}</strong> — ${esc(l.proficiency)}</span>`).join('')}</div></div>` : ''}
-
-      ${state.volunteer && state.volunteer.length ? `<div class="p-section">${headingHtml('Volunteer Work')}${state.volunteer.map(v => `
-          <div class="p-entry" style="margin-bottom: 8px"><div class="p-entry-head" style="display:flex; justify-content:space-between; font-weight: 600"><span>${esc(v.role)} · ${esc(v.organization)}</span><span style="font-weight: 500">${esc(v.period)}</span></div>${v.description ? `<div>${esc(v.description)}</div>` : ''}</div>`).join('')}</div>` : ''}
-
-      ${state.awards && state.awards.length ? `<div class="p-section">${headingHtml('Awards &amp; Honours')}<ul style="margin: 4px 0 0 18px; padding: 0">${state.awards.map(a => `<li style="list-style-type: disc"><strong>${esc(a.title)}</strong>${a.issuer ? ` — ${esc(a.issuer)}` : ''}${a.year ? `, ${esc(a.year)}` : ''}</li>`).join('')}</ul></div>` : ''}
-
-      ${state.publications && state.publications.length ? `<div class="p-section">${headingHtml('Publications')}<ul style="margin: 4px 0 0 18px; padding: 0">${state.publications.map(p => `<li style="list-style-type: disc"><em>${esc(p.title)}</em>${p.journal ? `, ${esc(p.journal)}` : ''}${p.year ? ` (${esc(p.year)})` : ''}${p.url ? ` <a href="${esc(p.url)}" style="color:var(--signal-600)">[link]</a>` : ''}</li>`).join('')}</ul></div>` : ''}
+    el.innerHTML = `
+      ${headerHtml}
+      ${orderedHtml}
     `;
   }
 
@@ -675,6 +681,8 @@ function loadDraftFromLocalStorage() {
       pub.forEach((e) => addPublicationBlock(e));
 
       renderPreview();
+      renderSectionRail();
+      updateExperienceTierUI();
     } catch (err) {
       console.warn('Could not load resume:', err.message);
       addExperienceBlock();
@@ -807,6 +815,264 @@ function loadDraftFromLocalStorage() {
       const railItems = document.querySelectorAll('.rail-item');
       const last = railItems[railItems.length - 1];
       last && last.click();
+    });
+  }
+
+  function bindExperienceTier() {
+    const btnFresher = document.getElementById('btnFresher');
+    const btnExperienced = document.getElementById('btnExperienced');
+    if (!btnFresher || !btnExperienced) return;
+
+    btnFresher.addEventListener('click', () => {
+      setExperienceTier('fresher');
+    });
+
+    btnExperienced.addEventListener('click', () => {
+      setExperienceTier('experienced');
+    });
+  }
+
+  function setExperienceTier(tier) {
+    state.experienceLevel = tier;
+    pushState();
+    updateExperienceTierUI();
+
+    if (tier === 'fresher') {
+      state.sectionOrder = ['personal', 'summary', 'education', 'projects', 'skills', 'experience', 'certifications', 'languages', 'volunteer', 'awards', 'publications'];
+    } else {
+      state.sectionOrder = ['personal', 'summary', 'experience', 'projects', 'education', 'skills', 'certifications', 'languages', 'volunteer', 'awards', 'publications'];
+    }
+
+    renderSectionRail();
+    renderPreview();
+  }
+
+  function updateExperienceTierUI() {
+    const btnFresher = document.getElementById('btnFresher');
+    const btnExperienced = document.getElementById('btnExperienced');
+    if (!btnFresher || !btnExperienced) return;
+
+    const tier = state.experienceLevel || 'fresher';
+    if (tier === 'fresher') {
+      btnFresher.className = 'btn btn-primary';
+      btnExperienced.className = 'btn btn-ghost';
+    } else {
+      btnExperienced.className = 'btn btn-primary';
+      btnFresher.className = 'btn btn-ghost';
+    }
+  }
+
+  function setupAiSuggestionsDrawer() {
+    const toggleBtn = document.getElementById('btnToggleSuggestions');
+    const sidebar = document.getElementById('aiSuggestionsSidebar');
+    const closeBtn = document.getElementById('btnCloseSuggestions');
+    
+    if (!toggleBtn || !sidebar) return;
+
+    const planStr = localStorage.getItem('rf_active_optimization_plan');
+    if (!planStr) {
+      toggleBtn.style.display = 'none';
+      sidebar.style.display = 'none';
+      return;
+    }
+
+    let plan;
+    try {
+      plan = JSON.parse(planStr);
+    } catch (e) {
+      toggleBtn.style.display = 'none';
+      sidebar.style.display = 'none';
+      return;
+    }
+
+    toggleBtn.style.display = 'flex';
+
+    toggleBtn.addEventListener('click', () => {
+      const isVisible = sidebar.style.display === 'flex';
+      sidebar.style.display = isVisible ? 'none' : 'flex';
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        sidebar.style.display = 'none';
+      });
+    }
+
+    renderAiSuggestions(plan);
+    highlightSuggestedSections(plan);
+  }
+
+  function highlightSuggestedSections(plan) {
+    const sections = plan.sections_to_improve || [];
+    sections.forEach(sectionName => {
+      const normalName = sectionName.toLowerCase().trim();
+      const railItem = document.querySelector(`.rail-item[data-section="${normalName}"]`);
+      if (railItem) {
+        if (!railItem.querySelector('.suggest-indicator')) {
+          const dot = document.createElement('span');
+          dot.className = 'suggest-indicator';
+          dot.style.cssText = 'width:6px; height:6px; border-radius:50%; background:var(--primary); box-shadow:0 0 8px var(--primary); display:inline-block; margin-left:8px;';
+          railItem.appendChild(dot);
+        }
+      }
+    });
+  }
+
+  function renderAiSuggestions(plan) {
+    const container = document.getElementById('aiSuggestionsContent');
+    if (!container) return;
+
+    let keywordsHtml = '';
+    if (plan.missing_keywords && plan.missing_keywords.length) {
+      keywordsHtml = `
+        <div>
+          <strong style="color:var(--primary); font-size:11px;"><i class="fa-solid fa-key"></i> Missing Keywords</strong>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
+            ${plan.missing_keywords.map((k, idx) => `
+              <span class="chip-action" id="kw_${idx}" style="background:var(--paper-100); border:1px solid var(--line); border-radius:var(--radius-pill); padding:4px 10px; font-size:10px; display:inline-flex; align-items:center; gap:6px; color:var(--ink-950);">
+                ${esc(k)} 
+                <button type="button" class="kw-add-btn" data-keyword="${esc(k)}" data-target="kw_${idx}" style="background:none; border:none; color:var(--primary); font-weight:700; cursor:pointer; padding:0; font-size:10px;">+ Add</button>
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let bulletsHtml = '';
+    if (plan.weak_bullets && plan.weak_bullets.length) {
+      bulletsHtml = `
+        <div>
+          <strong style="color:var(--primary); font-size:11px;"><i class="fa-solid fa-feather-pointed"></i> Bullets to Improve</strong>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:6px;">
+            ${plan.weak_bullets.map((b, idx) => `
+              <div class="bullet-suggestion-card" id="bl_${idx}" style="background:var(--paper-0); border:1px solid var(--line); border-radius:var(--radius-md); padding:10px; font-size:10px; color:var(--ink-950);">
+                <div style="color:var(--score-low); text-decoration:line-through; margin-bottom:4px;">"${esc(b.original)}"</div>
+                <div style="color:var(--score-high); font-weight:600; margin-bottom:6px;">"${esc(b.enhanced)}"</div>
+                <button type="button" class="btn btn-primary btn-xs btn-block apply-bullet-btn" data-original="${esc(b.original)}" data-enhanced="${esc(b.enhanced)}" data-target="bl_${idx}"><i class="fa-solid fa-wand-magic-sparkles"></i> Apply Improvement</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div style="background:var(--signal-100); border-left:3px solid var(--primary); padding:10px; border-radius:var(--radius-sm);">
+        <strong style="color:var(--primary); font-size:11px;">Summary</strong>
+        <p style="margin:4px 0 0 0; color:var(--ink-800);">${esc(plan.summary)}</p>
+      </div>
+
+      ${keywordsHtml}
+      ${bulletsHtml}
+
+      ${plan.formatting_suggestions && plan.formatting_suggestions.length ? `
+        <div>
+          <strong style="color:var(--primary); font-size:11px;"><i class="fa-solid fa-file-signature"></i> Formatting Tips</strong>
+          <ul style="margin:6px 0 0 16px; padding:0; display:grid; gap:4px; color:var(--ink-950);">
+            ${plan.formatting_suggestions.map(s => `<li>${esc(s)}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+    `;
+
+    container.querySelectorAll('.kw-add-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const kw = btn.dataset.keyword;
+        const targetId = btn.dataset.target;
+        
+        let currentSkills = state.skills.trim();
+        if (currentSkills) {
+          if (!currentSkills.toLowerCase().includes(kw.toLowerCase())) {
+            state.skills = currentSkills + ', ' + kw;
+          }
+        } else {
+          state.skills = kw;
+        }
+
+        const skillsTextarea = document.getElementById('f_skills');
+        if (skillsTextarea) {
+          skillsTextarea.value = state.skills;
+        }
+
+        pushState();
+        renderPreview();
+
+        const chip = document.getElementById(targetId);
+        if (chip) {
+          chip.style.borderColor = 'var(--score-high)';
+          chip.style.background = 'var(--score-high-bg)';
+          chip.style.color = 'var(--score-high)';
+          chip.innerHTML = `${esc(kw)} <i class="fa-solid fa-check"></i>`;
+        }
+      });
+    });
+
+    container.querySelectorAll('.apply-bullet-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const original = btn.dataset.original.trim().toLowerCase();
+        const enhanced = btn.dataset.enhanced;
+        const targetId = btn.dataset.target;
+
+        let replaced = false;
+        
+        state.experience.forEach(exp => {
+          if (exp.bullets) {
+            let bullets = exp.bullets.split('\n');
+            const matchIdx = bullets.findIndex(b => b.trim().toLowerCase().includes(original) || original.includes(b.trim().toLowerCase()));
+            if (matchIdx > -1) {
+              bullets[matchIdx] = enhanced;
+              exp.bullets = bullets.join('\n');
+              replaced = true;
+            }
+          }
+        });
+
+        if (replaced) {
+          const exp = [...state.experience]; state.experience = [];
+          document.getElementById('experienceBlocks').innerHTML = '';
+          exp.forEach(e => addExperienceBlock(e));
+
+          pushState();
+          renderPreview();
+
+          const card = document.getElementById(targetId);
+          if (card) {
+            card.innerHTML = `
+              <div style="color:var(--score-high); font-weight:600; text-align:center; padding:8px 0;">
+                <i class="fa-solid fa-circle-check" style="font-size:16px;"></i> Improvement Applied
+              </div>
+            `;
+            card.style.borderColor = 'var(--score-high)';
+            card.style.background = 'var(--score-high-bg)';
+          }
+        } else {
+          alert('Could not find the original bullet point text in your resume Experience section to replace.');
+        }
+      });
+    });
+  }
+
+  function renderSectionRail() {
+    const rail = document.getElementById('sectionRail');
+    if (!rail) return;
+
+    const itemsMap = {};
+    const items = Array.from(rail.querySelectorAll('.rail-item'));
+    items.forEach(item => {
+      const sec = item.dataset.section;
+      if (sec) itemsMap[sec] = item;
+    });
+
+    // First item is always 'type'
+    const typeItem = itemsMap['type'];
+    if (typeItem) rail.appendChild(typeItem);
+
+    // Then reorder according to state.sectionOrder
+    const order = state.sectionOrder || ['personal', 'summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'languages', 'volunteer', 'awards', 'publications'];
+    order.forEach(sec => {
+      const item = itemsMap[sec];
+      if (item) rail.appendChild(item);
     });
   }
 

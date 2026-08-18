@@ -415,207 +415,245 @@
     </div>
   </div>
 </div>
-
 <main>
-
   <!-- ============================= HERO ============================= -->
   <section class="hero">
     <div class="hero-mesh" aria-hidden="true"></div>
     <div class="container">
       <div class="hero-copy">
-        <div class="eyebrow">Professional AI Resume Builder</div>
-        <h1>Build a Resume<br>That <span class="accent">Gets Noticed</span>.</h1>
-        <p>Create professional, ATS-friendly resumes with intelligent tools designed to help you present your skills with confidence.</p>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--fs-3xs); margin-bottom: 8px;">Professional AI Resume Builder</div>
+        <h1 style="font-size: clamp(2rem, 4vw, var(--fs-5xl)); line-height: 1.15; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; color: var(--ink-950);">
+          Build a Resume That <span class="accent" style="color: var(--primary); background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Gets Noticed</span>.
+        </h1>
+        <p style="font-size: var(--fs-md); color: var(--ink-600); margin-bottom: 24px; line-height: 1.6;">
+          Create professional, ATS-friendly resumes with intelligent tools designed to help you present your skills with confidence.
+        </p>
         
-        <div class="hero-actions">
-          <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" data-cta="hero_build_resume">
-            Build My Resume <i class="fa-solid fa-arrow-right"></i>
+        <div class="hero-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" data-cta="hero_build_resume" style="padding: 12px 24px; font-weight: 600;">
+            <i class="fa-solid fa-pen-ruler" style="margin-right: 6px;"></i> Build My Resume
           </a>
-          <a href="#features" class="btn btn-ghost btn-lg">
-            Explore Features
+          <a href="pages/ats-checker.html" class="btn btn-ghost btn-lg" style="padding: 12px 24px; font-weight: 600; border: 1px solid var(--line);">
+            <i class="fa-solid fa-gauge-high" style="margin-right: 6px;"></i> Analyze My Resume
           </a>
         </div>
         
-        <div class="hero-proof">
-          <div class="avatars"><span>JD</span><span>AM</span><span>KL</span><span>+</span></div>
-          <p class="hero-proof-text">Optimized for ATS screening<br>Average ATS pass rate: <strong>92%</strong></p>
+        <div class="hero-proof" style="display: flex; align-items: center; gap: 12px; margin-top: 24px;">
+          <div class="avatars" style="display: flex;">
+            <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--paper-100); border: 2px solid var(--paper-0); font-size: 10px; font-weight: 700; color: var(--ink-600); display: flex; align-items: center; justify-content: center; margin-right: -10px;">JD</span>
+            <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--paper-100); border: 2px solid var(--paper-0); font-size: 10px; font-weight: 700; color: var(--ink-600); display: flex; align-items: center; justify-content: center; margin-right: -10px;">AM</span>
+            <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); border: 2px solid var(--paper-0); font-size: 10px; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center;">+</span>
+          </div>
+          <p class="hero-proof-text" style="font-size: var(--fs-3xs); color: var(--ink-600); line-height: 1.3;">
+            Optimized for ATS screening<br>Average ATS pass rate: <strong>92%</strong>
+          </p>
         </div>
       </div>
 
       <div class="hero-visual">
-        <div class="hero-visual-card">
-          <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80" alt="System analyzing a resume mock representation" />
-          <div class="hero-floating-metrics">
-            <span class="hero-graphic-pill">ATS Score: 87 / 100</span>
-            <span class="hero-graphic-pill accent">Formatting: Perfect</span>
+        <div class="hero-visual-card" style="border-radius: var(--radius-lg); border: 1px solid var(--line); box-shadow: var(--shadow-xl); overflow: hidden; position: relative;">
+          <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80" alt="System analyzing a resume mock representation" style="width: 100%; height: 100%; object-fit: cover;" />
+          <div class="hero-floating-metrics" style="position: absolute; top: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <span class="hero-graphic-pill" style="padding: 6px 12px; background: var(--paper-0); border: 1px solid var(--line); font-size: 11px; font-weight: 700; border-radius: var(--radius-pill); box-shadow: var(--shadow-md); color: var(--ink-950);">ATS Score: 87 / 100</span>
+            <span class="hero-graphic-pill accent" style="padding: 6px 12px; background: var(--primary); border: none; font-size: 11px; font-weight: 700; border-radius: var(--radius-pill); box-shadow: var(--shadow-md); color: white;">Formatting: Perfect</span>
           </div>
-          <div class="hero-overlay-card">
-            <p class="hero-overlay-label">Analysis Summary</p>
-            <div class="hero-overlay-row"><span>Keywords</span><strong>Matched</strong></div>
-            <div class="hero-overlay-row"><span>Readability</span><strong>95%</strong></div>
-            <div class="hero-overlay-row"><span>Structure</span><strong>Clean</strong></div>
+          <div class="hero-overlay-card" style="position: absolute; bottom: 16px; right: 16px; width: 180px; padding: 12px; background: var(--glass-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); border-radius: var(--radius-md); box-shadow: var(--glass-shadow); font-size: 11px;">
+            <p class="hero-overlay-label" style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;">Analysis Summary</p>
+            <div class="hero-overlay-row" style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--ink-700);"><span>Keywords</span><strong style="color: var(--score-high);">Matched</strong></div>
+            <div class="hero-overlay-row" style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--ink-700);"><span>Readability</span><strong style="color: var(--ink-950);">95%</strong></div>
+            <div class="hero-overlay-row" style="display: flex; justify-content: space-between; color: var(--ink-700);"><span>Structure</span><strong style="color: var(--ink-950);">Clean</strong></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================= KEY FEATURES ============================= -->
-  <section class="section" id="features">
-    <div class="container">
-      <div class="section-head center">
-        <div class="eyebrow">Core Features</div>
-        <h2>Designed to get you interviews</h2>
-        <p>Everything you need to create a clean, modern, ATS-optimized developer resume.</p>
+  <!-- ============================= FEATURES DETAILED SECTIONS ============================= -->
+  
+  <!-- 1. AI Resume Builder Section -->
+  <section class="section" style="padding: var(--sp-8) 0; border-bottom: 1px solid var(--line);">
+    <div class="container" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--sp-7); align-items: center;">
+      <div>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">Intuitive Builder</div>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Structure Your Story with the Structured Builder</h2>
+        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
+          ResumeForge structures your inputs automatically into A4 printable limits. Simply fill in your details—experience, education, certifications, and skills—and let the builder ensure perfect formatting alignments.
+        </p>
+        <ul style="list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--fs-xs); color: var(--ink-800);">
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Reorder resume sections with simple drag-and-drop handles.</li>
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Choose from classic, modern, minimal, or academic styles.</li>
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Live preview panel updates instantly as you edit.</li>
+        </ul>
       </div>
+      <div style="background: var(--paper-50); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <strong style="font-size:var(--fs-xs);">Accent Color Picker</strong>
+          <span style="font-size:10px; color:var(--ink-600)">Live Customization</span>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <span style="width:24px; height:24px; border-radius:50%; background:#7C3AED; border:2px solid #fff; box-shadow:0 0 0 2px var(--primary); cursor:pointer;"></span>
+          <span style="width:24px; height:24px; border-radius:50%; background:#06B6D4; border:2px solid #fff; cursor:pointer;"></span>
+          <span style="width:24px; height:24px; border-radius:50%; background:#475569; border:2px solid #fff; cursor:pointer;"></span>
+          <span style="width:24px; height:24px; border-radius:50%; background:#0D9488; border:2px solid #fff; cursor:pointer;"></span>
+        </div>
+        <div class="demo-preview-box" style="margin-top:0; padding:12px;">
+          <div style="height:8px; width:40%; background:var(--primary); margin-bottom:8px; border-radius:4px;"></div>
+          <div style="height:6px; width:85%; background:var(--ink-200); margin-bottom:6px; border-radius:3px;"></div>
+          <div style="height:6px; width:70%; background:var(--ink-200); border-radius:3px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <div class="showcase-grid">
-        <div class="showcase-card">
-          <i class="fa-solid fa-pen-ruler"></i>
-          <h3>Structured Builder</h3>
-          <p>No messy formatting. Type in your details and let ResumeForge output a perfectly aligned, clean A4 resume layout.</p>
+  <!-- 2. ATS Scanner Section -->
+  <section class="section" style="padding: var(--sp-8) 0; background: var(--paper-50); border-bottom: 1px solid var(--line);">
+    <div class="container" style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--sp-7); align-items: center;">
+      <div style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm); text-align: center;">
+        <div style="font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">87%</div>
+        <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink-950); margin-bottom: 12px;">ATS Keyword Optimization</div>
+        <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
+          <span class="chip" style="font-size:10px; padding:4px 8px; border-radius:10px; background:var(--score-high-bg); color:var(--score-high)">Docker ✔</span>
+          <span class="chip" style="font-size:10px; padding:4px 8px; border-radius:10px; background:var(--score-high-bg); color:var(--score-high)">REST APIs ✔</span>
+          <span class="chip" style="font-size:10px; padding:4px 8px; border-radius:10px; background:var(--score-low-bg); color:var(--score-low)">Kubernetes 𐄂</span>
         </div>
-        
-        <div class="showcase-card">
-          <i class="fa-solid fa-gauge-high"></i>
-          <h3>ATS Scanner</h3>
-          <p>Instantly compare your resume against target job descriptions to identify missing keywords and formatting improvements.</p>
-        </div>
+      </div>
+      <div>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">ATS Match Audit</div>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Vet Against Job Postings Instantly</h2>
+        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
+          Our deterministic ATS Scanner reads your resume text and compares it against the target job description. It rates your resume based on keyword matches, formatting readability, and structural compliance with standard applicant tracking algorithms.
+        </p>
+        <ul style="list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--fs-xs); color: var(--ink-800);">
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Identify exactly which technical skills and soft skills are missing.</li>
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Ensure headings, dates, and columns parse cleanly.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
-        <div class="showcase-card">
-          <i class="fa-solid fa-robot"></i>
-          <h3>AI Writing Assistant</h3>
-          <p>Refine your career summary, generate professional bullet points, and rewrite job details using intelligent prompts.</p>
+  <!-- 3. AI Resume Improvement Section -->
+  <section class="section" style="padding: var(--sp-8) 0; border-bottom: 1px solid var(--line);">
+    <div class="container" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--sp-7); align-items: center;">
+      <div>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">AI Enhancements</div>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Refine and Improve Content with AI Recommendations</h2>
+        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
+          Don't let weak phrasing or passive verbs hold you back. Our AI identifies vague bullet points, highlights areas that need numeric metrics, and suggests professional alternatives to increase impact.
+        </p>
+        <ul style="list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--fs-xs); color: var(--ink-800);">
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Professional summary rewriting tuned to your target industry.</li>
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Action verb suggestions (e.g. rewrite "Worked on" to "Spearheaded").</li>
+          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Highlight missing keywords and automatically apply enhancements.</li>
+        </ul>
+      </div>
+      <div style="background: var(--paper-50); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+        <div style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: var(--sp-2); color: var(--ink-900);"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> AI Improvement Draft</div>
+        <div class="demo-preview-box" style="margin-top:0; padding:12px; font-size: 11px; line-height: 1.4;">
+          <div style="color:var(--score-low); text-decoration:line-through; margin-bottom:6px;">"I was responsible for maintaining database systems."</div>
+          <div style="color:var(--score-high); font-weight:600;">"Optimized database indexing and queries, decreasing load bottlenecks by 30%."</div>
         </div>
-        
-        <div class="showcase-card">
-          <i class="fa-solid fa-file-invoice"></i>
-          <h3>ATS-Optimized Templates</h3>
-          <p>Choose from Modern, Classic, Minimal, or Academic template style guidelines built to respect printable limits.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Resume Upload Section -->
+  <section class="section" style="padding: var(--sp-8) 0; background: var(--paper-50); border-bottom: 1px solid var(--line);">
+    <div class="container" style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--sp-7); align-items: center;">
+      <div style="background: var(--paper-0); border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); padding: var(--sp-6); text-align: center; box-shadow: var(--shadow-sm);">
+        <i class="fa-solid fa-file-arrow-up" style="font-size:32px; color:var(--primary); margin-bottom:8px;"></i>
+        <h4 style="font-size:var(--fs-xs); margin-bottom:4px;">Upload Document</h4>
+        <p style="font-size:10px; color:var(--ink-600);">PDF, DOCX, DOC, TXT supported</p>
+      </div>
+      <div>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">Direct Document Import</div>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Already Have a Resume? Upload & Improve It</h2>
+        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
+          You don't have to start from scratch. Upload your current resume file, and our system will extract the raw text content automatically. Run ATS matching and prompt our AI companion to rewrite weak sections immediately.
+        </p>
+        <div class="hero-actions" style="margin-top: 16px;">
+          <a href="pages/ats-checker.html" class="btn btn-primary"><i class="fa-solid fa-upload"></i> Try Upload & Scan</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ============================= HOW IT WORKS ============================= -->
-  <section class="section" style="background: var(--paper-50);">
+  <section class="section" style="border-bottom: 1px solid var(--line);">
     <div class="container">
       <div class="section-head center">
-        <div class="eyebrow">Workflow</div>
-        <h2>How It Works</h2>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Workflow</div>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 8px;">How It Works</h2>
         <p>A simple step-by-step approach to building a stellar portfolio-ready resume.</p>
       </div>
 
-      <div class="step-list">
+      <div class="step-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-top: 32px;">
         <div class="step-card">
-          <div class="num">01</div>
-          <h4>Input Your Data</h4>
-          <p>Provide your experience details, projects, education, and skills. ResumeForge keeps a clean record of your entries.</p>
+          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.15;">01</div>
+          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 16px;">Create or Upload</h4>
+          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Write your resume using the structured editor or upload an existing PDF/DOCX file context.</p>
         </div>
         <div class="step-card">
-          <div class="num">02</div>
-          <h4>Compare with Job Postings</h4>
-          <p>Paste the job posting description. The ATS tool analyses keyword weights and outputs formatting suggestions.</p>
+          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.15;">02</div>
+          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 16px;">Analyze Against Job</h4>
+          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Compare your resume text directly with the target vacancy requirements to check ATS keyword density.</p>
         </div>
         <div class="step-card">
-          <div class="num">03</div>
-          <h4>Polish with AI Copilot</h4>
-          <p>Sharpen summaries and bullet points directly inside the editor without inflating or fabricating qualifications.</p>
+          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.15;">03</div>
+          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 16px;">Improve with AI</h4>
+          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Review formatting issues and weak phrasing, then apply enhanced suggestions with one-click actions.</p>
         </div>
         <div class="step-card">
-          <div class="num">04</div>
-          <h4>Export Clean PDF</h4>
-          <p>Download your resume instantly. Output is clean, printable, and fully compliant with parsing algorithms.</p>
+          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.15;">04</div>
+          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 16px;">Export PDF</h4>
+          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Export a clean, algorithm-compliant A4 PDF to start applying and securing developer interviews.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================= CORE TOOL PREVIEWS ============================= -->
-  <section class="section">
+  <!-- ============================= FEATURES CARDS ============================= -->
+  <section class="section" style="background: var(--paper-50); border-bottom: 1px solid var(--line);">
     <div class="container">
       <div class="section-head center">
-        <div class="eyebrow">Interactive Preview</div>
-        <h2>Core Product Previews</h2>
-        <p>Take a look at how ResumeForge optimizes your resume details side-by-side.</p>
+        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Product Suite</div>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 8px;">Core Features Built for Success</h2>
+        <p>Everything you need to navigate your application lifecycle.</p>
       </div>
 
-      <div class="showcase-grid">
-        <div class="showcase-card">
-          <h4><i class="fa-solid fa-pen-ruler"></i> Resume Editor</h4>
-          <p>Write your summaries, reorder resume sections with drag-and-drop handles, select accent colors, and preview in real time.</p>
-          <div class="demo-preview-box">
-            <div style="height:8px; width:40%; background:var(--primary); margin-bottom:8px; border-radius:4px;"></div>
-            <div style="height:6px; width:80%; background:var(--ink-200); margin-bottom:6px; border-radius:3px;"></div>
-            <div style="height:6px; width:65%; background:var(--ink-200); border-radius:3px;"></div>
-          </div>
+      <div class="showcase-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
+        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-robot" style="color: var(--primary); margin-right: 8px;"></i> AI Assistant</h4>
+          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Iteratively chat with our Gemini-powered career chatbot to brainstorm details and write bullet points.</p>
         </div>
-
-        <div class="showcase-card">
-          <h4><i class="fa-solid fa-gauge-high"></i> ATS Analyzer</h4>
-          <p>Paste your target job descriptions and get a transparent score breakdown out of 100 with highlighting for missing keywords.</p>
-          <div class="demo-preview-box" style="text-align:center;">
-            <div style="font-size:24px; font-weight:800; color:var(--score-high);">87 / 100</div>
-            <div style="font-size:11px; color:var(--ink-600); margin-top:4px;">Strong Match for Software Engineer</div>
-          </div>
+        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-gauge-high" style="color: var(--primary); margin-right: 8px;"></i> ATS Analysis</h4>
+          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Vet resumes against vacancy postings to measure matches, formatting scores, and keyword checks.</p>
         </div>
-
-        <div class="showcase-card">
-          <h4><i class="fa-solid fa-robot"></i> AI Companion</h4>
-          <p>Run quick rewrites inside text areas, expand bullet points using metric suggestions, and audit your LinkedIn bio strength.</p>
-          <div class="demo-preview-box">
-            <div style="font-size:11px; font-style:italic; color:var(--ink-700);">"Improved text: Refactored database queries, decreasing page loading overhead by 25%."</div>
-          </div>
+        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-cubes" style="color: var(--primary); margin-right: 8px;"></i> Resume Templates</h4>
+          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Access vetted templates built for clarity and compliance with major applicant screening parsers.</p>
+        </div>
+        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-envelope-open-text" style="color: var(--primary); margin-right: 8px;"></i> Cover Letters</h4>
+          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Generate print-ready tailored cover letters customized for target roles from your resume details.</p>
+        </div>
+        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
+          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); margin-right: 8px;"></i> AI Improvements</h4>
+          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Review automated improvement breakdowns and apply suggestions directly inside your document editor.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============================= PRICING SECTION ============================= -->
-  <section class="pricing-section" id="pricing">
-    <div class="container">
-      <div class="section-head center">
-        <div class="eyebrow">Pricing Plans</div>
-        <h2>Flexible plans for every career stage</h2>
-        <p>Start free and upgrade as your job search scales up.</p>
-      </div>
-
-      <div class="pricing-toggle-container">
-        <span>Monthly</span>
-        <button class="toggle-btn" id="pricingToggle" aria-label="Toggle annual pricing"></button>
-        <span>Annual <span style="font-size: 10px; font-weight: 700; color: var(--primary); background: var(--signal-100); padding: 2px 6px; border-radius: var(--radius-xs); margin-left: 4px;">Save 20%</span></span>
-      </div>
-
-      <div class="pricing-grid">
-        <div class="pricing-card">
-          <h3>Free Tier</h3>
-          <p class="price-sub">Essential tools to get started</p>
-          <div class="price-amount"><span class="num" data-monthly="0" data-annual="0">$0</span><span style="font-size: var(--fs-xs); color: var(--ink-600); font-weight: 500;"> / month</span></div>
-          <ul>
-            <li><i class="fa-solid fa-circle-check"></i> 1 Active Resume</li>
-            <li><i class="fa-solid fa-circle-check"></i> Basic ATS Scan (3/month)</li>
-            <li><i class="fa-solid fa-circle-check"></i> AI Assistant chatbot access</li>
-            <li><i class="fa-solid fa-circle-check"></i> Export print-ready PDF</li>
-          </ul>
-          <a href="pages/register.html" class="btn btn-ghost btn-block js-cta" data-cta="pricing_free">Get Started Free</a>
-        </div>
-
-        <div class="pricing-card premium">
-          <h3>ResumeForge Pro</h3>
-          <p class="price-sub">Advanced features to secure interviews</p>
-          <div class="price-amount"><span class="num" data-monthly="12" data-annual="9">$12</span><span style="font-size: var(--fs-xs); color: var(--ink-600); font-weight: 500;"> / month</span></div>
-          <ul>
-            <li><i class="fa-solid fa-circle-check"></i> Unlimited Active Resumes</li>
-            <li><i class="fa-solid fa-circle-check"></i> Unlimited ATS Checks</li>
-            <li><i class="fa-solid fa-circle-check"></i> Unlimited Gemini AI Suggestions</li>
-            <li><i class="fa-solid fa-circle-check"></i> Tailored Cover Letter Generator</li>
-            <li><i class="fa-solid fa-circle-check"></i> Priority template formats</li>
-          </ul>
-          <a href="pages/register.html" class="btn btn-primary btn-block js-cta" data-cta="pricing_pro">Upgrade to Pro</a>
-        </div>
-      </div>
+  <!-- ============================= FINAL CTA ============================= -->
+  <section class="section" style="padding: var(--sp-8) 0; text-align: center; background: linear-gradient(to bottom, var(--paper-0), var(--bg-ocean));">
+    <div class="container" style="max-width: 600px; margin: 0 auto;">
+      <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 12px;">Ready to optimize your application?</h2>
+      <p style="font-size: var(--fs-sm); color: var(--ink-700); margin-bottom: 24px;">Create a free account and build your resume with intelligent tools today.</p>
+      <a href="pages/register.html" class="btn btn-primary btn-lg" style="padding: 12px 28px; font-weight: 600;">Get Started Free <i class="fa-solid fa-arrow-right"></i></a>
     </div>
   </section>
+</main>
 
   <!-- ============================= FAQ SECTION ============================= -->
   <section class="faq-section" id="faq">

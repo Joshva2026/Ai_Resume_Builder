@@ -102,6 +102,41 @@
     }
 
     document.getElementById('runScan').addEventListener('click', runScan);
+
+    // AI Suggestions Modal bindings
+    const modal = document.getElementById('aiImprovementsModal');
+    const closeBtn = document.getElementById('closeImprovementsModal');
+    const cancelBtn = document.getElementById('cancelImprovements');
+    const confirmEditBtn = document.getElementById('btnConfirmEditResume');
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => { if (modal) modal.style.display = 'none'; });
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => { if (modal) modal.style.display = 'none'; });
+    }
+    if (confirmEditBtn) {
+      confirmEditBtn.addEventListener('click', async () => {
+        const resumeId = currentReport.resumeId || currentReport.id;
+        if (!resumeId) return alert('No active resume found to edit.');
+        
+        if (confirm('Would you like to edit a copy of this resume to keep your original? (Recommended)')) {
+          try {
+            const duplicate = await ApiService.resumes.duplicate(resumeId);
+            window.location.href = `resume-builder.html?id=${duplicate.id}`;
+          } catch (err) {
+            console.warn('Failed to duplicate resume via API. Creating local copy instead.');
+            const draft = localStorage.getItem(`resume_builder_draft_${resumeId}`) || localStorage.getItem('rf_draft');
+            if (draft) {
+              localStorage.setItem('rf_draft', draft);
+            }
+            window.location.href = `resume-builder.html?id=new`;
+          }
+        } else {
+          window.location.href = `resume-builder.html?id=${resumeId}`;
+        }
+      });
+    }
   }
 
   function handleFileSelect(file) {
@@ -276,9 +311,9 @@
         <button type="button" class="btn btn-accent btn-lg" id="btnAskAiAssistant">
           <i class="fa-solid fa-robot"></i> Ask AI Assistant
         </button>
-        <a href="resume-builder.html" class="btn btn-primary btn-lg">
+        <button type="button" class="btn btn-primary btn-lg" id="btnImproveWithAi">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI
-        </a>
+        </button>
         <button type="button" class="btn btn-ghost btn-lg" id="btnCheckAnother">
           <i class="fa-solid fa-rotate-left"></i> Check Another Resume
         </button>
@@ -299,6 +334,100 @@
       btnAskAi.addEventListener('click', () => {
         const promptText = encodeURIComponent(`Please review my ATS score (${score}/100) and explain how I can fix missing keywords: ${missingKeywords.join(', ')}`);
         window.location.href = `ai-assistant.html?prompt=${promptText}&score=${score}`;
+      });
+    }
+
+    const btnImprove = document.getElementById('btnImproveWithAi');
+    if (btnImprove) {
+      btnImprove.addEventListener('click', async () => {
+        const modal = document.getElementById('aiImprovementsModal');
+        const modalBody = document.getElementById('improvementsModalBody');
+        
+        if (!modal) return;
+        modal.style.display = 'flex';
+        modalBody.innerHTML = `
+          <div style="text-align:center; padding:var(--sp-8) 0; color:var(--ink-700);">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:32px; color:var(--primary); margin-bottom:12px;"></i>
+            <p style="font-weight:600;">Analyzing resume against job description using Gemini AI...</p>
+          </div>
+        `;
+        
+        try {
+          const jobDescription = document.getElementById('jobDescription').value.trim();
+          const resumeId = currentReport.resumeId || currentReport.id;
+          
+          if (!resumeId) {
+            throw new Error('Could not find active resume ID to optimize. Please save or select a resume first.');
+          }
+          
+          const plan = await ApiService.ai.optimize(resumeId, jobDescription);
+          localStorage.setItem('rf_active_optimization_plan', JSON.stringify(plan));
+          
+          let weakBulletsHtml = '';
+          if (plan.weak_bullets && plan.weak_bullets.length) {
+            weakBulletsHtml = `
+              <h4 style="margin-top:var(--sp-4); font-weight:700;"><i class="fa-solid fa-feather-pointed" style="color:var(--primary); margin-right:6px;"></i> Weak Bullet Points & Enhancements</h4>
+              <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+                ${plan.weak_bullets.map((b) => `
+                  <div style="background:var(--paper-50); border:1px solid var(--line); border-radius:var(--radius-md); padding:12px; font-size:11px;">
+                    <div style="color:var(--score-low); text-decoration:line-through; margin-bottom:4px;"><strong>Original:</strong> "${escapeHtml(b.original)}"</div>
+                    <div style="color:var(--score-high); font-weight:600; margin-bottom:4px;"><strong>AI Enhanced:</strong> "${escapeHtml(b.enhanced)}"</div>
+                    <div style="font-style:italic; color:var(--ink-600);"><strong>Reason:</strong> ${escapeHtml(b.reason)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+
+          let missingKeywordsHtml = '';
+          if (plan.missing_keywords && plan.missing_keywords.length) {
+            missingKeywordsHtml = `
+              <h4 style="margin-top:var(--sp-4); font-weight:700;"><i class="fa-solid fa-key" style="color:var(--primary); margin-right:6px;"></i> Missing Target Keywords</h4>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                ${plan.missing_keywords.map(k => `<span class="chip" style="background:var(--paper-100); padding:4px 8px; border-radius:var(--radius-pill); font-size:10px; font-weight:600; border:1px solid var(--line); color:var(--ink-950);">${escapeHtml(k)}</span>`).join('')}
+              </div>
+            `;
+          }
+
+          modalBody.innerHTML = `
+            <div style="background:var(--signal-100); border-left:4px solid var(--primary); padding:12px; border-radius:var(--radius-sm); margin-bottom:16px;">
+              <strong style="color:var(--primary);">Optimization Summary</strong>
+              <p style="margin:6px 0 0 0; color:var(--ink-800);">${escapeHtml(plan.summary)}</p>
+            </div>
+            
+            ${missingKeywordsHtml}
+            ${weakBulletsHtml}
+            
+            <div style="margin-top:var(--sp-4);">
+              <h4 style="font-weight:700;"><i class="fa-solid fa-file-signature" style="color:var(--primary); margin-right:6px;"></i> Formatting & Content Suggestions</h4>
+              <ul style="margin:8px 0 0 16px; padding:0; display:grid; gap:6px;">
+                ${(plan.formatting_suggestions || []).map(s => `<li>${escapeHtml(s)}</li>`).join('') || '<li>Formatting fits standard applicant tracking models.</li>'}
+              </ul>
+            </div>
+
+            <div style="margin-top:var(--sp-4);">
+              <h4 style="font-weight:700;"><i class="fa-solid fa-chart-line" style="color:var(--primary); margin-right:6px;"></i> Job Description Alignment</h4>
+              <ul style="margin:8px 0 0 16px; padding:0; display:grid; gap:6px;">
+                ${(plan.alignment_suggestions || []).map(s => `<li>${escapeHtml(s)}</li>`).join('') || '<li>No specific alignment suggestions.</li>'}
+              </ul>
+            </div>
+
+            <div style="margin-top:var(--sp-4);">
+              <h4 style="font-weight:700;"><i class="fa-solid fa-layer-group" style="color:var(--primary); margin-right:6px;"></i> Target Areas / Sections to Improve</h4>
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                ${(plan.sections_to_improve || []).map(sec => `<span class="badge" style="background:var(--score-mid-bg); color:var(--score-mid); border:1px solid var(--score-mid); font-size:10px; padding:2px 8px; border-radius:var(--radius-pill); font-weight:700;">${escapeHtml(sec)}</span>`).join('') || '<span style="color:var(--ink-600);">No specific sections highlighted.</span>'}
+              </div>
+            </div>
+          `;
+        } catch (err) {
+          modalBody.innerHTML = `
+            <div style="text-align:center; padding:var(--sp-6) 0; color:var(--score-low);">
+              <i class="fa-solid fa-circle-exclamation" style="font-size:32px; margin-bottom:12px;"></i>
+              <p style="font-weight:600;">Failed to generate AI suggestions</p>
+              <p style="font-size:11px; color:var(--ink-600);">${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
       });
     }
 
