@@ -66,10 +66,28 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    .tpl-card:hover { 
-      transform: translateY(-4px); 
+    .tpl-card:hover {
+      transform: translateY(-4px);
       border-color: var(--primary);
       box-shadow: var(--shadow-md);
+    }
+    .tpl-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--signal-100), var(--shadow-md);
+    }
+    .tpl-card.selected::after {
+      content: '\f058';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 20px;
+      color: var(--primary);
+      z-index: 10;
+      background: var(--paper-0);
+      border-radius: 50%;
+      line-height: 1;
     }
 
     .tpl-thumb {
@@ -80,7 +98,7 @@
       align-items: center;
       justify-content: center;
     }
-    
+
     .tpl-badge {
       position: absolute;
       top: 12px;
@@ -114,21 +132,6 @@
     .tpl-mock-sub { font-size: 6px; color: #475569; margin-bottom: 4px; }
     .tpl-mock-section { font-size: 5.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 2px; }
 
-    /* Hover overlay */
-    .tpl-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.4);
-      backdrop-filter: blur(2px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      z-index: 8;
-    }
-    .tpl-card:hover .tpl-overlay { opacity: 1; }
-
     .tpl-info {
       padding: var(--sp-4);
       border-top: 1px solid var(--line);
@@ -137,14 +140,14 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    
+
     .tpl-info h3 {
       font-size: var(--fs-sm);
       font-weight: 700;
       color: var(--ink-950);
       margin-bottom: 4px;
     }
-    
+
     .tpl-info p {
       font-size: var(--fs-2xs);
       color: var(--ink-600);
@@ -184,9 +187,9 @@
 
   <template id="templatesTemplate">
     <div class="tpl-hero">
-      <h2>Recruiter-Approved Design Layouts</h2>
+      <h2>ATS-Vetted Design Layouts</h2>
       <p>Choose from our ATS-vetted layouts to present your development qualifications with confidence.</p>
-      
+
       <div class="filter-bar" id="filterBar">
         <button class="filter-btn active" data-filter="all">All Styles</button>
         <button class="filter-btn" data-filter="Modern">Modern</button>
@@ -212,7 +215,7 @@
     function buildMock(t) {
       const accent = t.accent || '#2563EB';
       const cat = (t.category || '').toLowerCase();
-      
+
       if (cat === 'classic') {
         return `<div class="tpl-mock">
           <div style="text-align:center;border-bottom:1px solid ${accent};padding-bottom:4px;margin-bottom:6px;">
@@ -251,29 +254,48 @@
       </div>`;
     }
 
+    let currentTpl = localStorage.getItem('rf_selected_template') || '1';
+
+    // Check if there is a draft to synchronize current template style
+    const draftStr = localStorage.getItem('rf_draft');
+    if (draftStr) {
+      try {
+        const draft = JSON.parse(draftStr);
+        if (draft.styling && draft.styling.template) {
+          const nameToId = {
+            'modern': '1',
+            'executive': '2',
+            'minimal': '3',
+            'academic': '4',
+            'creative': '3'
+          };
+          currentTpl = nameToId[draft.styling.template.toLowerCase()] || currentTpl;
+        }
+      } catch (e) {}
+    }
+
     function renderCard(t) {
-      // Map templates to distinct accent mockups
       const colors = { 1: '#2563EB', 2: '#1D4ED8', 3: '#475569', 4: '#0D9488' };
       t.accent = colors[t.id] || '#2563EB';
-      
+
+      const isSelected = t.id.toString() === currentTpl.toString();
+
       return `
-        <div class="tpl-card" data-category="${t.category}">
+        <div class="tpl-card ${isSelected ? 'selected' : ''}" data-category="${t.category}" id="tpl_card_${t.id}">
           <div class="tpl-thumb" style="background:${t.accent}10;">
             <div class="tpl-badge">${t.atsScore || 95}% ATS</div>
             ${buildMock(t)}
-            <div class="tpl-overlay">
-              <a href="resume-builder.html?template=${t.id}" class="btn btn-primary btn-sm">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Use Layout
-              </a>
-            </div>
           </div>
           <div class="tpl-info">
             <h3>${t.name} Layout</h3>
             <p>${t.description}</p>
-            <div class="tpl-meta">
+            <div class="tpl-meta" style="margin-bottom: 12px;">
               <span class="tpl-score"><i class="fa-solid fa-check-circle"></i> Vetted Score</span>
               <span class="tpl-cat">${t.category}</span>
             </div>
+            <button type="button" class="btn btn-sm btn-block select-tpl-btn ${isSelected ? 'btn-primary' : 'btn-ghost'}" data-id="${t.id}" data-name="${t.name}">
+              ${isSelected ? '<i class="fa-solid fa-circle-check"></i> Currently Active' : 'Select Template'}
+            </button>
           </div>
         </div>`;
     }
@@ -292,6 +314,62 @@
           </div>`;
       }
     }
+
+    // Bind template selection click listener
+    document.getElementById('templatesGrid').addEventListener('click', async e => {
+      const btn = e.target.closest('.select-tpl-btn');
+      if (!btn) return;
+
+      const templateId = btn.dataset.id;
+      const templateName = btn.dataset.name;
+
+      // Save selection
+      localStorage.setItem('rf_selected_template', templateId);
+      currentTpl = templateId;
+
+      // Map id to template style name
+      const idToName = {
+        '1': 'modern',
+        '2': 'executive',
+        '3': 'minimal',
+        '4': 'academic'
+      };
+      const tplStyleName = idToName[templateId] || 'modern';
+
+      // Synchronize into current draft (both new and loaded if we have local draft)
+      const draftStr = localStorage.getItem('rf_draft');
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          draft.styling = draft.styling || {};
+          draft.styling.template = tplStyleName;
+          localStorage.setItem('rf_draft', JSON.stringify(draft));
+        } catch (err) {}
+      }
+
+      // Also update any specific builder draft
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key.startsWith('resume_builder_draft_')) {
+            const dr = JSON.parse(localStorage.getItem(key));
+            dr.styling = dr.styling || {};
+            dr.styling.template = tplStyleName;
+            localStorage.setItem(key, JSON.stringify(dr));
+          }
+        }
+      } catch (err) {}
+
+      // Re-render cards
+      await loadTemplates();
+
+      // Provide user feedback and offer redirect
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--primary);color:#fff;padding:12px 24px;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:9999;font-size:var(--fs-xs);font-weight:600;display:flex;align-items:center;gap:12px;animation:fadeInUp 0.3s ease;';
+      toast.innerHTML = `<span><i class="fa-solid fa-circle-check"></i> ${templateName} Layout selected!</span><a href="resume-builder.html" class="btn btn-sm" style="background:#fff;color:var(--primary);padding:4px 8px;font-size:10px;">Go to Builder</a>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    });
 
     // Filter tabs
     document.getElementById('filterBar').addEventListener('click', e => {

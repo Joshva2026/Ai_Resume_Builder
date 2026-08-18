@@ -40,7 +40,7 @@
       results.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:var(--sp-4); margin-bottom:var(--sp-4)">
           <h3>Analysis Results</h3>
-          <span style="font-size:var(--fs-2xs); color:var(--ink-600)">Recruiter Friendly Index</span>
+          <span style="font-size:var(--fs-2xs); color:var(--ink-600)">ATS Optimization Index</span>
         </div>
 
         <div class="score-circle-container">

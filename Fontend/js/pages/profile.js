@@ -32,6 +32,9 @@
       if (profile && profile.profile) {
         profile = { ...profile.profile, ...profile };
       }
+      if (profile && profile.user) {
+        profile = { ...profile.user, ...profile };
+      }
 
       populateForm(profile || {});
       updateProfileCard(profile || {});

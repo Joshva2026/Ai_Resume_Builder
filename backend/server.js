@@ -2301,6 +2301,86 @@ app.post('/api/cover-letter', authenticateToken, async (req, res) => {
   }
 });
 
+app.post('/api/cover-letter/upload', authenticateToken, upload.single('resume'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Resume file is required (PDF, DOC, DOCX, or TXT)' });
+  }
+  const { jobTitle, companyName, jobDescription } = req.body;
+  if (!jobTitle || !companyName) {
+    return res.status(400).json({ error: 'Job Title and Company Name are required' });
+  }
+
+  const fs = require('fs');
+  const tempPath = req.file.path;
+
+  try {
+    // File validation
+    const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
+    const ext = (req.file.originalname.split('.').pop() || '').toLowerCase();
+    if (!validExtensions.includes(ext)) {
+      return res.status(400).json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are supported.' });
+    }
+
+    // Extract text from uploaded file
+    const textContent = await atsEngine.extractText(tempPath, req.file.mimetype, req.file.originalname);
+
+    if (!textContent || !textContent.trim()) {
+      return res.status(400).json({ error: 'Could not extract text from the file. The file may be empty or image-based.' });
+    }
+
+    // Save uploaded resume into database
+    const connection = await pool.getConnection();
+    const resumeTitle = `Uploaded: ${req.file.originalname}`;
+    const resumeContentObj = {
+      rawText: textContent,
+      personal: { fullName: req.user.email ? req.user.email.split('@')[0] : 'Uploaded User' },
+      summary: textContent.slice(0, 1000),
+      experience: [],
+      skills: '',
+      education: [],
+      projects: []
+    };
+
+    const [resumeResult] = await connection.query(
+      'INSERT INTO resumes (user_id, title, content, is_primary, original_filename, source, raw_text) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [req.user.id, resumeTitle, JSON.stringify(resumeContentObj), false, req.file.originalname, 'upload', textContent]
+    );
+    const resumeId = resumeResult.insertId;
+
+    if (!resumeId) {
+      connection.release();
+      return res.status(500).json({ error: 'Failed to create resume record in database.' });
+    }
+
+    // Generate cover letter
+    const aiResult = await aiService.generateCoverLetter(textContent, jobTitle, companyName, jobDescription || '');
+    const content = aiResult.letter;
+
+    // Save cover letter
+    const [result] = await connection.query(
+      'INSERT INTO cover_letters (user_id, resume_id, title, content) VALUES (?, ?, ?, ?)',
+      [req.user.id, resumeId, `Cover Letter - ${jobTitle} at ${companyName}`, content]
+    );
+
+    connection.release();
+    res.status(201).json({
+      id: result.insertId,
+      title: `Cover Letter - ${jobTitle} at ${companyName}`,
+      content
+    });
+  } catch (error) {
+    console.error('Cover letter upload generation error:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate cover letter from uploaded file' });
+  } finally {
+    // Delete temp file after processing
+    try {
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath);
+      }
+    } catch (_) {}
+  }
+});
+
 app.get('/api/cover-letter', authenticateToken, async (req, res) => {
   try {
     const connection = await pool.getConnection();

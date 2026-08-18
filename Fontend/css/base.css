@@ -311,6 +311,19 @@ p {
   margin-bottom: var(--sp-4);
 }
 
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+@media (max-width: 640px) {
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
 .field label {
   display: block;
   font-size: var(--fs-2xs);

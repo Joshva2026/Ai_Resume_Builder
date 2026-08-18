@@ -82,6 +82,93 @@
   font-size: var(--fs-3xs);
   color: var(--ink-600);
 }
+
+.drop-zone {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-5) var(--sp-4);
+  text-align: center;
+  background: var(--paper-50);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--primary);
+  background: var(--signal-100);
+}
+
+.drop-icon {
+  font-size: 24px;
+  color: var(--primary);
+  margin-bottom: var(--sp-2);
+}
+
+.drop-text {
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  color: var(--ink-900);
+}
+
+.browse-link {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.drop-hint {
+  font-size: var(--fs-3xs);
+  color: var(--ink-600);
+  margin-top: 4px;
+}
+
+.file-info-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--paper-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.file-info-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.file-icon {
+  font-size: 20px;
+  color: var(--primary);
+}
+
+.file-name {
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  color: var(--ink-950);
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: var(--fs-3xs);
+  color: var(--ink-600);
+}
+
+.file-remove-btn {
+  background: none;
+  border: none;
+  color: var(--ink-600);
+  cursor: pointer;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.file-remove-btn:hover {
+  color: var(--score-low);
+}
 </style>
 </head>
 <body>
@@ -97,10 +184,44 @@
         <p class="sub" style="margin-bottom:var(--sp-4)">Generate and edit professional, print-ready cover letters customized to specific roles.</p>
         
         <div class="field">
+          <label>Resume Context Source</label>
+          <div style="display:flex; gap:16px; margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:var(--fs-xs); cursor:pointer; font-weight:600; color:var(--ink-800)">
+              <input type="radio" name="contextSource" value="saved" checked style="accent-color:var(--primary)"> Saved Resume
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:var(--fs-xs); cursor:pointer; font-weight:600; color:var(--ink-800)">
+              <input type="radio" name="contextSource" value="upload" style="accent-color:var(--primary)"> Upload File
+            </label>
+          </div>
+        </div>
+
+        <!-- Saved Resume select wrapper -->
+        <div id="savedResumeWrapper" class="field">
           <label for="resumeSelect">Select Resume Context</label>
           <select id="resumeSelect" style="width:100%;">
             <option value="">Loading your resumes…</option>
           </select>
+        </div>
+
+        <!-- File upload wrapper (initially hidden) -->
+        <div id="fileUploadWrapper" class="field" style="display:none; margin-bottom: var(--sp-4);">
+          <label>Upload Resume File</label>
+          <div class="drop-zone" id="dropZone">
+            <i class="fa-solid fa-file-arrow-up drop-icon"></i>
+            <p class="drop-text">Drag & drop resume here, or <span class="browse-link">browse</span></p>
+            <p class="drop-hint">PDF, DOC, DOCX, TXT up to 10 MB</p>
+            <input type="file" id="resumeFileInput" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+          </div>
+          <div id="fileInfo" class="file-info-box" style="display: none; margin-top: 8px;">
+            <div class="file-info-left">
+              <i class="fa-solid fa-file-lines file-icon"></i>
+              <div>
+                <div class="file-name" id="fileName">resume.pdf</div>
+                <div class="file-size" id="fileSize">2.4 MB</div>
+              </div>
+            </div>
+            <button type="button" class="file-remove-btn" id="removeFileBtn" title="Remove file"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
 
         <div class="field">

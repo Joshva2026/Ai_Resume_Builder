@@ -55,10 +55,6 @@ const AppShell = (() => {
             ResumeForge
           </a>
           <nav class="side-nav">${navHtml(active)}</nav>
-          <div class="sidebar-upgrade">
-            <p><strong>Professional Portfolio</strong><br>Recruiter-approved styling and insights.</p>
-            <a href="../index.html#features" class="btn btn-primary btn-sm btn-block" style="text-align:center;">Learn more</a>
-          </div>
         </aside>
  
         <div class="app-main">
@@ -74,7 +70,7 @@ const AppShell = (() => {
                 <div class="avatar" id="userAvatar">··</div>
                 <div>
                   <div class="name" id="userName">Loading…</div>
-                  <div class="role" style="font-size: 10px; font-weight: 500; color: var(--primary);">Developer Portfolio</div>
+                  <div class="role" style="font-size: 10px; font-weight: 500; color: var(--ink-500);">Candidate</div>
                 </div>
                 <i class="fa-solid fa-chevron-down" style="font-size:10px; color:var(--ink-400)"></i>
               </div>

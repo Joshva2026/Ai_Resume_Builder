@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ResumeForge — AI Resume Builder & ATS Checker</title>
+<script>
+  (function() {
+    const savedTheme = localStorage.getItem('rf_theme') || 'light';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+  })();
+</script>
 <meta name="description" content="Build professional, ATS-friendly resumes with intelligent tools designed to help you present your skills with confidence.">
 
 <!-- Fonts -->
@@ -23,6 +33,28 @@
 <link rel="stylesheet" href="css/animations.css">
 <style>
 /* Local Landing adjustments */
+.hero {
+  background: radial-gradient(100% 100% at 50% 0%, rgba(37, 99, 235, 0.04) 0%, var(--bg-ocean) 100%);
+  border-bottom: 1px solid var(--line);
+}
+.light-theme .hero {
+  background: radial-gradient(100% 100% at 50% 0%, rgba(37, 99, 235, 0.05) 0%, #FFFFFF 100%);
+}
+.light-theme .navbar.is-scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+.hero-mesh {
+  position: absolute;
+  top: -20%; left: 30%;
+  width: 70%; height: 90%;
+  background: radial-gradient(circle at 70% 30%, rgba(37, 99, 235, 0.08) 0%, rgba(6, 182, 212, 0.04) 40%, rgba(139, 92, 246, 0.03) 70%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.light-theme .hero-mesh {
+  background: radial-gradient(circle at 70% 30%, rgba(37, 99, 235, 0.06) 0%, rgba(6, 182, 212, 0.03) 45%, rgba(139, 92, 246, 0.02) 80%, transparent 100%);
+}
 .showcase-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -88,13 +120,23 @@
 }
 .step-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--sp-5);
   margin-top: var(--sp-6);
 }
 .step-card {
   position: relative;
-  padding: var(--sp-4);
+  padding: var(--sp-5);
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--dur-base) var(--ease-out);
+}
+.step-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
 }
 .step-card .num {
   font-family: var(--font-mono);
@@ -125,6 +167,183 @@
   margin-top: var(--sp-6);
   box-shadow: var(--shadow-sm);
 }
+
+/* Pricing Section */
+.pricing-section {
+  padding: var(--sp-8) 0;
+  background: var(--paper-50);
+  border-top: 1px solid var(--line);
+}
+.pricing-toggle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-700);
+}
+.toggle-btn {
+  background: var(--paper-200);
+  border: none;
+  width: 50px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.toggle-btn::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--paper-0);
+  transition: transform 0.3s;
+}
+.toggle-btn.is-annual {
+  background: var(--primary);
+}
+.toggle-btn.is-annual::after {
+  transform: translateX(24px);
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sp-6);
+  margin-top: var(--sp-6);
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.pricing-card {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--dur-base) var(--ease-out);
+}
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.pricing-card.premium {
+  border-color: var(--primary);
+  position: relative;
+  overflow: hidden;
+}
+.pricing-card.premium::before {
+  content: 'POPULAR';
+  position: absolute;
+  top: 15px;
+  right: -30px;
+  background: var(--primary);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 30px;
+  transform: rotate(45deg);
+}
+.pricing-card h3 {
+  font-size: var(--fs-md);
+  margin-bottom: var(--sp-1);
+}
+.pricing-card .price-amount {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  color: var(--ink-950);
+  margin: var(--sp-3) 0 var(--sp-4);
+}
+.pricing-card .price-sub {
+  font-size: var(--fs-xs);
+  color: var(--ink-600);
+}
+.pricing-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--sp-6) 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+.pricing-card ul li {
+  font-size: var(--fs-sm);
+  color: var(--ink-700);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.pricing-card ul li i {
+  color: var(--score-high);
+}
+
+/* FAQ Section */
+.faq-section {
+  padding: var(--sp-8) 0;
+  background: var(--paper-0);
+  border-top: 1px solid var(--line);
+}
+.faq-grid {
+  max-width: 750px;
+  margin: var(--sp-6) auto 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+.faq-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--paper-50);
+  overflow: hidden;
+  transition: all var(--dur-base) var(--ease-out);
+}
+.faq-q {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: var(--sp-4) var(--sp-5);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-950);
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.faq-q i {
+  font-size: var(--fs-2xs);
+  color: var(--ink-400);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-base) var(--ease-out);
+  padding: 0 var(--sp-5);
+}
+.faq-a p {
+  padding-bottom: var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--ink-600);
+  line-height: 1.6;
+}
+.faq-item.is-open {
+  border-color: var(--line-strong);
+  background: var(--paper-0);
+}
+.faq-item.is-open .faq-q i {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+.faq-item.is-open .faq-a {
+  max-height: 160px;
+}
 .demo-preview-box h4 {
   font-size: var(--fs-sm);
   margin-bottom: var(--sp-4);
@@ -150,7 +369,8 @@
       <a href="index.html#features">Features</a>
       <a href="pages/resume-builder.html">Resume Builder</a>
       <a href="pages/ats-checker.html">ATS Checker</a>
-      <a href="pages/about.html">About</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#faq">FAQ</a>
     </nav>
 
     <div class="nav-actions" id="desktopNavActions">
@@ -180,6 +400,8 @@
     <a href="index.html#features">Features</a>
     <a href="pages/resume-builder.html">Resume Builder</a>
     <a href="pages/ats-checker.html">ATS Checker</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="index.html#faq">FAQ</a>
   </nav>
   <div class="nav-actions" id="mobileNavActions">
     <div id="mobileGuestActions" style="display: flex; flex-direction: column; gap: 1rem;">
@@ -216,13 +438,13 @@
         
         <div class="hero-proof">
           <div class="avatars"><span>JD</span><span>AM</span><span>KL</span><span>+</span></div>
-          <p class="hero-proof-text">Optimized for recruiter screeners<br>Average ATS pass rate: <strong>92%</strong></p>
+          <p class="hero-proof-text">Optimized for ATS screening<br>Average ATS pass rate: <strong>92%</strong></p>
         </div>
       </div>
 
       <div class="hero-visual">
         <div class="hero-visual-card">
-          <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80" alt="Recruiter reviewing a resume mock representation" />
+          <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80" alt="System analyzing a resume mock representation" />
           <div class="hero-floating-metrics">
             <span class="hero-graphic-pill">ATS Score: 87 / 100</span>
             <span class="hero-graphic-pill accent">Formatting: Perfect</span>
@@ -244,7 +466,7 @@
       <div class="section-head center">
         <div class="eyebrow">Core Features</div>
         <h2>Designed to get you interviews</h2>
-        <p>Everything you need to create a clean, modern, recruiter-approved developer resume.</p>
+        <p>Everything you need to create a clean, modern, ATS-optimized developer resume.</p>
       </div>
 
       <div class="showcase-grid">
@@ -268,7 +490,7 @@
         
         <div class="showcase-card">
           <i class="fa-solid fa-file-invoice"></i>
-          <h3>Recruiter-Approved Templates</h3>
+          <h3>ATS-Optimized Templates</h3>
           <p>Choose from Modern, Classic, Minimal, or Academic template style guidelines built to respect printable limits.</p>
         </div>
       </div>
@@ -349,6 +571,86 @@
     </div>
   </section>
 
+  <!-- ============================= PRICING SECTION ============================= -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-head center">
+        <div class="eyebrow">Pricing Plans</div>
+        <h2>Flexible plans for every career stage</h2>
+        <p>Start free and upgrade as your job search scales up.</p>
+      </div>
+
+      <div class="pricing-toggle-container">
+        <span>Monthly</span>
+        <button class="toggle-btn" id="pricingToggle" aria-label="Toggle annual pricing"></button>
+        <span>Annual <span style="font-size: 10px; font-weight: 700; color: var(--primary); background: var(--signal-100); padding: 2px 6px; border-radius: var(--radius-xs); margin-left: 4px;">Save 20%</span></span>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Free Tier</h3>
+          <p class="price-sub">Essential tools to get started</p>
+          <div class="price-amount"><span class="num" data-monthly="0" data-annual="0">$0</span><span style="font-size: var(--fs-xs); color: var(--ink-600); font-weight: 500;"> / month</span></div>
+          <ul>
+            <li><i class="fa-solid fa-circle-check"></i> 1 Active Resume</li>
+            <li><i class="fa-solid fa-circle-check"></i> Basic ATS Scan (3/month)</li>
+            <li><i class="fa-solid fa-circle-check"></i> AI Assistant chatbot access</li>
+            <li><i class="fa-solid fa-circle-check"></i> Export print-ready PDF</li>
+          </ul>
+          <a href="pages/register.html" class="btn btn-ghost btn-block js-cta" data-cta="pricing_free">Get Started Free</a>
+        </div>
+
+        <div class="pricing-card premium">
+          <h3>ResumeForge Pro</h3>
+          <p class="price-sub">Advanced features to secure interviews</p>
+          <div class="price-amount"><span class="num" data-monthly="12" data-annual="9">$12</span><span style="font-size: var(--fs-xs); color: var(--ink-600); font-weight: 500;"> / month</span></div>
+          <ul>
+            <li><i class="fa-solid fa-circle-check"></i> Unlimited Active Resumes</li>
+            <li><i class="fa-solid fa-circle-check"></i> Unlimited ATS Checks</li>
+            <li><i class="fa-solid fa-circle-check"></i> Unlimited Gemini AI Suggestions</li>
+            <li><i class="fa-solid fa-circle-check"></i> Tailored Cover Letter Generator</li>
+            <li><i class="fa-solid fa-circle-check"></i> Priority template formats</li>
+          </ul>
+          <a href="pages/register.html" class="btn btn-primary btn-block js-cta" data-cta="pricing_pro">Upgrade to Pro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= FAQ SECTION ============================= -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-head center">
+        <div class="eyebrow">FAQ</div>
+        <h2>Frequently Asked Questions</h2>
+        <p>Everything you need to know about the ResumeForge AI platform.</p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <button class="faq-q">How does the ATS Scanner score my resume? <i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-a">
+            <p>Our deterministic ATS Scanner reads your resume text and compares it against the target job description. It rates your resume based on keyword matches, formatting readability, and structural compliance with standard applicant tracking algorithms.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">Is my resume data private and secure? <i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-a">
+            <p>Yes, your data is completely secure. We use secure database schemas and industry-standard JWT authentication. Your personal information and resumes are only accessible to you and are never shared or sold to third parties.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">Does the AI generate realistic bullet points? <i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-a">
+            <p>Yes! By integrating with Google Gemini AI models, ResumeForge provides contextual rewrites and metric-driven suggestions for your achievements without exaggerating or falsifying your experience.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============================= CTA BANNER ============================= -->
   <section class="section-cta">
     <div class="container">
@@ -362,15 +664,9 @@
 
 <!-- ============================= FOOTER ============================= -->
 <footer class="footer-landing">
-  <div class="container">
-    <div>
-      <strong>ResumeForge</strong> — Build. Optimize. Get Noticed.
-    </div>
-    <div style="text-align:right;">
-      Developed by a <span style="color:var(--primary); font-weight:600;">Web Developer | AI/ML Enthusiast | UI/UX Learner</span>
-      <br>
-      <span style="font-size:10px; color:var(--ink-400);">Portfolio Demonstration. Powered by Vanilla HTML, CSS, and JS. &copy; 2026.</span>
-    </div>
+  <div class="container" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;">
+    <div style="font-weight:600; color:var(--ink-950);">Developed by Joshva • MCA Student</div>
+    <div style="font-size:11px; color:var(--ink-600);">© 2026 Joshva. All Rights Reserved.</div>
   </div>
 </footer>
 

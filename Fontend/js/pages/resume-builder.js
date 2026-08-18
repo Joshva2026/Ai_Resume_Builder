@@ -58,6 +58,29 @@
         renderPreview();
       }
     }
+
+    // Apply template from query parameter if provided
+    const tplParam = urlParams.get('template');
+    if (tplParam) {
+      const templateMap = {
+        '1': 'modern',
+        '2': 'executive',
+        '3': 'minimal',
+        '4': 'academic',
+        'modern': 'modern',
+        'executive': 'executive',
+        'minimal': 'minimal',
+        'academic': 'academic'
+      };
+      const tplName = templateMap[tplParam] || tplParam;
+      state.styling = state.styling || {};
+      state.styling.template = tplName;
+      saveDraftToLocalStorage();
+      renderPreview();
+      // Re-sync selector
+      const sel = document.getElementById('selTemplate');
+      if (sel) sel.value = tplName;
+    }
   }
 
   /* ---------------------------------------------------------------------
