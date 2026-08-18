@@ -139,6 +139,19 @@
         </button>
       </form>
 
+      <!-- Dev mode: shown only on localhost when backend is unreachable -->
+      <div id="devModeBanner" style="display:none; margin-top:var(--sp-4); padding:12px 16px; background:rgba(108,92,255,0.08); border:1px solid rgba(108,92,255,0.25); border-radius:var(--radius-md); font-size:var(--fs-xs); color:var(--ink-300);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <i class="fa-solid fa-flask" style="color:#a78bfa;"></i>
+          <strong style="color:#c4b5fd;">Local Dev Mode</strong>
+          <span style="font-size:10px;background:rgba(108,92,255,0.2);color:#a78bfa;padding:2px 8px;border-radius:20px;">offline</span>
+        </div>
+        <p style="margin:0 0 8px;">Backend DB is unreachable. Using local mock storage.</p>
+        <button type="button" id="fillDemoBtn" style="background:rgba(108,92,255,0.15);border:1px solid rgba(108,92,255,0.3);color:#c4b5fd;border-radius:var(--radius-sm);padding:6px 14px;font-size:var(--fs-xs);cursor:pointer;width:100%;transition:background 0.2s;" onmouseover="this.style.background='rgba(108,92,255,0.25)'" onmouseout="this.style.background='rgba(108,92,255,0.15)'">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Use demo account (demo@resumeforge.dev)
+        </button>
+      </div>
+
       <p class="auth-switch">Don't have an account? <a href="register.html" class="btn-text">Create one free</a></p>
     </div>
   </section>
@@ -176,7 +189,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     await ApiService.auth.login({ email, password });
     btnText.textContent = 'Success! ✓';
     submitBtn.style.background = 'var(--score-high)';
-    setTimeout(() => { window.location.href = 'dashboard'; }, 400);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
   } catch (err) {
     errorBox.querySelector('span').textContent = err.message || 'Login failed. Please check your credentials.';
     errorBox.classList.add('is-visible');
@@ -192,6 +205,25 @@ document.body.style.opacity = '0';
 requestAnimationFrame(() => {
   document.body.style.transition = 'opacity 0.4s ease';
   document.body.style.opacity = '1';
+});
+
+// Show dev mode banner on localhost
+const isLocalhost = ['localhost','127.0.0.1'].includes(window.location.hostname);
+if (isLocalhost) {
+  // Ping backend to check if it's up; show banner if it's not
+  fetch(ApiService.BASE_URL + '/auth/me', { method: 'GET' })
+    .then(r => { if (!r.ok && r.status !== 401) throw new Error(); }) // 401 = backend alive, just not authed
+    .catch(() => {
+      document.getElementById('devModeBanner').style.display = 'block';
+    });
+}
+
+// Fill demo credentials
+document.getElementById('fillDemoBtn')?.addEventListener('click', () => {
+  document.getElementById('email').value = 'demo@resumeforge.dev';
+  document.getElementById('password').value = 'Demo1234!';
+  document.getElementById('email').dispatchEvent(new Event('input'));
+  document.getElementById('password').dispatchEvent(new Event('input'));
 });
 </script>
   <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>

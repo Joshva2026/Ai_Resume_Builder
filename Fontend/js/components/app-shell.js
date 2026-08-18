@@ -1,25 +1,27 @@
 /**
  * APP SHELL COMPONENT
  * Renders the sidebar + topbar into any authenticated page.
- * Usage: <div id="appShellRoot"></div>  then AppShell.render({ active: 'dashboard', title: 'Dashboard' })
+ * Usage: <div id="appShellRoot"></div> then AppShell.render({ active: 'dashboard', title: 'Dashboard' })
  */
 const AppShell = (() => {
   const NAV_ITEMS = [
     { group: 'Workspace' },
-    { key: 'dashboard', icon: 'fa-table-columns', label: 'Dashboard', href: 'dashboard' },
-    { key: 'resume-builder', icon: 'fa-pen-ruler', label: 'Resume Builder', href: 'resume-builder' },
-    { key: 'cover-letter', icon: 'fa-envelope-open-text', label: 'Cover Letter', href: 'cover-letter' },
-    { key: 'applications', icon: 'fa-list-check', label: 'Application Tracker', href: 'applications' },
+    { key: 'dashboard', icon: 'fa-table-columns', label: 'Dashboard', href: 'dashboard.html' },
+    { key: 'resume-builder', icon: 'fa-pen-ruler', label: 'Resume Builder', href: 'resume-builder.html' },
+    { key: 'templates', icon: 'fa-cubes', label: 'Templates', href: 'templates.html' },
+    { key: 'cover-letter', icon: 'fa-envelope-open-text', label: 'Cover Letters', href: 'cover-letter.html' },
+    { key: 'applications', icon: 'fa-list-check', label: 'Application Tracker', href: 'applications.html' },
     
     { group: 'AI & Career Tools' },
-    { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Score Checker', href: 'ats-checker' },
-    { key: 'job-match', icon: 'fa-shuffle', label: 'Job Match Analyzer', href: 'job-match' },
-    { key: 'linkedin-review', icon: 'fa-brands fa-linkedin', label: 'LinkedIn Reviewer', href: 'linkedin-review' },
-    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Career Chat', href: 'ai-assistant' },
+    { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Checker', href: 'ats-checker.html' },
+    { key: 'job-match', icon: 'fa-shuffle', label: 'Job Match Analyzer', href: 'job-match.html' },
+    { key: 'linkedin-review', icon: 'fa-brands fa-linkedin', label: 'LinkedIn Auditor', href: 'linkedin-review.html' },
+    { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant.html' },
     
     { group: 'System' },
-    { key: 'job-search', icon: 'fa-briefcase', label: 'Find Jobs', href: 'job-search' },
-    { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile' },
+    { key: 'job-search', icon: 'fa-briefcase', label: 'Find Jobs', href: 'job-search.html' },
+    { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile.html' },
+    { key: 'settings', icon: 'fa-gear', label: 'Settings', href: 'settings.html' }
   ];
 
   function navHtml(active) {
@@ -36,7 +38,7 @@ const AppShell = (() => {
     if (!root) return;
 
     // Apply saved theme immediately
-    const savedTheme = localStorage.getItem('rf_theme') || 'dark';
+    const savedTheme = localStorage.getItem('rf_theme') || 'light';
     if (savedTheme === 'light') {
       document.body.classList.add('light-theme');
     } else {
@@ -48,11 +50,14 @@ const AppShell = (() => {
     root.innerHTML = `
       <div class="app-shell">
         <aside class="app-sidebar" id="appSidebar">
-          <a href="../index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
+          <a href="../index.html" class="brand">
+            <span class="brand-mark">RF</span>
+            ResumeForge
+          </a>
           <nav class="side-nav">${navHtml(active)}</nav>
           <div class="sidebar-upgrade">
-            <p><strong style="color:var(--ink-100)">Pro Account</strong><br>Access unlimited AI insights.</p>
-            <a href="../index.html#pricing" class="btn btn-accent btn-block" style="text-align:center; display:block; padding:10px 0; margin-top:8px;">Plan details</a>
+            <p><strong>Professional Portfolio</strong><br>Recruiter-approved styling and insights.</p>
+            <a href="../index.html#features" class="btn btn-primary btn-sm btn-block" style="text-align:center;">Learn more</a>
           </div>
         </aside>
  
@@ -69,9 +74,9 @@ const AppShell = (() => {
                 <div class="avatar" id="userAvatar">··</div>
                 <div>
                   <div class="name" id="userName">Loading…</div>
-                  <div class="role">Pro plan</div>
+                  <div class="role" style="font-size: 10px; font-weight: 500; color: var(--primary);">Developer Portfolio</div>
                 </div>
-                <i class="fa-solid fa-chevron-down" style="font-size:11px; color:var(--ink-600)"></i>
+                <i class="fa-solid fa-chevron-down" style="font-size:10px; color:var(--ink-400)"></i>
               </div>
             </div>
           </header>
@@ -79,11 +84,11 @@ const AppShell = (() => {
         </div>
  
         <div class="mobile-bottom-dock">
-          <a href="dashboard" class="${active === 'dashboard' ? 'active' : ''}"><i class="fa-solid fa-table-columns"></i><span>Dash</span></a>
-          <a href="resume-builder" class="${active === 'resume-builder' ? 'active' : ''}"><i class="fa-solid fa-pen-ruler"></i><span>Builder</span></a>
-          <a href="ats-checker" class="${active === 'ats-checker' ? 'active' : ''}"><i class="fa-solid fa-gauge-high"></i><span>ATS</span></a>
-          <a href="ai-assistant" class="${active === 'ai-assistant' ? 'active' : ''}"><i class="fa-solid fa-robot"></i><span>AI</span></a>
-          <a href="profile" class="${active === 'profile' ? 'active' : ''}"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+          <a href="dashboard.html" class="${active === 'dashboard' ? 'active' : ''}"><i class="fa-solid fa-table-columns"></i><span>Dash</span></a>
+          <a href="resume-builder.html" class="${active === 'resume-builder' ? 'active' : ''}"><i class="fa-solid fa-pen-ruler"></i><span>Builder</span></a>
+          <a href="ats-checker.html" class="${active === 'ats-checker' ? 'active' : ''}"><i class="fa-solid fa-gauge-high"></i><span>ATS</span></a>
+          <a href="ai-assistant.html" class="${active === 'ai-assistant' ? 'active' : ''}"><i class="fa-solid fa-robot"></i><span>AI</span></a>
+          <a href="profile.html" class="${active === 'profile' ? 'active' : ''}"><i class="fa-solid fa-user"></i><span>Profile</span></a>
         </div>
       </div>
     `;

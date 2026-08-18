@@ -46,22 +46,17 @@
     bindStylingControls();
 
     if (resumeId) {
-        loadExistingResume(resumeId);
+      loadExistingResume(resumeId);
+    } else {
+      const draft = loadDraftFromLocalStorage();
+      if (draft && confirm('Restore unsaved draft?')) {
+        state = draft;
+        renderPreview();
       } else {
-        const draft = loadDraftFromLocalStorage();
-        if (draft && confirm('Restore unsaved draft?')) {
-          state = draft;
-          renderPreview();
-        } else {
-          addExperienceBlock();
-          addEducationBlock();
-          renderPreview();
-        }
+        addExperienceBlock();
+        addEducationBlock();
+        renderPreview();
       }
-    else {
-      addExperienceBlock();
-      addEducationBlock();
-      renderPreview();
     }
   }
 
@@ -69,19 +64,14 @@
      Section navigation (rail -> editor pane)
   --------------------------------------------------------------------- */
   let stateHistory = [];
-function pushState() {
-  // Deep clone and keep last 20 states
-  const copy = JSON.parse(JSON.stringify(state));
-  stateHistory.push(copy);
-  if (stateHistory.length > 20) stateHistory.shift();
-  // Persist draft locally after each change
-  saveDraftToLocalStorage();
-}
-  // Deep clone and keep last 20
-  const copy = JSON.parse(JSON.stringify(state));
-  stateHistory.push(copy);
-  if (stateHistory.length > 20) stateHistory.shift();
-}
+  function pushState() {
+    // Deep clone and keep last 20 states
+    const copy = JSON.parse(JSON.stringify(state));
+    stateHistory.push(copy);
+    if (stateHistory.length > 20) stateHistory.shift();
+    // Persist draft locally after each change
+    saveDraftToLocalStorage();
+  }
 function undo() {
   if (stateHistory.length === 0) return alert('Nothing to undo');
   state = stateHistory.pop();
@@ -471,7 +461,7 @@ function bindSectionNav() {
     });
   });
 }
-function renderStep() {
+function renderPreview() {
     const p = state.personal;
     const el = document.getElementById('livePreview');
     if (!el) return;
@@ -751,6 +741,8 @@ function loadDraftFromLocalStorage() {
     const activeIdx = items.findIndex(i => i.classList.contains('active'));
     if (activeIdx > 0) {
       items[activeIdx - 1].click();
+    } else {
+      window.location.href = 'dashboard.html';
     }
   }
   function bindTopNav() {

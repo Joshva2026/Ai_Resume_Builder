@@ -1,66 +1,73 @@
 /* ==========================================================================
-   RESUMEFORGE — DESIGN TOKENS (STITCH OCEAN GLASS EDITION)
+   RESUMEFORGE — DESIGN TOKENS (LIGHT-BY-DEFAULT DEEP BLUE SaaS SYSTEM)
    ========================================================================== */
 
 :root {
-  /* ---- Colors: Deep Ocean Navy & Sleek Glass ---- */
-  --bg-ocean: radial-gradient(circle at 50% 0%, #0c182e 0%, #050a14 100%);
-  --bg-ocean-fallback: #050a14;
+  /* ---- Colors: Professional Blue / Slate SaaS Palette ---- */
+  --primary: #2563EB;
+  --primary-dark: #1D4ED8;
+  --accent: #06B6D4;
+  --bg-ocean: #F8FAFC;
+  --bg-ocean-fallback: #F8FAFC;
   
-  --ink-950: #050A14;
-  --ink-900: #0D1B2A;
-  --ink-800: #1B263B;
-  --ink-700: #415A77;
-  --ink-600: #778DA9;
-  --ink-400: #A0AEC0;
+  --ink-950: #0F172A; /* Main Text */
+  --ink-900: #1E293B;
+  --ink-800: #334155;
+  --ink-700: #475569;
+  --ink-600: #64748B; /* Secondary Text */
+  --ink-400: #94A3B8;
   --ink-200: #CBD5E1;
-  --ink-100: #E2E8F0;
+  --ink-100: #E2E8F0; /* Borders */
+  --ink-50: #F1F5F9;
 
-  --paper-0: #050a14;
-  --paper-50: #0c182e;
-  --paper-100: #1b263b;
+  --paper-0: #FFFFFF;  /* Primary Card Surface */
+  --paper-50: #F8FAFC; /* Secondary Surface */
+  --paper-100: #F1F5F9; /* Highlight Surface */
+  --paper-200: #E2E8F0;
 
-  --signal-600: #00F2FE;
-  --signal-500: #38BDF8;
-  --signal-400: #7DD3FC;
-  --signal-100: rgba(0, 242, 254, 0.1);
+  --signal-600: #2563EB;
+  --signal-500: #3B82F6;
+  --signal-400: #60A5FA;
+  --signal-100: rgba(37, 99, 235, 0.08);
 
-  --score-low: #F5A623;
-  --score-mid: #38BDF8;
-  --score-high: #10B981;
-  --score-high-bg: rgba(16, 185, 129, 0.12);
-  --score-low-bg: rgba(245, 166, 35, 0.12);
+  --score-low: #DC2626;      /* Error/Low */
+  --score-mid: #F59E0B;      /* Warning/Mid */
+  --score-high: #16A34A;     /* Success/High */
+  --score-high-bg: rgba(22, 163, 74, 0.08);
+  --score-low-bg: rgba(220, 38, 38, 0.08);
+  --score-mid-bg: rgba(245, 158, 11, 0.08);
 
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.15);
+  --line: #E2E8F0;
+  --line-strong: #CBD5E1;
 
-  /* ---- Glass System Tokens ---- */
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-bg-hover: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-focus: rgba(0, 242, 254, 0.35);
-  --glass-blur: blur(20px);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  /* ---- Glass/SaaS Depth Tokens ---- */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-bg-hover: rgba(255, 255, 255, 0.95);
+  --glass-border: #E2E8F0;
+  --glass-border-focus: #3B82F6;
+  --glass-blur: blur(8px);
+  --glass-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
 
-  /* ---- Typography ---- */
-  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  /* ---- Typography (Inter System) ---- */
+  --font-display: 'Inter', 'Segoe UI', sans-serif;
   --font-body: 'Inter', 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 
-  --fs-2xs: 0.75rem;
-  --fs-xs: 0.8125rem;
-  --fs-sm: 0.9375rem;
-  --fs-base: 1rem;
-  --fs-md: 1.125rem;
-  --fs-lg: 1.375rem;
-  --fs-xl: 1.75rem;
-  --fs-2xl: 2.25rem;
-  --fs-3xl: 3rem;
-  --fs-4xl: 3.75rem;
-  --fs-5xl: 4.5rem;
+  --fs-3xs: 0.6875rem; /* 11px */
+  --fs-2xs: 0.75rem;   /* 12px */
+  --fs-xs: 0.8125rem;  /* 13px */
+  --fs-sm: 0.875rem;   /* 14px */
+  --fs-base: 0.9375rem; /* 15px */
+  --fs-md: 1.0625rem;   /* 17px */
+  --fs-lg: 1.25rem;    /* 20px */
+  --fs-xl: 1.5rem;     /* 24px */
+  --fs-2xl: 1.875rem;  /* 30px */
+  --fs-3xl: 2.25rem;   /* 36px */
+  --fs-4xl: 2.75rem;   /* 44px */
+  --fs-5xl: 3.5rem;    /* 56px */
 
-  /* ---- Space ---- */
+  /* ---- Space Scale ---- */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -72,69 +79,77 @@
   --sp-9: 96px;
   --sp-10: 128px;
 
-  /* ---- Shape ---- */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-pill: 999px;
+  /* ---- Border Radius ---- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
 
   /* ---- Shadows & Glows ---- */
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.15);
-  --shadow-md: 0 8px 32px rgba(0,0,0,0.3);
-  --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 20px rgba(0, 242, 254, 0.25);
-  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.25);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 12px rgba(37, 99, 235, 0.15);
+  --shadow-glow-green: 0 0 12px rgba(22, 163, 74, 0.15);
 
   /* ---- Motion ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-fast: 150ms;
-  --dur-base: 280ms;
-  --dur-slow: 520ms;
-  --dur-xslow: 900ms;
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 400ms;
 
-  --container-max: 1220px;
+  --container-max: 1200px;
 }
 
 /* ==========================================================================
-   LIGHT THEME OVERRIDES
+   DARK THEME OVERRIDES (Optional / Selectable)
    ========================================================================== */
 .light-theme {
-  --bg-ocean: radial-gradient(circle at 50% 0%, #f8fafc 0%, #e2e8f0 100%);
-  --bg-ocean-fallback: #f8fafc;
+  /* Default maps to light theme */
+}
+
+/* We support a real dark-theme class on body */
+body:not(.light-theme) {
+  --bg-ocean: #090D16;
+  --bg-ocean-fallback: #090D16;
   
-  --ink-950: #f8fafc;
-  --ink-900: #f1f5f9;
-  --ink-800: #e2e8f0;
-  --ink-700: #cbd5e1;
-  --ink-600: #94a3b8;
-  --ink-400: #64748b;
+  --ink-950: #F8FAFC; /* Main Text */
+  --ink-900: #F1F5F9;
+  --ink-800: #E2E8F0;
+  --ink-700: #CBD5E1;
+  --ink-600: #94A3B8; /* Secondary Text */
+  --ink-400: #64748B;
   --ink-200: #334155;
-  --ink-100: #0f172a;
+  --ink-100: #1E293B; /* Borders */
+  --ink-50: #0F172A;
 
-  --paper-0: #ffffff;
-  --paper-50: #f8fafc;
-  --paper-100: #f1f5f9;
+  --paper-0: #111827;  /* Primary Card Surface */
+  --paper-50: #0F172A; /* Secondary Surface */
+  --paper-100: #1F2937; /* Highlight Surface */
+  --paper-200: #374151;
 
-  --signal-600: #4f46e5;
-  --signal-500: #6366f1;
-  --signal-400: #818cf8;
-  --signal-100: rgba(79, 70, 229, 0.1);
+  --signal-600: #3B82F6;
+  --signal-500: #60A5FA;
+  --signal-400: #93C5FD;
+  --signal-100: rgba(59, 130, 246, 0.15);
 
-  --line: rgba(15, 23, 42, 0.08);
-  --line-strong: rgba(15, 23, 42, 0.15);
+  --line: #1F2937;
+  --line-strong: #374151;
 
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-bg-hover: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(15, 23, 42, 0.08);
-  --glass-border-focus: rgba(79, 70, 229, 0.35);
-  --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
-  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  --glass-bg: rgba(17, 24, 39, 0.8);
+  --glass-bg-hover: rgba(17, 24, 39, 0.95);
+  --glass-border: #1F2937;
+  --glass-border-focus: #3B82F6;
+  --glass-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 8px 30px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
-  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-reduced-motion: reduce) {

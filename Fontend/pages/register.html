@@ -208,7 +208,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     await ApiService.auth.register({ email, password, firstName, lastName });
     btnText.textContent = 'Success! ✓';
     submitBtn.style.background = 'var(--score-high)';
-    setTimeout(() => { window.location.href = 'dashboard'; }, 400);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
   } catch (err) {
     errorBox.querySelector('span').textContent = err.message || 'Could not create account. Please try again.';
     errorBox.classList.add('is-visible');

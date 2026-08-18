@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LinkedIn Reviewer — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
 <style>
 .reviewer-layout {
   display: grid;
@@ -23,7 +28,7 @@
   }
 }
 .li-card {
-  background: var(--paper-100);
+  background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--sp-5);
@@ -48,13 +53,14 @@
 }
 .score-circle .val {
   font-size: var(--fs-xl);
-  font-weight: 700;
-  color: var(--ink-100);
+  font-weight: 800;
+  color: var(--ink-950);
 }
 .score-circle .label {
   font-size: var(--fs-3xs);
   text-transform: uppercase;
   color: var(--ink-600);
+  font-weight: 700;
 }
 .review-item {
   border-bottom: 1px solid var(--line);
@@ -65,18 +71,18 @@
 }
 .review-item h4 {
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--ink-200);
+  font-weight: 700;
+  color: var(--ink-950);
   margin-bottom: var(--sp-2);
   display: flex;
   align-items: center;
   gap: var(--sp-2);
 }
 .review-item h4 i {
-  color: var(--signal-500);
+  color: var(--primary);
 }
 .review-item p {
-  color: var(--ink-500);
+  color: var(--ink-700);
   font-size: var(--fs-xs);
   line-height: 1.5;
 }
@@ -89,10 +95,11 @@
 .keyword-chip {
   font-size: var(--fs-3xs);
   padding: 4px 10px;
-  background: var(--line);
-  color: var(--ink-200);
+  background: var(--paper-50);
+  color: var(--ink-800);
+  border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  font-weight: 600;
+  font-weight: 700;
 }
 .empty-results {
   text-align: center;
@@ -102,6 +109,7 @@
 .empty-results i {
   font-size: var(--fs-2xl);
   margin-bottom: var(--sp-3);
+  color: var(--ink-400);
 }
 </style>
 </head>
@@ -117,7 +125,7 @@
       <p class="sub" style="margin-bottom:var(--sp-4)">Paste your LinkedIn headline, summary, and experience sections to review alignment, search visibility, and professional recruiter impact.</p>
       
       <div class="field">
-        <label>Profile Text</label>
+        <label for="profileText">Profile Bio / Experience Text</label>
         <textarea id="profileText" rows="12" placeholder="Jane Doe&#10;Headline: Senior Software Engineer at TechCorp&#10;&#10;About:&#10;Passionate builder specializing in web development...&#10;&#10;Experience:&#10;- Led engineering for analytics dashboard..."></textarea>
       </div>
       

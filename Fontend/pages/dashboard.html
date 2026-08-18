@@ -4,42 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
 <style>
+/* Dashboard layout specifics */
 .dashboard-greeting {
-  margin-bottom: var(--sp-5);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--paper-0);
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--sp-5);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--sp-5);
 }
 .dashboard-greeting h2 {
-  font-family: var(--font-display);
-  font-size: var(--fs-xl);
-  font-weight: 700;
-  color: var(--ink-100);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--ink-950);
   margin-bottom: var(--sp-1);
 }
 .dashboard-greeting p {
   color: var(--ink-600);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
 }
 
 .health-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--sp-4);
   margin-bottom: var(--sp-6);
 }
 .health-card {
-  background: var(--paper-100);
+  background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--sp-4);
@@ -48,13 +52,14 @@
 }
 .health-card:hover {
   transform: translateY(-2px);
-  border-color: var(--signal-400);
+  border-color: var(--primary);
   box-shadow: var(--shadow-md);
 }
 .health-card h4 {
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-3xs);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--ink-600);
   margin-bottom: var(--sp-3);
   display: flex;
@@ -62,27 +67,28 @@
   align-items: center;
 }
 .health-card h4 i {
-  color: var(--signal-500);
+  color: var(--primary);
 }
 .health-card .score-row {
   display: flex;
   align-items: baseline;
-  gap: var(--sp-1);
+  gap: 4px;
   margin-bottom: var(--sp-2);
 }
 .health-card .score-val {
   font-size: var(--fs-xl);
-  font-weight: 700;
-  color: var(--ink-100);
+  font-weight: 800;
+  color: var(--ink-950);
 }
 .health-card .score-pct {
   font-size: var(--fs-xs);
   color: var(--ink-600);
+  font-weight: 600;
 }
 .health-card .progress-track {
   width: 100%;
   height: 6px;
-  background: var(--line);
+  background: var(--paper-100);
   border-radius: var(--radius-pill);
   overflow: hidden;
   margin-bottom: var(--sp-2);
@@ -100,10 +106,9 @@
   margin-bottom: var(--sp-4);
 }
 .panel-head h3 {
-  font-family: var(--font-display);
-  font-size: var(--fs-lg);
-  font-weight: 600;
-  color: var(--ink-100);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--ink-950);
 }
 
 .resume-grid {
@@ -113,7 +118,7 @@
   margin-bottom: var(--sp-6);
 }
 .resume-card {
-  background: var(--paper-100);
+  background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--sp-4);
@@ -127,49 +132,50 @@
 }
 .resume-card:hover {
   transform: translateY(-2px);
-  border-color: var(--signal-500);
+  border-color: var(--primary);
   box-shadow: var(--shadow-md);
 }
 .resume-card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--sp-1);
+  margin-bottom: 4px;
 }
 .resume-card .card-title {
   font-family: var(--font-display);
-  font-size: var(--fs-md);
-  font-weight: 600;
-  color: var(--ink-100);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--ink-950);
 }
 .resume-card .card-meta {
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-3xs);
   color: var(--ink-600);
   margin-bottom: var(--sp-3);
 }
 .resume-card .card-badges {
   display: flex;
-  gap: var(--sp-2);
+  gap: 6px;
   margin-bottom: var(--sp-4);
   flex-wrap: wrap;
 }
 .resume-card .badge {
-  font-size: var(--fs-2xs);
-  padding: 4px 10px;
+  font-size: var(--fs-3xs);
+  padding: 4px 8px;
   border-radius: var(--radius-pill);
-  font-weight: 600;
+  font-weight: 700;
 }
 .resume-card .badge-ats {
   background: var(--score-high-bg);
   color: var(--score-high);
 }
 .resume-card .badge-template {
-  background: var(--line);
-  color: var(--ink-200);
+  background: var(--paper-50);
+  color: var(--ink-600);
+  border: 1px solid var(--line);
 }
 .resume-card .badge-completeness {
   background: var(--signal-100);
-  color: var(--signal-500);
+  color: var(--primary);
 }
 .resume-card .card-actions {
   display: flex;
@@ -186,16 +192,16 @@
   position: absolute;
   bottom: 100%;
   left: 0;
-  background: var(--paper-100);
+  background: var(--paper-0);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   border-radius: var(--radius-sm);
   z-index: 10;
   min-width: 160px;
   padding: 4px 0;
 }
-.resume-card .dropdown-content a, .resume-card .dropdown-content button {
-  color: var(--ink-200);
+.resume-card .dropdown-content button {
+  color: var(--ink-700);
   padding: 8px 12px;
   text-decoration: none;
   display: block;
@@ -207,9 +213,9 @@
   cursor: pointer;
   font-family: inherit;
 }
-.resume-card .dropdown-content a:hover, .resume-card .dropdown-content button:hover {
-  background: var(--line);
-  color: var(--ink-100);
+.resume-card .dropdown-content button:hover {
+  background: var(--paper-50);
+  color: var(--ink-950);
 }
 .resume-card .dropdown-content i {
   margin-right: 8px;
@@ -220,7 +226,7 @@
 }
 
 .create-resume-card {
-  border: 2px dashed var(--line);
+  border: 1px dashed var(--line-strong);
   background: transparent;
   display: flex;
   flex-direction: column;
@@ -229,20 +235,22 @@
   text-align: center;
   cursor: pointer;
   min-height: 200px;
+  box-shadow: none;
 }
 .create-resume-card:hover {
-  border-color: var(--signal-500);
-  background: var(--glass-bg);
+  border-color: var(--primary);
+  background: var(--paper-0);
+  box-shadow: var(--shadow-sm);
 }
 .create-resume-card i {
-  font-size: var(--fs-xl);
-  color: var(--ink-600);
+  font-size: var(--fs-lg);
+  color: var(--ink-400);
   margin-bottom: var(--sp-2);
 }
 .create-resume-card h4 {
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--ink-200);
+  color: var(--ink-700);
 }
 </style>
 </head>
@@ -252,49 +260,49 @@
 
 <template id="dashboardTemplate">
   <div class="dashboard-greeting">
-    <h2 id="greetingName">Good morning, Candidate</h2>
-    <p>Build a stronger resume and land your next opportunity.</p>
+    <h2 id="greetingName">Good to see you back</h2>
+    <p>Continue building your next opportunity.</p>
   </div>
 
   <div class="health-grid">
     <div class="health-card">
-      <h4>Resume Strength <i class="fa-solid fa-file-invoice"></i></h4>
+      <h4>Resumes Created <i class="fa-solid fa-file-invoice"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthStrengthVal">0</span>
-        <span class="score-pct">%</span>
+        <span class="score-pct">created</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthStrengthBar" style="width: 0%; background: var(--signal-500);"></div></div>
-      <span class="score-pct" id="healthStrengthLabel">Complete sections</span>
+      <div class="progress-track"><div class="progress-fill" id="healthStrengthBar" style="width: 0%; background: var(--primary);"></div></div>
+      <span class="score-pct" id="healthStrengthLabel">Resumes in workspace</span>
     </div>
     
     <div class="health-card">
-      <h4>ATS Readiness <i class="fa-solid fa-gauge-high"></i></h4>
+      <h4>ATS Score <i class="fa-solid fa-gauge-high"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthAtsVal">0</span>
         <span class="score-pct">/100</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="healthAtsBar" style="width: 0%; background: var(--score-high);"></div></div>
-      <span class="score-pct" id="healthAtsLabel">Est. ATS rating</span>
+      <span class="score-pct" id="healthAtsLabel">Average rating</span>
     </div>
 
     <div class="health-card">
-      <h4>LinkedIn Score <i class="fa-brands fa-linkedin"></i></h4>
+      <h4>Applications <i class="fa-solid fa-list-check"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthLinkedinVal">0</span>
-        <span class="score-pct">%</span>
+        <span class="score-pct">tracked</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthLinkedinBar" style="width: 0%; background: var(--signal-600);"></div></div>
-      <span class="score-pct" id="healthLinkedinLabel">Profile audit strength</span>
+      <div class="progress-track"><div class="progress-fill" id="healthLinkedinBar" style="width: 0%; background: var(--accent);"></div></div>
+      <span class="score-pct" id="healthLinkedinLabel">Tracked jobs</span>
     </div>
 
     <div class="health-card">
-      <h4>Job Match Score <i class="fa-solid fa-compress"></i></h4>
+      <h4>Profile Completion <i class="fa-solid fa-user-check"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthMatchVal">0</span>
         <span class="score-pct">%</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthMatchBar" style="width: 0%; background: var(--signal-600);"></div></div>
-      <span class="score-pct" id="healthMatchLabel">Average job match score</span>
+      <div class="progress-track"><div class="progress-fill" id="healthMatchBar" style="width: 0%; background: var(--score-high);"></div></div>
+      <span class="score-pct" id="healthMatchLabel">Average resume strength</span>
     </div>
   </div>
 
@@ -302,11 +310,11 @@
     <div class="panel">
       <div class="panel-head">
         <h3>My Resumes</h3>
-        <a href="resume-builder" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Resume</a>
+        <a href="resume-builder.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Resume</a>
       </div>
       
       <div class="resume-grid" id="resumeGrid">
-        <div class="resume-card create-resume-card" onclick="window.location.href='resume-builder'">
+        <div class="resume-card create-resume-card" onclick="window.location.href='resume-builder.html'">
           <i class="fa-solid fa-circle-plus"></i>
           <h4>Create New Resume</h4>
         </div>
@@ -331,65 +339,63 @@ async function loadDashboard() {
   try {
     const { user } = await ApiService.auth.me();
     const firstName = user?.firstName || user?.email.split('@')[0] || 'User';
-    document.getElementById('greetingName').textContent = `Good morning, ${firstName}`;
+    document.getElementById('greetingName').textContent = `Good to see you back, ${firstName}`;
   } catch (err) {
     console.warn('Greeting fetch error', err);
   }
 
-  // Load Health Stats: LinkedIn Review & Job Match History
-  let linkedinScore = 0;
-  let matchScore = 0;
-  
+  let resumes = [];
+  let atsHistory = [];
+  let apps = [];
+
   try {
-    const liHistory = await ApiService.linkedin.history();
-    if (liHistory.length > 0) {
-      linkedinScore = liHistory[0].score || 0;
-    }
+    resumes = await ApiService.resumes.list();
   } catch (err) {
-    console.warn('LI score history error', err);
+    console.warn('Error loading resumes list', err);
   }
 
   try {
-    const jmHistory = await ApiService.jobMatch.history();
-    const scoredMatches = jmHistory.filter(j => j.match_percentage > 0);
-    if (scoredMatches.length > 0) {
-      matchScore = Math.round(scoredMatches.reduce((sum, j) => sum + j.match_percentage, 0) / scoredMatches.length);
-    }
+    atsHistory = await ApiService.ats.history();
   } catch (err) {
-    console.warn('Job match history error', err);
+    console.warn('Error loading ATS history', err);
   }
 
-  // Render LinkedIn & Job Match Health Gauges
-  document.getElementById('healthLinkedinVal').textContent = linkedinScore || '–';
-  document.getElementById('healthLinkedinBar').style.width = `${linkedinScore}%`;
-  document.getElementById('healthLinkedinLabel').textContent = linkedinScore ? 'Audit strength' : 'No audits completed';
-
-  document.getElementById('healthMatchVal').textContent = matchScore || '–';
-  document.getElementById('healthMatchBar').style.width = `${matchScore}%`;
-  document.getElementById('healthMatchLabel').textContent = matchScore ? 'Avg match rate' : 'No matches evaluated';
-
   try {
-    const resumes = await ApiService.resumes.list();
-    const atsHistory = await ApiService.ats.history();
+    apps = await ApiService.applications.list();
+  } catch (err) {
+    console.warn('Error loading applications list', err);
+  }
 
-    // Render ATS Health Gauge
-    const avgAts = atsHistory.length
-      ? Math.round(atsHistory.reduce((sum, r) => sum + (r.overall_score || 0), 0) / atsHistory.length)
-      : 0;
-    document.getElementById('healthAtsVal').textContent = avgAts || '–';
-    document.getElementById('healthAtsBar').style.width = `${avgAts}%`;
-    document.getElementById('healthAtsLabel').textContent = atsHistory.length ? `${atsHistory.length} scans parsed` : 'No scans performed';
+  // Card 1: Resumes Created
+  document.getElementById('healthStrengthVal').textContent = resumes.length;
+  document.getElementById('healthStrengthBar').style.width = resumes.length > 0 ? '100%' : '0%';
+  document.getElementById('healthStrengthLabel').textContent = `${resumes.length} active resume${resumes.length === 1 ? '' : 's'}`;
 
-    // Calculate Completion Strength (Average completeness of all resumes)
-    let totalCompleteness = 0;
-    resumes.forEach(r => {
-      totalCompleteness += calculateCompleteness(r.content);
-    });
-    const avgCompleteness = resumes.length ? Math.round(totalCompleteness / resumes.length) : 0;
-    document.getElementById('healthStrengthVal').textContent = avgCompleteness;
-    document.getElementById('healthStrengthBar').style.width = `${avgCompleteness}%`;
+  // Card 2: ATS Score
+  const avgAts = atsHistory.length
+    ? Math.round(atsHistory.reduce((sum, r) => sum + (r.overall_score || 0), 0) / atsHistory.length)
+    : 0;
+  document.getElementById('healthAtsVal').textContent = avgAts || '–';
+  document.getElementById('healthAtsBar').style.width = `${avgAts}%`;
+  document.getElementById('healthAtsLabel').textContent = atsHistory.length ? `Based on ${atsHistory.length} scans` : 'No scans performed';
 
-    // Render Resumes Grid
+  // Card 3: Applications Tracker
+  document.getElementById('healthLinkedinVal').textContent = apps.length;
+  document.getElementById('healthLinkedinBar').style.width = apps.length > 0 ? '100%' : '0%';
+  document.getElementById('healthLinkedinLabel').textContent = `${apps.length} tracked application${apps.length === 1 ? '' : 's'}`;
+
+  // Card 4: Profile Completion
+  let totalCompleteness = 0;
+  resumes.forEach(r => {
+    totalCompleteness += calculateCompleteness(r.content);
+  });
+  const avgCompleteness = resumes.length ? Math.round(totalCompleteness / resumes.length) : 0;
+  document.getElementById('healthMatchVal').textContent = avgCompleteness;
+  document.getElementById('healthMatchBar').style.width = `${avgCompleteness}%`;
+  document.getElementById('healthMatchLabel').textContent = resumes.length ? 'Average resume details filled' : 'Create a resume to score';
+
+  // Render Resumes Grid
+  try {
     let cardsHtml = resumes.map((r) => {
       const completeness = calculateCompleteness(r.content);
       
@@ -413,10 +419,10 @@ async function loadDashboard() {
           </div>
           
           <div class="card-actions">
-            <a href="resume-builder?id=${r.id}" class="btn btn-ghost" style="padding:6px 12px; font-size:12px"><i class="fa-solid fa-pen"></i> Edit</a>
+            <a href="resume-builder.html?id=${r.id}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-pen"></i> Edit</a>
             
             <div class="action-dropdown">
-              <button class="btn btn-ghost" style="padding:6px 12px; font-size:12px"><i class="fa-solid fa-ellipsis"></i> Actions</button>
+              <button class="btn btn-ghost btn-sm"><i class="fa-solid fa-ellipsis"></i> Actions</button>
               <div class="dropdown-content">
                 <button onclick="duplicateResume(${r.id})"><i class="fa-solid fa-copy"></i> Duplicate</button>
                 <button onclick="downloadPdf(${r.id})"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
@@ -431,7 +437,7 @@ async function loadDashboard() {
 
     // Append the standard "Create Resume" card at the end
     cardsHtml += `
-      <div class="resume-card create-resume-card" onclick="window.location.href='resume-builder'">
+      <div class="resume-card create-resume-card" onclick="window.location.href='resume-builder.html'">
         <i class="fa-solid fa-circle-plus"></i>
         <h4>Create New Resume</h4>
       </div>
@@ -440,13 +446,13 @@ async function loadDashboard() {
     resumeGrid.innerHTML = cardsHtml;
 
   } catch (err) {
-    console.error('Error loading dashboard resumes', err);
+    console.error('Error rendering resumes grid', err);
     resumeGrid.innerHTML = `
       <div class="empty-state">
         <i class="fa-solid fa-triangle-exclamation"></i>
         <h4>Error loading dashboard</h4>
         <p>${escapeHtml(err.message)}</p>
-        <a href="resume-builder" class="btn btn-primary">Build My Resume</a>
+        <a href="resume-builder.html" class="btn btn-primary">Build My Resume</a>
       </div>`;
   }
 }

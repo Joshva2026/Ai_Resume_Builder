@@ -276,7 +276,7 @@
         <button type="button" class="btn btn-accent btn-lg" id="btnAskAiAssistant">
           <i class="fa-solid fa-robot"></i> Ask AI Assistant
         </button>
-        <a href="resume-builder" class="btn btn-primary btn-lg">
+        <a href="resume-builder.html" class="btn btn-primary btn-lg">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI
         </a>
         <button type="button" class="btn btn-ghost btn-lg" id="btnCheckAnother">
@@ -298,7 +298,7 @@
     if (btnAskAi) {
       btnAskAi.addEventListener('click', () => {
         const promptText = encodeURIComponent(`Please review my ATS score (${score}/100) and explain how I can fix missing keywords: ${missingKeywords.join(', ')}`);
-        window.location.href = `ai-assistant?prompt=${promptText}&score=${score}`;
+        window.location.href = `ai-assistant.html?prompt=${promptText}&score=${score}`;
       });
     }
 

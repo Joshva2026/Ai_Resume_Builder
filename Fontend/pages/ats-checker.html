@@ -4,199 +4,205 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ATS Checker — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
 <link rel="stylesheet" href="../css/ats.css">
+<link rel="stylesheet" href="../css/animations.css">
 <style>
+/* Local ATS Page Option Picker Cards */
+.ats-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.ats-option-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--paper-0);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--ink-800);
+  min-height: 140px;
+}
+
+.ats-option-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.ats-option-card.active {
+  border-color: var(--primary);
+  background: var(--signal-100);
+  box-shadow: var(--shadow-sm);
+}
+
+.ats-option-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.ats-option-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-100);
+  color: var(--ink-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.ats-option-card.active .ats-option-icon {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+.ats-option-card h4 {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-950);
+  font-weight: 700;
+}
+
+.ats-option-card p {
+  color: var(--ink-600);
+  font-size: 11px;
+  line-height: 1.4;
+  margin-bottom: var(--sp-2);
+}
+
+.drop-zone {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-5) var(--sp-4);
+  text-align: center;
+  background: var(--paper-50);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--primary);
+  background: var(--signal-100);
+}
+
+.drop-icon {
+  font-size: 24px;
+  color: var(--primary);
+  margin-bottom: var(--sp-2);
+}
+
+.drop-text {
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  color: var(--ink-900);
+}
+
+.browse-link {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.drop-hint {
+  font-size: var(--fs-3xs);
+  color: var(--ink-600);
+  margin-top: 4px;
+}
+
+.file-info-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--paper-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.file-info-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.file-icon {
+  font-size: 20px;
+  color: var(--primary);
+}
+
+.file-name {
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  color: var(--ink-950);
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: var(--fs-3xs);
+  color: var(--ink-600);
+}
+
+.file-remove-btn {
+  background: none;
+  border: none;
+  color: var(--ink-600);
+  cursor: pointer;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+.file-remove-btn:hover {
+  color: var(--score-low);
+}
+
+.opt-tag {
+  font-weight: 500;
+  color: var(--primary);
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+}
+
+.scan-error-box {
+  padding: 10px 12px;
+  background: var(--score-low-bg);
+  border: 1px solid rgba(220,38,38,0.15);
+  color: var(--score-low);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  margin-bottom: var(--sp-3);
+  font-weight: 500;
+}
+
+.ats-actions-bar {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 860px) {
   .ats-options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--sp-4);
-    margin-bottom: var(--sp-4);
+    grid-template-columns: 1fr;
   }
-
-  .ats-option-card {
-    border: 1.5px solid var(--glass-border);
-    border-radius: var(--radius-md);
-    padding: var(--sp-4);
-    background: rgba(255, 255, 255, 0.03);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    color: #FFFFFF;
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-  }
-
-  .ats-option-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
-
-  .ats-option-card.active {
-    border-color: var(--signal-500);
-    background: linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(56, 189, 248, 0.05) 100%);
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.12);
-  }
-
-  .ats-option-head {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    margin-bottom: var(--sp-2);
-  }
-
-  .ats-option-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: rgba(0, 242, 254, 0.1);
-    color: #00F2FE;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    border: 1px solid rgba(0, 242, 254, 0.25);
-  }
-
-  .ats-option-card h4 {
-    margin: 0;
-    font-size: var(--fs-sm);
-    color: #FFFFFF;
-  }
-
-  .ats-option-card p {
-    color: var(--ink-200);
-    font-size: var(--fs-xs);
-    margin-bottom: var(--sp-3);
-  }
-
-  .drop-zone {
-    border: 2px dashed rgba(255, 255, 255, 0.12);
-    border-radius: var(--radius-sm);
-    padding: var(--sp-5) var(--sp-4);
-    text-align: center;
-    background: rgba(255, 255, 255, 0.02);
-    cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
-  }
-
-  .drop-zone:hover, .drop-zone.dragover {
-    border-color: var(--signal-500);
-    background: rgba(0, 242, 254, 0.05);
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
-  }
-
-  .drop-icon {
-    font-size: 28px;
-    color: #00F2FE;
-    margin-bottom: var(--sp-2);
-    text-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
-  }
-
-  .drop-text {
-    font-weight: 500;
-    font-size: var(--fs-xs);
-    color: var(--ink-100);
-  }
-
-  .browse-link {
-    color: #00F2FE;
-    font-weight: 600;
-    text-decoration: underline;
-  }
-
-  .drop-hint {
-    font-size: var(--fs-2xs);
-    color: var(--ink-400);
-    margin-top: 4px;
-  }
-
-  .file-info-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--sp-3) var(--sp-4);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-  }
-
-  .file-info-left {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-  }
-
-  .file-icon {
-    font-size: 22px;
-    color: #00F2FE;
-  }
-
-  .file-name {
-    font-weight: 600;
-    font-size: var(--fs-xs);
-    color: #FFFFFF;
-    max-width: 170px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .file-size {
-    font-size: var(--fs-2xs);
-    color: var(--ink-400);
-  }
-
-  .file-remove-btn {
-    background: none;
-    border: none;
-    color: var(--ink-400);
-    cursor: pointer;
-    font-size: 16px;
-    transition: color 0.2s;
-  }
-
-  .file-remove-btn:hover {
-    color: #dc2626;
-  }
-
-  .opt-tag {
-    font-weight: 400;
-    color: var(--signal-400);
-    font-size: var(--fs-2xs);
-  }
-
-  .scan-error-box {
-    padding: var(--sp-3) var(--sp-4);
-    background: var(--score-low-bg);
-    border: 1px solid var(--score-low);
-    color: #FFC043;
-    border-radius: var(--radius-sm);
-    font-size: var(--fs-xs);
-    margin-bottom: var(--sp-3);
-  }
-
-  .ats-actions-bar {
-    display: flex;
-    gap: var(--sp-3);
-    margin-top: var(--sp-5);
-    flex-wrap: wrap;
-  }
-
-  @media (max-width: 860px) {
-    .ats-options-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}
 </style>
 </head>
 <body>
@@ -207,7 +213,7 @@
   <div class="ats-layout">
     <aside class="ats-input-panel">
       <h3>ATS Resume Scan</h3>
-      <p class="sub">Choose how you would like to analyze your resume against industry ATS standard rules.</p>
+      <p class="sub">Analyze your resume formatting and relevance compared directly to target job postings.</p>
 
       <!-- Dual Option Cards -->
       <div class="ats-options-grid">
@@ -215,9 +221,9 @@
           <div>
             <div class="ats-option-head">
               <div class="ats-option-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-              <h4>Upload Resume</h4>
+              <h4>Upload PDF File</h4>
             </div>
-            <p>Upload a PDF, DOCX, DOC, or TXT file directly from your computer or phone.</p>
+            <p>Upload a completed resume file from your device storage.</p>
           </div>
           <button type="button" class="btn btn-sm btn-ghost btn-block" id="btnSelectFileOption">Select File</button>
         </div>
@@ -226,11 +232,11 @@
           <div>
             <div class="ats-option-head">
               <div class="ats-option-icon"><i class="fa-solid fa-file-user"></i></div>
-              <h4>Check Created Resume</h4>
+              <h4>Saved Builder</h4>
             </div>
-            <p>Analyze a resume you've already created and saved in Resume Builder.</p>
+            <p>Analyze a resume you've already created in the builder.</p>
           </div>
-          <button type="button" class="btn btn-sm btn-ghost btn-block" id="btnSelectCreatedOption">Select Created</button>
+          <button type="button" class="btn btn-sm btn-ghost btn-block" id="btnSelectCreatedOption">Select Saved</button>
         </div>
       </div>
 
@@ -257,7 +263,7 @@
       <!-- Saved Resume Select Container -->
       <div id="savedResumeContainer" class="input-section" style="display: none;">
         <div class="field">
-          <label>Select Created Resume</label>
+          <label>Select Saved Resume</label>
           <select id="resumeSelect"><option value="">Loading your saved resumes…</option></select>
         </div>
       </div>
@@ -265,7 +271,7 @@
       <!-- Optional Job Description -->
       <div class="field" style="margin-top: var(--sp-4);">
         <label>Job Description <span class="opt-tag">(Optional)</span></label>
-        <textarea id="jobDescription" rows="5" placeholder="Paste the job posting here for exact keyword & skill matching analysis…"></textarea>
+        <textarea id="jobDescription" rows="5" placeholder="Paste target description to check for specific keyword match metrics…"></textarea>
       </div>
 
       <div id="scanErrorBox" class="scan-error-box" style="display:none;"></div>
@@ -276,8 +282,8 @@
     <div class="ats-results" id="atsResults">
       <div class="ats-empty">
         <i class="fa-solid fa-gauge-high"></i>
-        <h3>No scan yet</h3>
-        <p>Upload a resume file or select a created resume, then click Check ATS Score to see your full match dashboard.</p>
+        <h3>No analysis completed</h3>
+        <p>Trigger a check by selecting a resume and clicking Check ATS Score above.</p>
       </div>
     </div>
   </div>
@@ -287,11 +293,11 @@
 <script src="../js/auth-guard.js"></script>
 <script src="../js/components/app-shell.js"></script>
 <script>
-AppShell.render({ active: 'ats-checker', title: 'ATS Score Checker' });
+AppShell.render({ active: 'ats-checker', title: 'ATS Checker' });
 const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('atsTemplate').content.cloneNode(true));
 </script>
 <script src="../js/pages/ats-checker.js"></script>
-  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+<a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
 </body>
 </html>

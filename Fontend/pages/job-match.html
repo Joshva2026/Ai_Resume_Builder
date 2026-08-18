@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Job Match Analyzer — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
 <style>
 .match-layout {
   display: grid;
@@ -23,7 +28,7 @@
   }
 }
 .match-card {
-  background: var(--paper-100);
+  background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--sp-5);
@@ -40,16 +45,19 @@
   background: none;
   border: none;
   color: var(--ink-600);
-  font-weight: 600;
-  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-size: var(--fs-2xs);
   padding: 6px 12px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: all var(--dur-base) ease;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.tab-btn:hover {
+  color: var(--primary);
 }
 .tab-btn.active {
-  color: var(--signal-500);
-  border-bottom-color: var(--signal-500);
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 .score-circle-container {
   display: flex;
@@ -58,8 +66,8 @@
   margin-bottom: var(--sp-4);
 }
 .score-circle {
-  width: 130px;
-  height: 130px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   border: 6px solid var(--line);
   display: flex;
@@ -70,13 +78,14 @@
 }
 .score-circle .val {
   font-size: var(--fs-xl);
-  font-weight: 700;
-  color: var(--ink-100);
+  font-weight: 800;
+  color: var(--ink-950);
 }
 .score-circle .label {
   font-size: var(--fs-3xs);
   text-transform: uppercase;
   color: var(--ink-600);
+  font-weight: 700;
 }
 .details-panel {
   border-bottom: 1px solid var(--line);
@@ -87,8 +96,8 @@
 }
 .details-panel h4 {
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--ink-200);
+  font-weight: 700;
+  color: var(--ink-950);
   margin-bottom: var(--sp-2);
   display: flex;
   align-items: center;
@@ -104,7 +113,7 @@
   font-size: var(--fs-3xs);
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  font-weight: 600;
+  font-weight: 700;
 }
 .empty-results {
   text-align: center;
@@ -114,6 +123,7 @@
 .empty-results i {
   font-size: var(--fs-2xl);
   margin-bottom: var(--sp-3);
+  color: var(--ink-400);
 }
 </style>
 </head>
@@ -136,31 +146,33 @@
       <!-- File Upload option -->
       <div id="fileUploadContainer" class="input-section">
         <div class="field">
-          <label>Upload Resume File</label>
-          <input type="file" id="resumeFileInput" accept=".pdf,.doc,.docx,.txt" style="display:block; width:100%; border:1px solid var(--line); border-radius:var(--radius-sm); padding:8px; background:rgba(255,255,255,0.02)">
+          <label for="resumeFileInput">Upload Resume File</label>
+          <input type="file" id="resumeFileInput" accept=".pdf,.doc,.docx,.txt" style="display:block; width:100%;">
         </div>
       </div>
 
       <!-- Saved Resume option -->
       <div id="savedResumeContainer" class="input-section" style="display:none">
         <div class="field">
-          <label>Select Saved Resume</label>
-          <select id="resumeSelect" style="width:100%; border:1px solid var(--line); border-radius:var(--radius-sm); padding:8px; background:rgba(255,255,255,0.02); color:white"><option value="">Loading your saved resumes…</option></select>
+          <label for="resumeSelect">Select Saved Resume</label>
+          <select id="resumeSelect" style="width:100%;">
+            <option value="">Loading your saved resumes…</option>
+          </select>
         </div>
       </div>
 
       <!-- Job details -->
       <div class="field" style="margin-top:var(--sp-4)">
-        <label>Job Title</label>
+        <label for="jobTitle">Job Title</label>
         <input type="text" id="jobTitle" placeholder="e.g. Senior Frontend Engineer">
       </div>
       <div class="field">
-        <label>Company Name</label>
+        <label for="companyName">Company Name</label>
         <input type="text" id="companyName" placeholder="e.g. Google">
       </div>
       <div class="field">
-        <label>Job Description</label>
-        <textarea id="jobDescription" rows="8" placeholder="Paste the job details or requirements here for skill gap analysis…"></textarea>
+        <label for="jobDescription">Job Description</label>
+        <textarea id="jobDescription" rows="6" placeholder="Paste the job details or requirements here for skill gap analysis…"></textarea>
       </div>
 
       <div id="matchErrorBox" class="scan-error-box" style="display:none; color:var(--score-low); margin-bottom:var(--sp-3)"></div>

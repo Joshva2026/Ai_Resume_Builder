@@ -4,85 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resume Builder — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
 <link rel="stylesheet" href="../css/builder.css">
-<style>
-.preview-style-bar {
-  display: flex;
-  gap: var(--sp-4);
-  background: var(--paper-100);
-  border-bottom: 1px solid var(--line);
-  padding: var(--sp-3) var(--sp-4);
-  flex-wrap: wrap;
-  align-items: center;
-}
-.style-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.style-group label {
-  font-size: var(--fs-3xs);
-  text-transform: uppercase;
-  color: var(--ink-600);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.style-group select {
-  font-size: var(--fs-xs);
-  padding: 4px 8px;
-  background: var(--paper-200);
-  border: 1px solid var(--line);
-  color: var(--ink-100);
-  border-radius: var(--radius-xs);
-  font-family: inherit;
-}
-.style-group input[type="range"] {
-  width: 90px;
-  height: 6px;
-  background: var(--line);
-  border-radius: var(--radius-pill);
-  outline: none;
-  cursor: pointer;
-}
-.accent-pickers {
-  display: flex;
-  gap: 6px;
-}
-.accent-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: transform 0.1s ease;
-}
-.accent-dot:hover {
-  transform: scale(1.2);
-}
-.accent-dot.active {
-  border-color: var(--signal-400);
-  box-shadow: 0 0 6px var(--signal-500);
-}
-.paper-container {
-  padding: var(--sp-5);
-  background: var(--paper-200);
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 500px;
-}
-</style>
+<link rel="stylesheet" href="../css/animations.css">
 </head>
 <body>
 
@@ -90,30 +23,30 @@
 
 <template id="builderTemplate">
   <div class="builder-toolbar">
-    <button class="btn btn-ghost" id="btnBackTop"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    <button class="btn btn-ghost btn-sm" id="btnBackTop"><i class="fa-solid fa-arrow-left"></i> Back</button>
     <input type="text" class="title-input" id="resumeTitle" value="Untitled Resume" aria-label="Resume title">
     <div class="toolbar-actions">
-      <span class="save-indicator" id="saveIndicator"><span class="dot"></span> All changes saved</span>
-      <button class="btn btn-ghost" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
-      <a href="ats-checker.html" class="btn btn-ghost"><i class="fa-solid fa-gauge-high"></i> Check ATS Score</a>
-      <button class="btn btn-primary" id="btnDownload"><i class="fa-solid fa-download"></i> Download PDF</button>
-      <button class="btn btn-ghost" id="btnUndo"><i class="fa-solid fa-undo"></i> Undo</button>
-      <button class="btn btn-primary" id="btnNext"><i class="fa-solid fa-arrow-right"></i> Next</button>
-      <button class="btn btn-primary" id="btnSave">Save Resume</button>
-      <button class="btn btn-ghost" id="btnRetry">Retry</button>
+      <span class="save-indicator" id="saveIndicator"><span class="dot"></span> Saved</span>
+      <button class="btn btn-ghost btn-sm" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i> Versions</button>
+      <a href="ats-checker.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-gauge-high"></i> ATS Score</a>
+      <button class="btn btn-ghost btn-sm" id="btnUndo"><i class="fa-solid fa-undo"></i> Undo</button>
+      <button class="btn btn-primary btn-sm" id="btnDownload"><i class="fa-solid fa-download"></i> PDF</button>
+      <button class="btn btn-primary btn-sm" id="btnSave">Save</button>
+      <button class="btn btn-ghost btn-sm" id="btnRetry" style="display:none">Retry</button>
     </div>
-
   </div>
-<div class="progress-container">
-  <div class="progress-bar"><div id="wizardProgress"></div></div>
-</div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="wizardProgress" style="width: 8%;"></div>
+  </div>
+
   <div class="builder-layout">
     <!-- Section rail -->
     <aside class="section-rail" id="sectionRail">
-      <h4>Sections — drag to reorder</h4>
+      <h4>Resume Sections</h4>
       <div class="rail-item active" draggable="true" data-section="type"><i class="fa-solid fa-grip-vertical grip"></i> Resume Type</div>
-      <div class="rail-item" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check"></i></div>
-      <div class="rail-item" draggable="true" data-section="summary"><i class="fa-solid fa-grip-vertical grip"></i> Career Summary</div>
+      <div class="rail-item" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check" style="display:none"></i></div>
+      <div class="rail-item" draggable="true" data-section="summary"><i class="fa-solid fa-grip-vertical grip"></i> Summary</div>
       <div class="rail-item" draggable="true" data-section="experience"><i class="fa-solid fa-grip-vertical grip"></i> Experience</div>
       <div class="rail-item" draggable="true" data-section="education"><i class="fa-solid fa-grip-vertical grip"></i> Education</div>
       <div class="rail-item" draggable="true" data-section="projects"><i class="fa-solid fa-grip-vertical grip"></i> Projects</div>
@@ -127,19 +60,22 @@
 
     <!-- Editor -->
     <section class="editor-pane">
+      <!-- Resume Type Section -->
       <div class="editor-section active" data-section="type">
-        <h3>Resume Type</h3>
-        <div class="field-row">
-          <button class="btn btn-primary" id="btnFresher">Fresher</button>
-          <button class="btn btn-primary" id="btnExperienced">Experienced</button>
+        <h3>Resume Experience Tier</h3>
+        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Select your experience level to structure section order.</p>
+        <div style="display:flex; gap:var(--sp-3)">
+          <button class="btn btn-primary" id="btnFresher" style="flex:1; padding:var(--sp-4)">Entry Level (Fresher)</button>
+          <button class="btn btn-ghost" id="btnExperienced" style="flex:1; padding:var(--sp-4)">Experienced Professional</button>
         </div>
       </div>
+
+      <!-- Personal Info Section -->
       <div class="editor-section" data-section="personal">
-      <div class="editor-section active" data-section="personal">
         <h3>Personal Information</h3>
         <div class="field-row">
           <div class="field"><label>Full name</label><input type="text" id="f_fullName" placeholder="Jane Doe"></div>
-          <div class="field"><label>Professional title</label><input type="text" id="f_headline" placeholder="Senior Software Engineer"></div>
+          <div class="field"><label>Professional title</label><input type="text" id="f_headline" placeholder="Web Developer"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="jane@email.com"></div>
@@ -147,76 +83,119 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Location</label><input type="text" id="f_location" placeholder="New York, NY"></div>
-          <div class="field"><label>LinkedIn / Portfolio</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
+          <div class="field"><label>LinkedIn / Link</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
 
+      <!-- Career Summary Section -->
       <div class="editor-section" data-section="summary">
-        <h3>Career Summary</h3>
+        <h3>Professional Summary</h3>
         <div class="field">
           <label>Summary</label>
-          <textarea id="f_summary" rows="6" placeholder="Two to three sentences on your background and what you're looking for next."></textarea>
+          <textarea id="f_summary" rows="5" placeholder="Goal-oriented developer with a strong foundation in modern web development..."></textarea>
           <button class="ai-inline-btn" data-ai="summary"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI</button>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
 
+      <!-- Work Experience Section -->
       <div class="editor-section" data-section="experience">
         <h3>Work Experience</h3>
         <div id="experienceBlocks"></div>
-        <button class="btn btn-ghost" id="addExperience"><i class="fa-solid fa-plus"></i> Add Position</button>
+        <button class="btn btn-ghost btn-sm" id="addExperience" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Position</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
       </div>
 
+      <!-- Education Section -->
       <div class="editor-section" data-section="education">
         <h3>Education</h3>
         <div id="educationBlocks"></div>
-        <button class="btn btn-ghost" id="addEducation"><i class="fa-solid fa-plus"></i> Add Education</button>
+        <button class="btn btn-ghost btn-sm" id="addEducation" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Education</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
       </div>
 
+      <!-- Projects Section -->
       <div class="editor-section" data-section="projects">
-        <h3>Projects</h3>
+        <h3>Featured Projects</h3>
         <div id="projectBlocks"></div>
-        <button class="btn btn-ghost" id="addProject"><i class="fa-solid fa-plus"></i> Add Project</button>
+        <button class="btn btn-ghost btn-sm" id="addProject" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Project</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
       </div>
 
+      <!-- Skills Section -->
       <div class="editor-section" data-section="skills">
-        <h3>Skills</h3>
+        <h3>Skills Inventory</h3>
         <div class="field">
           <label>Skills (comma separated)</label>
-          <textarea id="f_skills" rows="3" placeholder="JavaScript, React, Node.js, SQL, Team Leadership"></textarea>
-          <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Suggest ATS keywords</button>
+          <textarea id="f_skills" rows="3" placeholder="JavaScript, CSS variables, REST APIs, Git, Responsive layouts"></textarea>
+          <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimize Keywords</button>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
 
+      <!-- Certifications Section -->
       <div class="editor-section" data-section="certifications">
-        <h3>Certifications</h3>
+        <h3>Professional Certifications</h3>
         <div class="field">
           <label>Certifications (one per line)</label>
-          <textarea id="f_certs" rows="4" placeholder="AWS Certified Solutions Architect — 2024"></textarea>
+          <textarea id="f_certs" rows="3" placeholder="AWS Cloud Practitioner (2024)"></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
 
+      <!-- Languages Section -->
       <div class="editor-section" data-section="languages">
         <h3>Languages</h3>
         <div id="languageBlocks"></div>
-        <button class="btn btn-ghost" id="addLanguage"><i class="fa-solid fa-plus"></i> Add Language</button>
+        <button class="btn btn-ghost btn-sm" id="addLanguage" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Language</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
       </div>
 
+      <!-- Volunteer Work Section -->
       <div class="editor-section" data-section="volunteer">
         <h3>Volunteer Work</h3>
         <div id="volunteerBlocks"></div>
-        <button class="btn btn-ghost" id="addVolunteer"><i class="fa-solid fa-plus"></i> Add Volunteer Role</button>
+        <button class="btn btn-ghost btn-sm" id="addVolunteer" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Volunteer Role</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
       </div>
 
+      <!-- Awards Section -->
       <div class="editor-section" data-section="awards">
-        <h3>Awards &amp; Honours</h3>
+        <h3>Awards & Honors</h3>
         <div id="awardBlocks"></div>
-        <button class="btn btn-ghost" id="addAward"><i class="fa-solid fa-plus"></i> Add Award</button>
+        <button class="btn btn-ghost btn-sm" id="addAward" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Award</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
       </div>
 
+      <!-- Publications Section -->
       <div class="editor-section" data-section="publications">
         <h3>Publications</h3>
         <div id="publicationBlocks"></div>
-        <button class="btn btn-ghost" id="addPublication"><i class="fa-solid fa-plus"></i> Add Publication</button>
+        <button class="btn btn-ghost btn-sm" id="addPublication" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Publication</button>
+        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Done</button>
+        </div>
       </div>
     </section>
 
@@ -226,15 +205,15 @@
         <div class="style-group">
           <label><i class="fa-solid fa-file-invoice"></i> Template</label>
           <select id="selTemplate" aria-label="Select Template">
-            <option value="modern" selected>Modern (SaaS/Tech)</option>
-            <option value="executive">Executive (Classic)</option>
-            <option value="minimal">Minimalist (Clean)</option>
-            <option value="academic">Academic (Detailed)</option>
+            <option value="modern" selected>Modern (SaaS style)</option>
+            <option value="executive">Executive (Classic style)</option>
+            <option value="minimal">Minimalist (Space-saving)</option>
+            <option value="academic">Academic (Formal)</option>
           </select>
         </div>
 
         <div class="style-group">
-          <label><i class="fa-solid fa-font"></i> Font</label>
+          <label><i class="fa-solid fa-font"></i> Font Style</label>
           <select id="selFont" aria-label="Select Font">
             <option value="sans" selected>Sans-Serif (Inter)</option>
             <option value="serif">Serif (Georgia)</option>
@@ -243,26 +222,30 @@
         </div>
 
         <div class="style-group">
-          <label><i class="fa-solid fa-arrows-up-down"></i> Spacing</label>
+          <label><i class="fa-solid fa-arrows-up-down"></i> Line Spacing</label>
           <input type="range" id="rngSpacing" min="1.1" max="1.8" step="0.1" value="1.4" aria-label="Line spacing slider">
         </div>
 
         <div class="style-group">
-          <label><i class="fa-solid fa-palette"></i> Accent</label>
+          <label><i class="fa-solid fa-palette"></i> Theme Accent</label>
           <div class="accent-pickers">
-            <button type="button" class="accent-dot active" data-color="#4F46E5" style="background:#4F46E5" title="Indigo" aria-label="Indigo accent"></button>
-            <button type="button" class="accent-dot" data-color="#0ea5e9" style="background:#0ea5e9" title="Teal" aria-label="Teal accent"></button>
-            <button type="button" class="accent-dot" data-color="#10b981" style="background:#10b981" title="Emerald" aria-label="Emerald accent"></button>
+            <button type="button" class="accent-dot active" data-color="#2563EB" style="background:#2563EB" title="Blue" aria-label="Blue accent"></button>
+            <button type="button" class="accent-dot" data-color="#0ea5e9" style="background:#0ea5e9" title="Sky" aria-label="Sky accent"></button>
+            <button type="button" class="accent-dot" data-color="#10b981" style="background:#10b981" title="Green" aria-label="Green accent"></button>
             <button type="button" class="accent-dot" data-color="#e11d48" style="background:#e11d48" title="Crimson" aria-label="Crimson accent"></button>
-            <button type="button" class="accent-dot" data-color="#4b5563" style="background:#4b5563" title="Charcoal" aria-label="Charcoal accent"></button>
+            <button type="button" class="accent-dot" data-color="#475569" style="background:#475569" title="Charcoal" aria-label="Charcoal accent"></button>
           </div>
         </div>
       </div>
+
       <div class="paper-container">
         <div class="paper" id="livePreview"></div>
       </div>
     </aside>
   </div>
+
+  <!-- Wizard Controls (Hidden navigation aids triggered from JS) -->
+  <button id="btnNext" style="display:none"></button>
 </template>
 
 <script src="../js/services/api-service.js"></script>

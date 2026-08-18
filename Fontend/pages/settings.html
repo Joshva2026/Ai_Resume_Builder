@@ -4,27 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Settings — ResumeForge</title>
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Styles -->
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/app-shell.css" />
   <style>
     .settings-panel { 
       max-width: 600px; 
-      background: rgba(255, 255, 255, 0.03); 
-      border: 1px solid var(--glass-border); 
-      border-radius: 12px; 
-      padding: 32px; 
-      margin-top: 32px; 
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: var(--glass-shadow);
-      color: #FFFFFF;
+      background: var(--paper-0); 
+      border: 1px solid var(--line); 
+      border-radius: var(--radius-md); 
+      padding: var(--sp-6); 
+      margin-top: var(--sp-5); 
+      box-shadow: var(--shadow-sm);
+      color: var(--ink-800);
     }
-    .settings-panel h3 { margin-bottom: 24px; font-size: var(--fs-lg); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px; color: #FFFFFF; }
-    .form-actions { margin-top: 24px; display: flex; gap: 16px; justify-content: flex-end; }
+    .settings-panel h3 { 
+      margin-bottom: var(--sp-5); 
+      font-size: var(--fs-md); 
+      font-weight: 700;
+      border-bottom: 1px solid var(--line); 
+      padding-bottom: 12px; 
+      color: var(--ink-950); 
+    }
+    .form-actions { 
+      margin-top: var(--sp-5); 
+      display: flex; 
+      gap: 16px; 
+      justify-content: flex-end; 
+    }
   </style>
 </head>
 <body>
@@ -45,7 +58,7 @@
         <div class="field">
           <label>Email Address</label>
           <input type="email" id="setEmail" disabled />
-          <p class="hint">Email address cannot be changed.</p>
+          <p class="hint">Your login email address is managed securely and cannot be changed.</p>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -59,7 +72,6 @@
   <script src="../js/services/api-service.js"></script>
   <script src="../js/auth-guard.js"></script>
   <script src="../js/components/app-shell.js"></script>
-  <script src="../js/main.js"></script>
   <script>
     AppShell.render({ active: 'settings', title: 'Settings' });
     const content = document.getElementById('appContent');
@@ -67,7 +79,7 @@
 
     async function loadSettings() {
       try {
-        const user = await ApiService.auth.me();
+        const { user } = await ApiService.auth.me();
         document.getElementById('setFirstName').value = user.firstName || '';
         document.getElementById('setLastName').value = user.lastName || '';
         document.getElementById('setEmail').value = user.email || '';
@@ -88,9 +100,10 @@
           firstName: document.getElementById('setFirstName').value,
           lastName: document.getElementById('setLastName').value
         });
-        showToast('Settings saved!', 'success');
+        alert('Settings saved successfully!');
+        window.location.reload();
       } catch (err) {
-        showToast(err.message, 'error');
+        alert(err.message || 'Failed to save settings.');
       } finally {
         btn.textContent = 'Save Changes';
         btn.disabled = false;

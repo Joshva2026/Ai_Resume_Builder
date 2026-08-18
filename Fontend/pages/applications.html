@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Application Tracker — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
 <style>
 .kanban-board {
   display: grid;
@@ -18,6 +23,7 @@
   align-items: start;
   overflow-x: auto;
   padding-bottom: var(--sp-4);
+  scrollbar-width: thin;
 }
 @media (max-width: 1200px) {
   .kanban-board {
@@ -30,20 +36,20 @@
   }
 }
 .kanban-column {
-  background: var(--paper-100);
+  background: var(--paper-50);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--sp-3);
-  min-height: 400px;
+  min-height: 440px;
   display: flex;
   flex-direction: column;
 }
 .kanban-column h4 {
-  font-family: var(--font-display);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-2xs);
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--ink-200);
+  letter-spacing: 0.05em;
+  color: var(--ink-950);
   margin-bottom: var(--sp-3);
   display: flex;
   justify-content: space-between;
@@ -52,11 +58,12 @@
   padding-bottom: 6px;
 }
 .kanban-column h4 span {
-  font-size: var(--fs-2xs);
+  font-size: var(--fs-3xs);
   background: var(--line);
-  color: var(--ink-400);
+  color: var(--ink-700);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
+  font-weight: 600;
 }
 .kanban-cards {
   display: flex;
@@ -65,27 +72,30 @@
   flex: 1;
 }
 .kanban-card {
-  background: var(--paper-200);
+  background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: var(--sp-3);
   box-shadow: var(--shadow-sm);
   cursor: grab;
-  transition: all var(--dur-base) ease;
+  transition: all var(--dur-fast) var(--ease-out);
 }
 .kanban-card:hover {
-  border-color: var(--signal-500);
-  transform: translateY(-1px);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 .kanban-card .title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: var(--fs-xs);
-  color: var(--ink-100);
+  color: var(--ink-950);
+  margin-bottom: 2px;
 }
 .kanban-card .company {
   font-size: var(--fs-2xs);
-  color: var(--ink-500);
+  color: var(--ink-600);
   margin-bottom: var(--sp-2);
+  font-weight: 500;
 }
 .kanban-card .notes {
   font-size: var(--fs-3xs);
@@ -94,20 +104,26 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: var(--paper-50);
+  padding: 4px 6px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--line);
 }
 .kanban-card .actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: var(--fs-2xs);
+  border-top: 1px dashed var(--line);
+  padding-top: var(--sp-2);
 }
 .kanban-card select {
-  font-size: var(--fs-3xs);
-  background: var(--line);
-  color: var(--ink-200);
+  font-size: 10px;
+  background: var(--paper-50);
+  color: var(--ink-800);
   border: 1px solid var(--line);
   border-radius: var(--radius-xs);
-  padding: 2px;
+  padding: 2px 4px;
 }
 
 /* Modal styles */
@@ -118,35 +134,41 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(15, 23, 42, 0.4);
   z-index: 1000;
   justify-content: center;
   align-items: center;
   backdrop-filter: blur(4px);
 }
 .app-modal-content {
-  background: var(--paper-100);
+  background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   width: 90%;
   max-width: 500px;
-  padding: var(--sp-5);
+  padding: var(--sp-6);
   box-shadow: var(--shadow-lg);
   position: relative;
+  color: var(--ink-850);
 }
 .app-modal-content h3 {
   margin-bottom: var(--sp-4);
-  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--ink-950);
 }
 .modal-close {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 18px;
+  right: 18px;
   background: none;
   border: none;
   color: var(--ink-600);
   cursor: pointer;
   font-size: var(--fs-md);
+  transition: color var(--dur-fast);
+}
+.modal-close:hover {
+  color: var(--score-low);
 }
 </style>
 </head>
@@ -201,28 +223,28 @@
   <!-- Modal for Creating/Editing Application -->
   <div class="app-modal" id="appModal">
     <div class="app-modal-content">
-      <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+      <button class="modal-close" id="modalClose" aria-label="Close modal"><i class="fa-solid fa-xmark"></i></button>
       <h3 id="modalTitle">Add Job Application</h3>
       <form id="appForm">
         <input type="hidden" id="appId">
         
         <div class="field">
-          <label>Company Name</label>
+          <label for="f_company">Company Name</label>
           <input type="text" id="f_company" required placeholder="e.g. Google">
         </div>
         
         <div class="field">
-          <label>Job Title</label>
-          <input type="text" id="f_title" required placeholder="e.g. Frontend developer">
+          <label for="f_title">Job Title</label>
+          <input type="text" id="f_title" required placeholder="e.g. Frontend Developer">
         </div>
 
         <div class="field">
-          <label>Job URL (optional)</label>
+          <label for="f_url">Job Board URL (optional)</label>
           <input type="url" id="f_url" placeholder="https://...">
         </div>
 
         <div class="field">
-          <label>Status</label>
+          <label for="f_status">Application Status</label>
           <select id="f_status">
             <option>Wishlist</option>
             <option>Applied</option>
@@ -234,16 +256,16 @@
         </div>
 
         <div class="field">
-          <label>Applied Date (optional)</label>
+          <label for="f_applied_date">Applied Date (optional)</label>
           <input type="date" id="f_applied_date">
         </div>
 
         <div class="field">
-          <label>Notes / Feedback</label>
-          <textarea id="f_notes" rows="4" placeholder="Salary target, interview questions, follow-up checklist..."></textarea>
+          <label for="f_notes">Notes & Reminders</label>
+          <textarea id="f_notes" rows="3" placeholder="Salary details, timeline, key interviewers..."></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:var(--sp-4)">Save Application</button>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:var(--sp-4)">Save application details</button>
       </form>
     </div>
   </div>

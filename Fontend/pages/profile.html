@@ -4,134 +4,139 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile — ResumeForge</title>
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/base.css">
 <link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
 <style>
+.page-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--sp-5);
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.profile-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-card h2 {
+  font-size: var(--fs-md);
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--ink-950);
+}
+
+.profile-card p {
+  color: var(--ink-600);
+  font-size: var(--fs-sm);
+}
+
+.profile-meta {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.profile-meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--paper-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink-900);
+}
+
+.profile-meta-item .meta-label {
+  color: var(--ink-600);
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.meta-value-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+.meta-value-link:hover {
+  text-decoration: underline;
+}
+
+.profile-note {
+  padding: var(--sp-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--paper-50);
+  color: var(--ink-700);
+  font-size: var(--fs-sm);
+}
+
+.profile-note p {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+textarea#bio {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.status {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+@media (max-width: 980px) {
   .page-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: var(--sp-5);
+    grid-template-columns: 1fr;
   }
-
-  .profile-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-5);
-  }
-
-  .profile-card-head {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-4);
-  }
-
-  .profile-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--signal-600) 0%, #00d2ff 100%);
-    border: 1px solid var(--signal-400);
-    color: white;
-    font-size: 28px;
-    font-weight: 700;
-    overflow: hidden;
-    flex-shrink: 0;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
-  }
-
-  .profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .profile-card h2 {
-    margin-bottom: 6px;
-    color: #FFFFFF;
-  }
-
-  .profile-card p {
-    color: var(--ink-400);
-  }
-
-  .profile-meta {
-    display: grid;
-    gap: var(--sp-3);
-  }
-
-  .profile-meta-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--sp-4);
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    color: #FFFFFF;
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-  }
-
-  .profile-meta-item .meta-label {
-    color: var(--ink-400);
-    font-size: var(--fs-2xs);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
-  }
-
-  .meta-value-link {
-    color: #00F2FE;
-    text-decoration: none;
-    font-weight: 500;
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-  }
-  .meta-value-link:hover {
-    text-decoration: underline;
-  }
-
-  .profile-note {
-    padding: var(--sp-4);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.01);
-    color: var(--ink-200);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-  }
-
-  .profile-note p {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  textarea#bio {
-    min-height: 140px;
-    height: 150px;
-    resize: vertical;
-  }
-
-  .status {
-    color: #00F2FE;
-  }
-
-  @media (max-width: 980px) {
-    .page-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+}
 </style>
 </head>
 <body>
@@ -140,7 +145,7 @@
 
 <template id="profileTemplate">
   <div class="page-grid">
-    <div class="panel profile-card">
+    <div class="card profile-card">
       <div class="profile-card-head">
         <div class="profile-avatar" id="profileAvatar">RF</div>
         <div>
@@ -156,37 +161,37 @@
       <div class="profile-meta">
         <div class="profile-meta-item">
           <span class="meta-label">Phone</span>
-          <span id="profilePhone">Not added</span>
+          <span id="profilePhone" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
         </div>
         <div class="profile-meta-item">
           <span class="meta-label">Location</span>
-          <span id="profileLocation">Not added</span>
+          <span id="profileLocation" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
         </div>
         <div class="profile-meta-item">
           <span class="meta-label">LinkedIn</span>
-          <span id="profileLinkedin">Not added</span>
+          <span id="profileLinkedin" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
         </div>
         <div class="profile-meta-item">
           <span class="meta-label">Portfolio</span>
-          <span id="profilePortfolio">Not added</span>
+          <span id="profilePortfolio" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
         </div>
         <div class="profile-meta-item">
           <span class="meta-label">GitHub</span>
-          <span id="profileGithub">Not added</span>
+          <span id="profileGithub" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
         </div>
       </div>
     </div>
 
-    <div class="panel">
+    <div class="card">
       <div class="panel-head">
         <h3>Profile details</h3>
       </div>
-      <form id="profileForm" autocomplete="off">
+      <form id="profileForm" autocomplete="off" style="margin-top: var(--sp-4);">
         <div class="field">
-          <label for="profileImageUrl">Profile Image</label>
+          <label for="profileImageUrl">Profile Image URL</label>
           <div style="display:flex; gap:8px;">
             <input type="url" id="profileImageUrl" name="profileImageUrl" placeholder="https://example.com/avatar.jpg" style="flex:1;">
-            <button type="button" class="btn btn-ghost" id="btnUploadAvatar" style="white-space:nowrap; font-size:13px;"><i class="fa-solid fa-upload"></i> Upload Image</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnUploadAvatar" style="white-space:nowrap;"><i class="fa-solid fa-upload"></i> Upload</button>
             <input type="file" id="avatarFileInput" accept="image/*" hidden>
           </div>
         </div>
@@ -217,7 +222,7 @@
 
         <div class="field">
           <label for="bio">About you (Bio)</label>
-          <textarea id="bio" name="bio" rows="6" placeholder="A short professional bio..."></textarea>
+          <textarea id="bio" name="bio" rows="4" placeholder="A short professional bio..."></textarea>
         </div>
 
         <div class="field">
@@ -240,7 +245,7 @@
           <div id="profileStatus" class="hint"></div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg" id="saveProfileBtn">Save changes</button>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="saveProfileBtn">Save profile details</button>
       </form>
     </div>
   </div>
@@ -255,6 +260,6 @@ const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('profileTemplate').content.cloneNode(true));
 </script>
 <script src="../js/pages/profile.js"></script>
-  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+<a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
 </body>
 </html>

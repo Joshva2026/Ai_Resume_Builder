@@ -4,299 +4,274 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Templates — ResumeForge</title>
-  <meta name="description" content="Choose from 8 ATS-tested resume templates designed to get you past the bots and onto the shortlist." />
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Styles -->
   <link rel="stylesheet" href="../css/variables.css" />
   <link rel="stylesheet" href="../css/base.css" />
-  <link rel="stylesheet" href="../css/sections.css" />
+  <link rel="stylesheet" href="../css/app-shell.css" />
   <style>
-    body { background: var(--bg-ocean); background-attachment: fixed; color: var(--ink-100); }
-
-    /* ── Navbar ── */
-    .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 1000;
-      padding: var(--sp-4) 0;
-      background: rgba(13, 27, 42, 0.15);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: all var(--dur-base) var(--ease-out);
-    }
-    .navbar.is-scrolled {
-      background: rgba(13, 27, 42, 0.55);
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
-      box-shadow: var(--glass-shadow);
-      border-bottom: 1px solid var(--glass-border);
-      padding: var(--sp-3) 0;
-    }
-
-    /* ── Hero ── */
     .tpl-hero {
-      padding: 140px 0 56px;
       text-align: center;
-      background: transparent;
-      color: white;
-      position: relative;
-      z-index: 2;
+      margin-bottom: var(--sp-5);
+      background: var(--paper-0);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: var(--sp-5);
+      box-shadow: var(--shadow-sm);
     }
-    .tpl-hero h1 { font-size: var(--fs-3xl); color: white; margin-bottom: 12px; }
-    .tpl-hero p  { color: var(--ink-200); font-size: var(--fs-md); max-width: 540px; margin: 0 auto 32px; }
-    .tpl-hero .eyebrow { color: #00F2FE; }
+    .tpl-hero h2 { font-size: var(--fs-lg); color: var(--ink-950); margin-bottom: var(--sp-1); font-weight: 800; }
+    .tpl-hero p { color: var(--ink-600); font-size: var(--fs-sm); max-width: 500px; margin: 0 auto; }
 
-    /* ── Filter tabs ── */
-    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 40px auto 0; }
+    /* Filter tabs */
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: var(--sp-4) auto 0; }
     .filter-btn {
-      padding: 8px 20px;
-      border: 1px solid var(--glass-border);
+      padding: 6px 16px;
+      border: 1px solid var(--line);
       border-radius: var(--radius-pill);
-      font-size: var(--fs-sm);
-      font-weight: 500;
+      font-size: var(--fs-2xs);
+      font-weight: 600;
       cursor: pointer;
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--ink-200);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      transition: all 0.2s;
+      background: var(--paper-0);
+      color: var(--ink-700);
+      transition: all var(--dur-fast) var(--ease-out);
     }
     .filter-btn:hover, .filter-btn.active {
-      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(56, 189, 248, 0.05) 100%);
-      color: #00F2FE;
-      border-color: rgba(0, 242, 254, 0.35);
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+      background: var(--signal-100);
+      color: var(--primary);
+      border-color: rgba(37, 99, 235, 0.15);
     }
 
-    /* ── Grid ── */
+    /* Grid */
     .templates-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 28px;
-      padding: 48px 0 80px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--sp-5);
+      padding: var(--sp-4) 0 var(--sp-6);
     }
 
-    /* ── Card ── */
+    /* Card */
     .tpl-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
+      background: var(--paper-0);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
       overflow: hidden;
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      box-shadow: var(--glass-shadow);
-      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--dur-base) var(--ease-out);
       position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .tpl-card:hover { 
-      transform: translateY(-6px); 
-      border-color: var(--glass-border-focus);
-      box-shadow: 0 15px 45px rgba(0, 242, 254, 0.18); 
+      transform: translateY(-4px); 
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
     }
 
     .tpl-thumb {
-      height: 230px;
+      height: 200px;
       position: relative;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.2);
     }
+    
+    .tpl-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--score-high-bg);
+      color: var(--score-high);
+      font-size: 10px;
+      font-weight: 700;
+      z-index: 5;
+    }
+
     .tpl-mock {
       width: 72%;
-      background: white;
-      border: 1px solid #e5e5e5;
-      border-radius: 4px;
-      padding: 14px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      background: #FFFFFF;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-xs);
+      padding: 12px;
+      box-shadow: var(--shadow-sm);
       font-size: 6px;
-      line-height: 1.6;
-      color: #333333;
+      line-height: 1.5;
+      color: #1E293B;
     }
-    .tpl-mock-header { height: 18px; border-radius: 2px; margin-bottom: 8px; }
-    .tpl-mock-line { height: 4px; background: #e8e8e8; border-radius: 2px; margin-bottom: 4px; }
+    .tpl-mock-header { height: 16px; border-radius: 2px; margin-bottom: 6px; }
+    .tpl-mock-line { height: 3px; background: #F1F5F9; border-radius: var(--radius-pill); margin-bottom: 4px; }
     .tpl-mock-line.short { width: 60%; }
     .tpl-mock-line.xshort { width: 40%; }
-    .tpl-mock-line.accent { height: 1px; margin: 6px 0; }
-    .tpl-mock-name { font-weight: 700; font-size: 9px; margin-bottom: 2px; }
-    .tpl-mock-sub  { font-size: 6px; color: #666; margin-bottom: 6px; }
-    .tpl-mock-section { font-size: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 6px 0 3px; }
+    .tpl-mock-line.accent { height: 1px; margin: 4px 0; }
+    .tpl-mock-name { font-weight: 800; font-size: 8px; margin-bottom: 1px; color: #0F172A; }
+    .tpl-mock-sub { font-size: 6px; color: #475569; margin-bottom: 4px; }
+    .tpl-mock-section { font-size: 5.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 2px; }
 
     /* Hover overlay */
     .tpl-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.65);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.25s;
+      transition: opacity 0.25s ease;
+      z-index: 8;
     }
     .tpl-card:hover .tpl-overlay { opacity: 1; }
 
-    /* Badge */
-    .tpl-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: var(--score-high);
-      color: white;
-      font-size: 10px;
+    .tpl-info {
+      padding: var(--sp-4);
+      border-top: 1px solid var(--line);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .tpl-info h3 {
+      font-size: var(--fs-sm);
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 99px;
+      color: var(--ink-950);
+      margin-bottom: 4px;
+    }
+    
+    .tpl-info p {
+      font-size: var(--fs-2xs);
+      color: var(--ink-600);
+      line-height: 1.4;
+      margin-bottom: var(--sp-3);
     }
 
-    /* Info */
-    .tpl-info { padding: 18px 20px 20px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
-    .tpl-info h3 { font-size: var(--fs-base); margin-bottom: 4px; color: #FFFFFF; }
-    .tpl-info p  { font-size: var(--fs-xs); color: var(--ink-400); margin-bottom: 12px; }
-    .tpl-meta { display: flex; align-items: center; justify-content: space-between; }
-    .tpl-score { font-size: var(--fs-xs); font-weight: 600; color: var(--score-high); }
-    .tpl-cat   { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--signal-400); }
-
-    @media (max-width: 640px) {
-      .templates-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-      .tpl-hero h1 { font-size: var(--fs-2xl); }
+    .tpl-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px dashed var(--line);
+      padding-top: 10px;
+      margin-top: auto;
     }
-    @media (max-width: 420px) {
-      .templates-grid { grid-template-columns: 1fr; }
+
+    .tpl-score {
+      font-size: var(--fs-3xs);
+      font-weight: 600;
+      color: var(--score-high);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tpl-cat {
+      font-size: var(--fs-3xs);
+      color: var(--ink-600);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
-  <header class="navbar" id="navbar">
-    <div class="container">
-      <a href="../index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
-      <nav class="nav-links">
-        <a href="../index.html">Home</a>
-        <a href="resume-builder.html">Builder</a>
-        <a href="templates.html" class="active">Templates</a>
-        <a href="ats-checker.html">ATS Checker</a>
-      </nav>
-      <div class="nav-actions" id="navActions">
-        <a href="login.html" class="btn btn-ghost">Login</a>
-        <a href="register.html" class="btn btn-primary">Get Started</a>
-      </div>
-    </div>
-  </header>
+  <div id="appShellRoot"></div>
 
-  <!-- Hero -->
-  <section class="tpl-hero">
-    <div class="container">
-      <div class="eyebrow" style="justify-content:center; margin-bottom:16px;">8 Templates</div>
-      <h1>Parser-safe. Recruiter-approved.</h1>
-      <p>Every template is rigorously tested against leading ATS platforms so your data is extracted perfectly — every time.</p>
-      <!-- Filter tabs -->
+  <template id="templatesTemplate">
+    <div class="tpl-hero">
+      <h2>Recruiter-Approved Design Layouts</h2>
+      <p>Choose from our ATS-vetted layouts to present your development qualifications with confidence.</p>
+      
       <div class="filter-bar" id="filterBar">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="corporate">Corporate</button>
-        <button class="filter-btn" data-filter="modern">Modern</button>
-        <button class="filter-btn" data-filter="tech">Tech</button>
-        <button class="filter-btn" data-filter="creative">Creative</button>
-        <button class="filter-btn" data-filter="academic">Academic</button>
+        <button class="filter-btn active" data-filter="all">All Styles</button>
+        <button class="filter-btn" data-filter="Modern">Modern</button>
+        <button class="filter-btn" data-filter="Classic">Classic</button>
+        <button class="filter-btn" data-filter="Minimalist">Minimalist</button>
+        <button class="filter-btn" data-filter="Academic">Academic</button>
       </div>
     </div>
-  </section>
 
-  <!-- Grid -->
-  <main>
-    <div class="container">
-      <div class="templates-grid" id="templatesGrid">
-        <!-- Populated by JS -->
-        <div style="grid-column:1/-1; text-align:center; padding:48px; color:var(--ink-400);">
-          <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
-          <p style="margin-top:12px">Loading templates…</p>
-        </div>
-      </div>
-    </div>
-  </main>
+    <div class="templates-grid" id="templatesGrid"></div>
+  </template>
 
   <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
 
   <script src="../js/services/api-service.js"></script>
-  <script src="../js/main.js"></script>
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/components/app-shell.js"></script>
   <script>
-    // Build a mini resume mock preview matching each template style
-    function buildMock(t) {
-      const accent = t.accent || '#6c5ce7';
-      const cat = t.category;
+    AppShell.render({ active: 'templates', title: 'Templates' });
+    const content = document.getElementById('appContent');
+    content.appendChild(document.getElementById('templatesTemplate').content.cloneNode(true));
 
-      if (cat === 'creative') {
-        return `<div class="tpl-mock" style="display:flex;gap:6px;padding:0;">
-          <div style="width:30%;background:${accent};padding:10px 6px;">
-            <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.3);margin-bottom:6px;"></div>
-            <div style="height:3px;background:rgba(255,255,255,0.5);border-radius:2px;margin-bottom:3px;"></div>
-            <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:70%;"></div>
-          </div>
-          <div style="flex:1;padding:10px 6px;">
-            <div class="tpl-mock-name" style="color:${accent};">Jane Doe</div>
-            <div class="tpl-mock-sub">Product Designer</div>
-            <div class="tpl-mock-section" style="color:${accent};">Experience</div>
-            <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
-          </div>
-        </div>`;
-      }
-      if (cat === 'tech') {
+    function buildMock(t) {
+      const accent = t.accent || '#2563EB';
+      const cat = (t.category || '').toLowerCase();
+      
+      if (cat === 'classic') {
         return `<div class="tpl-mock">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <div>
-              <div class="tpl-mock-name">Jane Doe</div>
-              <div class="tpl-mock-sub">Software Engineer</div>
-            </div>
-            <div style="font-size:5px;font-family:monospace;color:${accent};">&lt;code/&gt;</div>
+          <div style="text-align:center;border-bottom:1px solid ${accent};padding-bottom:4px;margin-bottom:6px;">
+            <div class="tpl-mock-name">Jane Doe</div>
+            <div class="tpl-mock-sub">Senior Developer</div>
           </div>
-          <div class="tpl-mock-line accent" style="background:${accent};"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-            <div><div class="tpl-mock-section" style="color:${accent};">Skills</div>
-              <div style="display:flex;flex-wrap:wrap;gap:2px;">
-                <span style="background:${accent}20;color:${accent};padding:1px 3px;border-radius:2px;font-size:5px;">JS</span>
-                <span style="background:${accent}20;color:${accent};padding:1px 3px;border-radius:2px;font-size:5px;">React</span>
-              </div>
-            </div>
-            <div><div class="tpl-mock-section" style="color:${accent};">Exp</div>
-              <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
-            </div>
-          </div>
+          <div class="tpl-mock-section" style="color:${accent};text-align:center;">Experience</div>
+          <div class="tpl-mock-line"></div><div class="tpl-mock-line short" style="margin:0 auto 4px auto;"></div>
         </div>`;
       }
-      // default / corporate / modern / academic
+      if (cat === 'minimalist') {
+        return `<div class="tpl-mock">
+          <div class="tpl-mock-name" style="font-size:7px;margin-bottom:0;">Jane Doe</div>
+          <div class="tpl-mock-sub" style="font-size:5px;margin-bottom:4px;color:${accent}">UX Designer</div>
+          <div class="tpl-mock-section" style="color:#0f172a;border:none;margin-top:2px;">Summary</div>
+          <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+        </div>`;
+      }
+      if (cat === 'academic') {
+        return `<div class="tpl-mock" style="line-height:1.3;">
+          <div class="tpl-mock-name">Jane Doe</div>
+          <div class="tpl-mock-sub">Research Assistant</div>
+          <div class="tpl-mock-line accent" style="background:#475569;"></div>
+          <div class="tpl-mock-section" style="color:#0F172A;border-bottom:0.5px solid #CBD5E1;">Publications</div>
+          <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+        </div>`;
+      }
+      // default / modern
       return `<div class="tpl-mock">
         <div class="tpl-mock-header" style="background:${accent};"></div>
         <div class="tpl-mock-name">Jane Doe</div>
-        <div class="tpl-mock-sub">Senior Product Manager</div>
+        <div class="tpl-mock-sub">Senior Software Developer</div>
         <div class="tpl-mock-line accent" style="background:${accent};opacity:0.4;"></div>
         <div class="tpl-mock-section" style="color:${accent};">Experience</div>
         <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
-        <div class="tpl-mock-section" style="color:${accent};">Education</div>
-        <div class="tpl-mock-line"></div><div class="tpl-mock-line xshort"></div>
-        <div class="tpl-mock-section" style="color:${accent};">Skills</div>
-        <div class="tpl-mock-line short"></div>
       </div>`;
     }
 
     function renderCard(t) {
-      const accent = t.accent || '#6c5ce7';
+      // Map templates to distinct accent mockups
+      const colors = { 1: '#2563EB', 2: '#1D4ED8', 3: '#475569', 4: '#0D9488' };
+      t.accent = colors[t.id] || '#2563EB';
+      
       return `
         <div class="tpl-card" data-category="${t.category}">
-          <div class="tpl-thumb" style="background:${accent}18;">
-            <div class="tpl-badge">${t.atsScore}% ATS</div>
+          <div class="tpl-thumb" style="background:${t.accent}10;">
+            <div class="tpl-badge">${t.atsScore || 95}% ATS</div>
             ${buildMock(t)}
             <div class="tpl-overlay">
-              <a href="resume-builder.html?template=${t.id}" class="btn btn-primary">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> Use Template
+              <a href="resume-builder.html?template=${t.id}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Use Layout
               </a>
             </div>
           </div>
           <div class="tpl-info">
-            <h3>${t.name}</h3>
+            <h3>${t.name} Layout</h3>
             <p>${t.description}</p>
             <div class="tpl-meta">
-              <span class="tpl-score"><i class="fa-solid fa-check-circle"></i> ${t.atsScore}/100 ATS score</span>
+              <span class="tpl-score"><i class="fa-solid fa-check-circle"></i> Vetted Score</span>
               <span class="tpl-cat">${t.category}</span>
             </div>
           </div>
@@ -307,26 +282,27 @@
       const grid = document.getElementById('templatesGrid');
       try {
         const templates = await ApiService.templates.list();
-        allTemplates = templates;
         grid.innerHTML = templates.map(renderCard).join('');
       } catch(e) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink-500);">
-          <i class="fa-solid fa-plug-circle-xmark fa-2x" style="margin-bottom:12px;display:block;"></i>
-          Could not load templates — is the server running?
-        </div>`;
+        console.warn('Error loading templates:', e);
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink-400);">
+            <i class="fa-solid fa-plug-circle-xmark fa-2x" style="margin-bottom:12px;display:block;color:var(--score-low);"></i>
+            Could not fetch layout templates list.
+          </div>`;
       }
     }
 
     // Filter tabs
-    let allTemplates = [];
     document.getElementById('filterBar').addEventListener('click', e => {
       const btn = e.target.closest('.filter-btn');
       if (!btn) return;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const filter = btn.dataset.filter;
+      const filter = btn.dataset.filter.toLowerCase();
       document.querySelectorAll('.tpl-card').forEach(card => {
-        card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+        const cat = card.dataset.category.toLowerCase();
+        card.style.display = (filter === 'all' || cat === filter) ? '' : 'none';
       });
     });
 
