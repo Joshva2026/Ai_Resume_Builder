@@ -673,34 +673,77 @@
   </section>
 
   <!-- ============================= FEATURES CARDS ============================= -->
-  <section class="section" style="background: var(--paper-50); border-bottom: 1px solid var(--line);">
+  <section class="section" id="features" style="background: var(--paper-50); border-bottom: 1px solid var(--line);">
     <div class="container">
-      <div class="section-head center">
+      <div class="section-head center" data-reveal>
         <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Product Suite</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 8px;">Core Features Built for Success</h2>
-        <p>Everything you need to navigate your application lifecycle.</p>
+        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: #FFFFFF; margin-bottom: 8px;">Everything You Need to Build a Better Career</h2>
+        <p style="color: var(--ink-600); max-width: 680px; margin: 0 auto;">Create ATS-friendly resumes, improve your applications with AI, and get career-ready with powerful tools built into one platform.</p>
       </div>
 
-      <div class="showcase-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px;">
-        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-robot" style="color: var(--primary); margin-right: 8px;"></i> AI Assistant</h4>
-          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Iteratively chat with our Gemini-powered career chatbot to brainstorm details and write bullet points.</p>
+      <div class="showcase-grid" data-reveal-group>
+        <!-- 01 — AI Resume Builder -->
+        <div class="showcase-card">
+          <div class="card-num">01</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h4 class="card-title">AI Resume Builder</h4>
+          <p class="card-desc">Build professional, ATS-friendly resumes with an intuitive step-by-step builder. Create, edit, preview and manage multiple resumes from one place.</p>
         </div>
-        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-gauge-high" style="color: var(--primary); margin-right: 8px;"></i> ATS Analysis</h4>
-          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Vet resumes against vacancy postings to measure matches, formatting scores, and keyword checks.</p>
+        
+        <!-- 02 — ATS Resume Checker -->
+        <div class="showcase-card">
+          <div class="card-num">02</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-bullseye"></i></div>
+          <h4 class="card-title">ATS Resume Checker</h4>
+          <p class="card-desc">Analyze your resume against ATS-friendly standards and identify areas that can be improved before applying for jobs.</p>
         </div>
-        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-cubes" style="color: var(--primary); margin-right: 8px;"></i> Resume Templates</h4>
-          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Access vetted templates built for clarity and compliance with major applicant screening parsers.</p>
+
+        <!-- 03 — AI Career Assistant -->
+        <div class="showcase-card">
+          <div class="card-num">03</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-robot"></i></div>
+          <h4 class="card-title">AI Career Assistant</h4>
+          <p class="card-desc">Get AI-powered guidance for resume improvements, career questions, professional writing and job preparation.</p>
         </div>
-        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-envelope-open-text" style="color: var(--primary); margin-right: 8px;"></i> Cover Letters</h4>
-          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Generate print-ready tailored cover letters customized for target roles from your resume details.</p>
+
+        <!-- 04 — Professional Templates -->
+        <div class="showcase-card">
+          <div class="card-num">04</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-table-cells-large"></i></div>
+          <h4 class="card-title">Professional Templates</h4>
+          <p class="card-desc">Choose from clean, modern and ATS-friendly resume templates designed for different career paths.</p>
         </div>
-        <div class="showcase-card" style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-          <h4 style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); margin-right: 8px;"></i> AI Improvements</h4>
-          <p style="font-size: var(--fs-xs); color: var(--ink-700); line-height: 1.5;">Review automated improvement breakdowns and apply suggestions directly inside your document editor.</p>
+
+        <!-- 05 — Live Resume Preview -->
+        <div class="showcase-card">
+          <div class="card-num">05</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-eye"></i></div>
+          <h4 class="card-title">Live Resume Preview</h4>
+          <p class="card-desc">See your resume update in real time while editing and make changes with confidence before downloading.</p>
+        </div>
+
+        <!-- 06 — Resume Management -->
+        <div class="showcase-card">
+          <div class="card-num">06</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-folder-open"></i></div>
+          <h4 class="card-title">Resume Management</h4>
+          <p class="card-desc">Create, save, edit, duplicate and manage your resumes from a single dashboard.</p>
+        </div>
+
+        <!-- 07 — Profile Management -->
+        <div class="showcase-card">
+          <div class="card-num">07</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-user-gear"></i></div>
+          <h4 class="card-title">Profile Management</h4>
+          <p class="card-desc">Keep your professional information organized and reuse it while creating and updating resumes.</p>
+        </div>
+
+        <!-- 08 — Career Insights -->
+        <div class="showcase-card">
+          <div class="card-num">08</div>
+          <div class="card-icon-wrap"><i class="fa-solid fa-arrow-trend-up"></i></div>
+          <h4 class="card-title">Career Insights</h4>
+          <p class="card-desc">Get actionable suggestions to improve your resume quality and strengthen your overall job application.</p>
         </div>
       </div>
     </div>
