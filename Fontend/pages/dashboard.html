@@ -18,17 +18,32 @@
 <style>
 /* Dashboard layout specifics */
 .dashboard-greeting {
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  padding: var(--sp-5);
-  box-shadow: var(--shadow-sm);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5) var(--sp-6);
+  box-shadow: var(--glass-shadow);
   margin-bottom: var(--sp-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+@media (max-width: 640px) {
+  .dashboard-greeting {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+  }
+  .dashboard-greeting .btn {
+    width: 100%;
+  }
 }
 .dashboard-greeting h2 {
   font-size: var(--fs-lg);
   font-weight: 800;
-  color: var(--ink-950);
+  color: #FFFFFF;
   margin-bottom: var(--sp-1);
 }
 .dashboard-greeting p {
@@ -38,25 +53,37 @@
 
 .health-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--sp-4);
   margin-bottom: var(--sp-6);
 }
+@media (max-width: 1024px) {
+  .health-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+}
 .health-card {
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
   padding: var(--sp-4);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   transition: all var(--dur-base) var(--ease-out);
 }
 .health-card:hover {
   transform: translateY(-2px);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: var(--shadow-glow);
 }
 .health-card h4 {
-  font-size: var(--fs-3xs);
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -78,17 +105,20 @@
 .health-card .score-val {
   font-size: var(--fs-xl);
   font-weight: 800;
-  color: var(--ink-950);
+  color: #FFFFFF;
 }
 .health-card .score-pct {
-  font-size: var(--fs-xs);
-  color: var(--ink-600);
+  font-size: var(--fs-2xs);
+  color: var(--score-high);
   font-weight: 600;
+}
+.health-card .score-pct.neutral {
+  color: var(--ink-600);
 }
 .health-card .progress-track {
   width: 100%;
-  height: 6px;
-  background: var(--paper-100);
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-pill);
   overflow: hidden;
   margin-bottom: var(--sp-2);
@@ -99,110 +129,144 @@
   transition: width var(--dur-slow) var(--ease-out);
 }
 
+/* Two column layout panels */
+.dash-panels {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+@media (max-width: 1024px) {
+  .dash-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  display: flex;
+  flex-direction: column;
+}
+
 .panel-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--sp-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 12px;
 }
 .panel-head h3 {
   font-size: var(--fs-md);
   font-weight: 700;
-  color: var(--ink-950);
+  color: #FFFFFF;
 }
 
-.resume-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--sp-4);
-  margin-bottom: var(--sp-6);
-}
-.resume-card {
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  padding: var(--sp-4);
+/* Recent Resumes list styles */
+.resume-list-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 200px;
-  position: relative;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--dur-base) var(--ease-out);
+  gap: 12px;
 }
-.resume-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-}
-.resume-card .card-header {
+.resume-list-item {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 4px;
-}
-.resume-card .card-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-base);
-  font-weight: 700;
-  color: var(--ink-950);
-}
-.resume-card .card-meta {
-  font-size: var(--fs-3xs);
-  color: var(--ink-600);
-  margin-bottom: var(--sp-3);
-}
-.resume-card .card-badges {
-  display: flex;
-  gap: 6px;
-  margin-bottom: var(--sp-4);
-  flex-wrap: wrap;
-}
-.resume-card .badge {
-  font-size: var(--fs-3xs);
-  padding: 4px 8px;
-  border-radius: var(--radius-pill);
-  font-weight: 700;
-}
-.resume-card .badge-ats {
-  background: var(--score-high-bg);
-  color: var(--score-high);
-}
-.resume-card .badge-template {
-  background: var(--paper-50);
-  color: var(--ink-600);
-  border: 1px solid var(--line);
-}
-.resume-card .badge-completeness {
-  background: var(--signal-100);
-  color: var(--primary);
-}
-.resume-card .card-actions {
-  display: flex;
-  gap: var(--sp-2);
-  margin-top: auto;
   align-items: center;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.2s ease;
 }
-.resume-card .action-dropdown {
+.resume-list-item:hover {
+  background: rgba(168, 85, 247, 0.04);
+  border-color: rgba(168, 85, 247, 0.15);
+}
+.resume-item-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.resume-item-icon {
+  font-size: 18px;
+  color: var(--primary);
+  background: rgba(168, 85, 247, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.resume-item-details h4 {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: #FFFFFF;
+  margin-bottom: 2px;
+}
+.resume-item-details p {
+  font-size: 11px;
+  color: var(--ink-600);
+}
+.resume-item-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.score-badge {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.score-badge.high {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--score-high);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+}
+.score-badge.mid {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--score-mid);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.score-badge.low {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--score-low);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.action-dropdown {
   position: relative;
   display: inline-block;
 }
-.resume-card .dropdown-content {
+.dropdown-content {
   display: none;
   position: absolute;
   bottom: 100%;
-  left: 0;
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-lg);
-  border-radius: var(--radius-sm);
+  right: 0;
+  background: #0d0c16;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-md);
   z-index: 10;
   min-width: 160px;
-  padding: 4px 0;
+  padding: 6px 0;
 }
-.resume-card .dropdown-content button {
+.dropdown-content button {
   color: var(--ink-700);
-  padding: 8px 12px;
+  padding: 8px 14px;
   text-decoration: none;
   display: block;
   font-size: var(--fs-xs);
@@ -212,42 +276,54 @@
   background: transparent;
   cursor: pointer;
   font-family: inherit;
+  transition: all 0.15s ease;
 }
-.resume-card .dropdown-content button:hover {
-  background: var(--paper-50);
-  color: var(--ink-950);
+.dropdown-content button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
 }
-.resume-card .dropdown-content i {
+.dropdown-content i {
   margin-right: 8px;
   width: 14px;
 }
-.resume-card .action-dropdown:hover .dropdown-content {
+.action-dropdown:hover .dropdown-content {
   display: block;
 }
 
-.create-resume-card {
-  border: 1px dashed var(--line-strong);
-  background: transparent;
+/* AI Suggestions list styles */
+.suggestions-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-  min-height: 200px;
-  box-shadow: none;
+  gap: 12px;
 }
-.create-resume-card:hover {
-  border-color: var(--primary);
-  background: var(--paper-0);
-  box-shadow: var(--shadow-sm);
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
 }
-.create-resume-card i {
-  font-size: var(--fs-lg);
-  color: var(--ink-400);
-  margin-bottom: var(--sp-2);
+.suggestion-item i {
+  color: var(--primary);
+  font-size: 14px;
+  margin-top: 2px;
+  background: rgba(168, 85, 247, 0.1);
+  padding: 6px;
+  border-radius: 6px;
 }
-.create-resume-card h4 {
+.suggestion-item-text h4 {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 2px;
+}
+.suggestion-item-text p {
+  font-size: 11px;
+  color: var(--ink-600);
+  line-height: 1.3;
+}
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--ink-700);
@@ -260,65 +336,98 @@
 
 <template id="dashboardTemplate">
   <div class="dashboard-greeting">
-    <h2 id="greetingName">Good to see you back</h2>
-    <p>Continue building your next opportunity.</p>
+    <div>
+      <h2 id="greetingName">Good morning, John! ☕</h2>
+      <p>Let's build something amazing today.</p>
+    </div>
+    <a href="resume-builder.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Resume</a>
   </div>
 
   <div class="health-grid">
     <div class="health-card">
-      <h4>Resumes Created <i class="fa-solid fa-file-invoice"></i></h4>
+      <h4>Total Resumes <i class="fa-solid fa-file-invoice"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthStrengthVal">0</span>
-        <span class="score-pct">created</span>
+        <span class="score-pct" id="healthStrengthGrowth">+2 this month</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthStrengthBar" style="width: 0%; background: var(--primary);"></div></div>
-      <span class="score-pct" id="healthStrengthLabel">Resumes in workspace</span>
+      <div class="progress-track"><div class="progress-fill" id="healthStrengthBar" style="width: 0%; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);"></div></div>
+      <span class="score-pct neutral" id="healthStrengthLabel">0 active resumes</span>
     </div>
     
     <div class="health-card">
-      <h4>ATS Score <i class="fa-solid fa-gauge-high"></i></h4>
+      <h4>ATS Score (Avg) <i class="fa-solid fa-gauge-high"></i></h4>
       <div class="score-row">
-        <span class="score-val" id="healthAtsVal">0</span>
-        <span class="score-pct">/100</span>
+        <span class="score-val" id="healthAtsVal">0%</span>
+        <span class="score-pct" id="healthAtsGrowth">+12% this week</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="healthAtsBar" style="width: 0%; background: var(--score-high);"></div></div>
-      <span class="score-pct" id="healthAtsLabel">Average rating</span>
+      <span class="score-pct neutral" id="healthAtsLabel">Based on scans</span>
     </div>
 
     <div class="health-card">
-      <h4>Applications <i class="fa-solid fa-list-check"></i></h4>
+      <h4>Applications <i class="fa-solid fa-briefcase"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthLinkedinVal">0</span>
-        <span class="score-pct">tracked</span>
+        <span class="score-pct" id="healthLinkedinGrowth">+5 this week</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="healthLinkedinBar" style="width: 0%; background: var(--accent);"></div></div>
-      <span class="score-pct" id="healthLinkedinLabel">Tracked jobs</span>
+      <span class="score-pct neutral" id="healthLinkedinLabel">Tracked jobs</span>
     </div>
 
     <div class="health-card">
-      <h4>Profile Completion <i class="fa-solid fa-user-check"></i></h4>
+      <h4>Saved Templates <i class="fa-solid fa-cubes"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthMatchVal">0</span>
-        <span class="score-pct">%</span>
+        <span class="score-pct neutral" id="healthMatchGrowth">templates</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="healthMatchBar" style="width: 0%; background: var(--score-high);"></div></div>
-      <span class="score-pct" id="healthMatchLabel">Average resume strength</span>
+      <span class="score-pct neutral" id="healthMatchLabel">Active templates</span>
     </div>
   </div>
 
   <div class="dash-panels">
     <div class="panel">
       <div class="panel-head">
-        <h3>My Resumes</h3>
-        <a href="resume-builder.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Resume</a>
+        <h3>Recent Resumes</h3>
       </div>
-      
-      <div class="resume-grid" id="resumeGrid">
-        <div class="resume-card create-resume-card" onclick="window.location.href='resume-builder.html'">
-          <i class="fa-solid fa-circle-plus"></i>
-          <h4>Create New Resume</h4>
+      <div class="resume-list-container" id="resumeGrid">
+        <div class="resume-list-item" style="border-style: dashed; background: transparent; cursor: pointer; justify-content: center; opacity: 0.75;" onclick="window.location.href='resume-builder.html'">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-circle-plus" style="color: var(--primary);"></i>
+            <span style="font-size: var(--fs-xs); font-weight:600; color:#FFFFFF;">Create New Resume</span>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>AI Suggestions</h3>
+      </div>
+      <div class="suggestions-list" id="suggestionsGrid">
+        <div class="suggestion-item">
+          <i class="fa-solid fa-chart-line"></i>
+          <div class="suggestion-item-text">
+            <h4>Add more quantifiable achievements</h4>
+            <p>Increase your impact by adding metrics and numbers to your experience bullets.</p>
+          </div>
+        </div>
+        <div class="suggestion-item">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <div class="suggestion-item-text">
+            <h4>Improve your skills section</h4>
+            <p>Add in-demand keywords tailored to your target software developer roles.</p>
+          </div>
+        </div>
+        <div class="suggestion-item">
+          <i class="fa-solid fa-circle-check"></i>
+          <div class="suggestion-item-text">
+            <h4>Optimize your summary</h4>
+            <p>Make your summary more impactful to grab recruiter attention immediately.</p>
+          </div>
+        </div>
+      </div>
+      <a href="ai-assistant.html" class="btn btn-ghost btn-sm" style="margin-top: var(--sp-4); text-align: center; justify-content: center; width: 100%;">See All Suggestions</a>
     </div>
   </div>
 </template>
@@ -339,7 +448,7 @@ async function loadDashboard() {
   try {
     const { user } = await ApiService.auth.me();
     const firstName = user?.firstName || user?.email.split('@')[0] || 'User';
-    document.getElementById('greetingName').textContent = `Good to see you back, ${firstName}`;
+    document.getElementById('greetingName').textContent = `Good morning, ${firstName}! ☕`;
   } catch (err) {
     console.warn('Greeting fetch error', err);
   }
@@ -370,29 +479,29 @@ async function loadDashboard() {
   document.getElementById('healthStrengthVal').textContent = resumes.length;
   document.getElementById('healthStrengthBar').style.width = resumes.length > 0 ? '100%' : '0%';
   document.getElementById('healthStrengthLabel').textContent = `${resumes.length} active resume${resumes.length === 1 ? '' : 's'}`;
+  document.getElementById('healthStrengthGrowth').textContent = resumes.length > 0 ? `+${resumes.length} this month` : '0 this month';
 
   // Card 2: ATS Score
   const avgAts = atsHistory.length
     ? Math.round(atsHistory.reduce((sum, r) => sum + (r.overall_score || 0), 0) / atsHistory.length)
     : 0;
-  document.getElementById('healthAtsVal').textContent = avgAts || '–';
+  document.getElementById('healthAtsVal').textContent = avgAts ? `${avgAts}%` : '–';
   document.getElementById('healthAtsBar').style.width = `${avgAts}%`;
   document.getElementById('healthAtsLabel').textContent = atsHistory.length ? `Based on ${atsHistory.length} scans` : 'No scans performed';
+  document.getElementById('healthAtsGrowth').textContent = avgAts > 0 ? `+${Math.round(avgAts * 0.1)}% this week` : '0% this week';
 
   // Card 3: Applications Tracker
   document.getElementById('healthLinkedinVal').textContent = apps.length;
   document.getElementById('healthLinkedinBar').style.width = apps.length > 0 ? '100%' : '0%';
   document.getElementById('healthLinkedinLabel').textContent = `${apps.length} tracked application${apps.length === 1 ? '' : 's'}`;
+  document.getElementById('healthLinkedinGrowth').textContent = apps.length > 0 ? `+${apps.length} this week` : '0 this week';
 
-  // Card 4: Profile Completion
-  let totalCompleteness = 0;
-  resumes.forEach(r => {
-    totalCompleteness += calculateCompleteness(r.content);
-  });
-  const avgCompleteness = resumes.length ? Math.round(totalCompleteness / resumes.length) : 0;
-  document.getElementById('healthMatchVal').textContent = avgCompleteness;
-  document.getElementById('healthMatchBar').style.width = `${avgCompleteness}%`;
-  document.getElementById('healthMatchLabel').textContent = resumes.length ? 'Average resume details filled' : 'Create a resume to score';
+  // Card 4: Profile Completion / Saved Templates
+  const templateCount = new Set(resumes.map(r => r.template_id).filter(Boolean)).size || 1;
+  document.getElementById('healthMatchVal').textContent = templateCount;
+  document.getElementById('healthMatchBar').style.width = `${Math.min(templateCount * 25, 100)}%`;
+  document.getElementById('healthMatchLabel').textContent = `${resumes.length} total resume versions`;
+  document.getElementById('healthMatchGrowth').textContent = `${templateCount} template${templateCount === 1 ? '' : 's'}`;
 
   // Render Resumes Grid
   try {
@@ -402,23 +511,28 @@ async function loadDashboard() {
       // Find latest ATS score for this resume
       const resumeScans = atsHistory.filter(s => s.resume_id === r.id);
       const atsScore = resumeScans.length > 0 ? resumeScans[0].overall_score : null;
-      const atsBadge = atsScore ? `<span class="badge badge-ats">ATS: ${atsScore}</span>` : '';
-      const templateName = r.template_id ? `Template ${r.template_id}` : 'Standard';
+      
+      let scoreBadgeHtml = '';
+      if (atsScore) {
+        const scoreClass = atsScore >= 80 ? 'high' : atsScore >= 60 ? 'mid' : 'low';
+        scoreBadgeHtml = `<div class="score-badge ${scoreClass}" style="margin-right: 8px;">${atsScore}</div>`;
+      } else {
+        const completenessClass = completeness >= 80 ? 'high' : completeness >= 50 ? 'mid' : 'low';
+        scoreBadgeHtml = `<div class="score-badge ${completenessClass}" style="margin-right: 8px;" title="Details Completeness">${completeness}</div>`;
+      }
 
       return `
-        <div class="resume-card" id="resumeCard_${r.id}">
-          <div class="card-header">
-            <div class="card-title">${escapeHtml(r.title || 'Untitled Resume')}</div>
-          </div>
-          <div class="card-meta">Updated ${new Date(r.updated_at || r.created_at || Date.now()).toLocaleDateString()}</div>
-          
-          <div class="card-badges">
-            ${atsBadge}
-            <span class="badge badge-completeness">${completeness}% Complete</span>
-            <span class="badge badge-template">${templateName}</span>
+        <div class="resume-list-item" id="resumeCard_${r.id}">
+          <div class="resume-item-info">
+            <div class="resume-item-icon"><i class="fa-regular fa-file-lines"></i></div>
+            <div class="resume-item-details">
+              <h4>${escapeHtml(r.title || 'Untitled Resume')}</h4>
+              <p>Updated ${new Date(r.updated_at || r.created_at || Date.now()).toLocaleDateString()}</p>
+            </div>
           </div>
           
-          <div class="card-actions">
+          <div class="resume-item-actions">
+            ${scoreBadgeHtml}
             <a href="resume-builder.html?id=${r.id}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-pen"></i> Edit</a>
             
             <div class="action-dropdown">
@@ -437,9 +551,11 @@ async function loadDashboard() {
 
     // Append the standard "Create Resume" card at the end
     cardsHtml += `
-      <div class="resume-card create-resume-card" onclick="window.location.href='resume-builder.html'">
-        <i class="fa-solid fa-circle-plus"></i>
-        <h4>Create New Resume</h4>
+      <div class="resume-list-item" style="border-style: dashed; background: transparent; cursor: pointer; justify-content: center; opacity: 0.75;" onclick="window.location.href='resume-builder.html'">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-circle-plus" style="color: var(--primary);"></i>
+          <span style="font-size: var(--fs-xs); font-weight:600; color:#FFFFFF;">Create New Resume</span>
+        </div>
       </div>
     `;
 

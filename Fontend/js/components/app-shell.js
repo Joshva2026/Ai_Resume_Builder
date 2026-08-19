@@ -54,7 +54,14 @@ const AppShell = (() => {
             <span class="brand-mark">RF</span>
             ResumeForge
           </a>
-          <nav class="side-nav">${navHtml(active)}</nav>
+          <nav class="side-nav">
+            ${navHtml(active)}
+            <div class="sidebar-upgrade">
+              <h4>Upgrade to Pro</h4>
+              <p>Get unlimited templates, AI tools & more.</p>
+              <a href="settings.html" class="btn btn-primary btn-sm btn-block">Upgrade Now</a>
+            </div>
+          </nav>
         </aside>
  
         <div class="app-main">

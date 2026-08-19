@@ -421,47 +421,108 @@
     <div class="hero-mesh" aria-hidden="true"></div>
     <div class="container">
       <div class="hero-copy">
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--fs-3xs); margin-bottom: 8px;">Professional AI Resume Builder</div>
-        <h1 style="font-size: clamp(2rem, 4vw, var(--fs-5xl)); line-height: 1.15; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; color: var(--ink-950);">
-          Build a Resume That <span class="accent" style="color: var(--primary); background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Gets Noticed</span>.
+        <div class="eyebrow-badge"><i class="fa-solid fa-sparkles"></i> AI-Powered Career Platform</div>
+        <h1>
+          Build Smarter.<br>
+          <span class="text-gradient">Get Hired Faster.</span>
         </h1>
-        <p style="font-size: var(--fs-md); color: var(--ink-600); margin-bottom: 24px; line-height: 1.6;">
-          Create professional, ATS-friendly resumes with intelligent tools designed to help you present your skills with confidence.
+        <p>
+          Create ATS-friendly resumes, get AI insights, and land your dream job.
         </p>
         
-        <div class="hero-actions" style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" data-cta="hero_build_resume" style="padding: 12px 24px; font-weight: 600;">
-            <i class="fa-solid fa-pen-ruler" style="margin-right: 6px;"></i> Build My Resume
-          </a>
-          <a href="pages/ats-checker.html" class="btn btn-ghost btn-lg" style="padding: 12px 24px; font-weight: 600; border: 1px solid var(--line);">
-            <i class="fa-solid fa-gauge-high" style="margin-right: 6px;"></i> Analyze My Resume
-          </a>
+        <div class="hero-actions">
+          <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" data-cta="hero_build_resume">Get Started Free</a>
+          <a href="#" class="btn btn-ghost btn-lg"><i class="fa-solid fa-play" style="margin-right: 6px; font-size: 11px;"></i> Watch Demo</a>
         </div>
-        
-        <div class="hero-proof" style="display: flex; align-items: center; gap: 12px; margin-top: 24px;">
-          <div class="avatars" style="display: flex;">
-            <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--paper-100); border: 2px solid var(--paper-0); font-size: 10px; font-weight: 700; color: var(--ink-600); display: flex; align-items: center; justify-content: center; margin-right: -10px;">JD</span>
-            <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--paper-100); border: 2px solid var(--paper-0); font-size: 10px; font-weight: 700; color: var(--ink-600); display: flex; align-items: center; justify-content: center; margin-right: -10px;">AM</span>
-            <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); border: 2px solid var(--paper-0); font-size: 10px; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center;">+</span>
+
+        <div class="hero-stats-row">
+          <div class="hero-stat-card">
+            <span class="hero-stat-num">20K+</span>
+            <span class="hero-stat-label">Resumes Created</span>
           </div>
-          <p class="hero-proof-text" style="font-size: var(--fs-3xs); color: var(--ink-600); line-height: 1.3;">
-            Optimized for ATS screening<br>Average ATS pass rate: <strong>92%</strong>
-          </p>
+          <div class="hero-stat-card">
+            <span class="hero-stat-num">95%</span>
+            <span class="hero-stat-label">ATS Score Improvement</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="hero-stat-num">10K+</span>
+            <span class="hero-stat-label">Happy Users</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="hero-stat-num">4.9 ★</span>
+            <span class="hero-stat-label">User Rating</span>
+          </div>
+        </div>
+
+        <div class="hero-features-chips">
+          <div class="hero-feature-chip">
+            <i class="fa-solid fa-robot"></i>
+            <div class="hero-feature-chip-content">
+              <h4>AI Assistant</h4>
+              <p>Get AI-powered content suggestions</p>
+            </div>
+          </div>
+          <div class="hero-feature-chip">
+            <i class="fa-solid fa-gauge-high"></i>
+            <div class="hero-feature-chip-content">
+              <h4>ATS Checker</h4>
+              <p>Optimize your resume for ATS systems</p>
+            </div>
+          </div>
+          <div class="hero-feature-chip">
+            <i class="fa-solid fa-cubes"></i>
+            <div class="hero-feature-chip-content">
+              <h4>Smart Templates</h4>
+              <p>Professionally designed templates</p>
+            </div>
+          </div>
+          <div class="hero-feature-chip">
+            <i class="fa-solid fa-eye"></i>
+            <div class="hero-feature-chip-content">
+              <h4>Real-time Preview</h4>
+              <p>Instant preview as you build</p>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="hero-visual">
-        <div class="hero-visual-card" style="border-radius: var(--radius-lg); border: 1px solid var(--line); box-shadow: var(--shadow-xl); overflow: hidden; position: relative;">
-          <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=800&q=80" alt="System analyzing a resume mock representation" style="width: 100%; height: 100%; object-fit: cover;" />
-          <div class="hero-floating-metrics" style="position: absolute; top: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px;">
-            <span class="hero-graphic-pill" style="padding: 6px 12px; background: var(--paper-0); border: 1px solid var(--line); font-size: 11px; font-weight: 700; border-radius: var(--radius-pill); box-shadow: var(--shadow-md); color: var(--ink-950);">ATS Score: 87 / 100</span>
-            <span class="hero-graphic-pill accent" style="padding: 6px 12px; background: var(--primary); border: none; font-size: 11px; font-weight: 700; border-radius: var(--radius-pill); box-shadow: var(--shadow-md); color: white;">Formatting: Perfect</span>
-          </div>
-          <div class="hero-overlay-card" style="position: absolute; bottom: 16px; right: 16px; width: 180px; padding: 12px; background: var(--glass-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-border); border-radius: var(--radius-md); box-shadow: var(--glass-shadow); font-size: 11px;">
-            <p class="hero-overlay-label" style="font-weight: 700; color: var(--ink-950); margin-bottom: 8px;">Analysis Summary</p>
-            <div class="hero-overlay-row" style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--ink-700);"><span>Keywords</span><strong style="color: var(--score-high);">Matched</strong></div>
-            <div class="hero-overlay-row" style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--ink-700);"><span>Readability</span><strong style="color: var(--ink-950);">95%</strong></div>
-            <div class="hero-overlay-row" style="display: flex; justify-content: space-between; color: var(--ink-700);"><span>Structure</span><strong style="color: var(--ink-950);">Clean</strong></div>
+        <div class="hero-orbit-wrapper">
+          <div class="orbit-ring orbit-ring-1"></div>
+          <div class="orbit-ring orbit-ring-2"></div>
+          <div class="resume-showcase-card">
+            <div class="resume-showcase-header">
+              <h3>JONATHAN DOE</h3>
+              <p>Software Engineer</p>
+            </div>
+            <div class="resume-showcase-section">
+              <h4>Experience</h4>
+              <div class="resume-showcase-item">
+                <h5>Senior Software Engineer</h5>
+                <p>SaaS Solutions Inc. | 2021 - Present</p>
+              </div>
+              <div class="resume-showcase-item">
+                <h5>Software Developer</h5>
+                <p>Innovate Company | 2019 - 2021</p>
+              </div>
+            </div>
+            <div class="resume-showcase-section">
+              <h4>Education</h4>
+              <div class="resume-showcase-item">
+                <h5>B.S. Computer Science</h5>
+                <p>University of California, Berkeley</p>
+              </div>
+            </div>
+            <div class="resume-showcase-section">
+              <h4>Skills</h4>
+              <div class="resume-showcase-skills">
+                <span>JavaScript</span>
+                <span>React</span>
+                <span>Node.js</span>
+                <span>Python</span>
+                <span>AWS</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -101,28 +101,26 @@
 
   <section class="auth-form-wrap">
     <div class="auth-form-inner">
-      <a href="../index.html" style="display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--ink-600); margin-bottom:var(--sp-6); transition:color 0.2s;" onmouseover="this.style.color='var(--signal-600)'" onmouseout="this.style.color='var(--ink-600)'">
-        <i class="fa-solid fa-arrow-left"></i> Back to home
-      </a>
-      <h1>Create your account</h1>
-      <p class="sub">Free forever plan. No credit card required.</p>
+      <a href="../index.html" class="brand" style="justify-content: center; margin-bottom: var(--sp-5);"><span class="brand-mark">RF</span>ResumeForge</a>
+      <h1>Create Account</h1>
+      <p class="sub">Join thousands of professionals</p>
 
       <div class="form-error" id="formError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
 
       <form id="registerForm" novalidate>
         <div class="field-row">
           <div class="field">
-            <label for="firstName">First name</label>
+            <label for="firstName">First Name</label>
             <input type="text" id="firstName" name="firstName" placeholder="Jane" required autocomplete="given-name">
           </div>
           <div class="field">
-            <label for="lastName">Last name</label>
+            <label for="lastName">Last Name</label>
             <input type="text" id="lastName" name="lastName" placeholder="Doe" required autocomplete="family-name">
           </div>
         </div>
         <div class="field">
-          <label for="email">Email address</label>
-          <input type="email" id="email" name="email" placeholder="you@email.com" required autocomplete="email">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
         </div>
         <div class="field">
           <label for="password">Password</label>
@@ -139,15 +137,22 @@
         </div>
         <label class="field-check" style="margin-bottom:var(--sp-6)">
           <input type="checkbox" name="terms" required>
-          I agree to the <a href="#" class="btn-text" style="display:inline">Terms</a> and <a href="#" class="btn-text" style="display:inline">Privacy Policy</a>
+          I agree to the <a href="#" class="btn-text" style="display:inline">Terms &amp; Conditions</a> and <a href="#" class="btn-text" style="display:inline">Privacy Policy</a>
         </label>
-        <button type="submit" class="btn btn-primary btn-lg btn-block" id="registerSubmit">
+        <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-bottom: var(--sp-4);" id="registerSubmit">
           <span id="registerBtnText">Create Account</span>
           <i class="fa-solid fa-spinner fa-spin" id="registerSpinner" style="display:none"></i>
         </button>
       </form>
 
-      <p class="auth-switch">Already have an account? <a href="login.html" class="btn-text">Log in</a></p>
+      <div class="divider">or continue with</div>
+      <div class="social-auth-row">
+        <button type="button" class="btn-social" aria-label="Google"><i class="fa-brands fa-google"></i></button>
+        <button type="button" class="btn-social" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></button>
+        <button type="button" class="btn-social" aria-label="Apple"><i class="fa-brands fa-apple"></i></button>
+      </div>
+
+      <p class="auth-switch">Already have an account? <a href="login.html" class="btn-text">Login</a></p>
     </div>
   </section>
 </div>

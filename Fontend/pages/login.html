@@ -80,18 +80,16 @@
 
   <section class="auth-form-wrap">
     <div class="auth-form-inner">
-      <a href="../index.html" style="display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--ink-600); margin-bottom:var(--sp-6); transition:color 0.2s;" onmouseover="this.style.color='var(--signal-600)'" onmouseout="this.style.color='var(--ink-600)'">
-        <i class="fa-solid fa-arrow-left"></i> Back to home
-      </a>
-      <h1>Welcome back</h1>
-      <p class="sub">Log in to keep building your resume.</p>
+      <a href="../index.html" class="brand" style="justify-content: center; margin-bottom: var(--sp-5);"><span class="brand-mark">RF</span>ResumeForge</a>
+      <h1>Welcome Back 👋</h1>
+      <p class="sub">Login to your account</p>
 
       <div class="form-error" id="formError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
 
       <form id="loginForm" novalidate>
         <div class="field">
-          <label for="email">Email address</label>
-          <input type="email" id="email" name="email" placeholder="you@email.com" required autocomplete="email">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
         </div>
         <div class="field">
           <label for="password">Password</label>
@@ -104,13 +102,20 @@
         </div>
         <div class="form-foot-row">
           <label class="field-check"><input type="checkbox" name="remember"> Remember me</label>
-          <a href="forgot-password.html" class="btn-text">Forgot password?</a>
+          <a href="forgot-password.html" class="btn-text">Forgot Password?</a>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginSubmit">
-          <span id="loginBtnText">Log In</span>
+        <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-bottom: var(--sp-4);" id="loginSubmit">
+          <span id="loginBtnText">Login</span>
           <i class="fa-solid fa-spinner fa-spin" id="loginSpinner" style="display:none"></i>
         </button>
       </form>
+
+      <div class="divider">or continue with</div>
+      <div class="social-auth-row">
+        <button type="button" class="btn-social" aria-label="Google"><i class="fa-brands fa-google"></i></button>
+        <button type="button" class="btn-social" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></button>
+        <button type="button" class="btn-social" aria-label="Apple"><i class="fa-brands fa-apple"></i></button>
+      </div>
 
       <!-- Dev mode: shown only on localhost when backend is unreachable -->
       <div id="devModeBanner" style="display:none; margin-top:var(--sp-4); padding:12px 16px; background:rgba(108,92,255,0.08); border:1px solid rgba(108,92,255,0.25); border-radius:var(--radius-md); font-size:var(--fs-xs); color:var(--ink-300);">

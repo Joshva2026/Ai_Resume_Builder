@@ -38,6 +38,7 @@
     initialized = true;
 
     bindSectionNav();
+    bindStepsNav();
     bindDragReorder();
     bindPersonalFields();
     bindRepeatBlocks();
@@ -483,24 +484,60 @@ function bindUndo() {
      Live preview rendering
   --------------------------------------------------------------------- */
   function updateProgressBar() {
-  const railItems = Array.from(document.querySelectorAll('.rail-item'));
-  const activeIndex = railItems.findIndex(i => i.classList.contains('active'));
-  const percent = Math.round(((activeIndex + 1) / railItems.length) * 100);
-  const bar = document.getElementById('wizardProgress');
-  if (bar) bar.style.width = percent + '%';
-}
-function bindSectionNav() {
-  document.querySelectorAll('.rail-item').forEach((item) => {
-    item.addEventListener('click', () => {
-      const key = item.dataset.section;
-      document.querySelectorAll('.rail-item').forEach((i) => i.classList.remove('active'));
-      document.querySelectorAll('.editor-section').forEach((s) => s.classList.remove('active'));
-      item.classList.add('active');
-      document.querySelector(`.editor-section[data-section="${key}"]`).classList.add('active');
-      updateProgressBar();
+    const railItems = Array.from(document.querySelectorAll('.rail-item'));
+    const activeIndex = railItems.findIndex(i => i.classList.contains('active'));
+    const percent = Math.round(((activeIndex + 1) / railItems.length) * 100);
+    const bar = document.getElementById('wizardProgress');
+    if (bar) bar.style.width = percent + '%';
+
+    // Update circular progress gauge
+    const circle = document.getElementById('completionCircle');
+    const val = document.getElementById('completionCircleVal');
+    if (circle && val) {
+      const offset = 213.6 - (percent / 100) * 213.6;
+      circle.style.strokeDashoffset = offset;
+      val.textContent = percent + '%';
+    }
+
+    // Sync top wizard step item
+    const activeItem = railItems[activeIndex];
+    if (activeItem) {
+      const activeSectionKey = activeItem.dataset.section;
+      document.querySelectorAll('.step-nav-item').forEach((step) => {
+        if (step.dataset.step === activeSectionKey) {
+          step.classList.add('active');
+        } else {
+          step.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  function bindSectionNav() {
+    document.querySelectorAll('.rail-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        const key = item.dataset.section;
+        document.querySelectorAll('.rail-item').forEach((i) => i.classList.remove('active'));
+        document.querySelectorAll('.editor-section').forEach((s) => s.classList.remove('active'));
+        item.classList.add('active');
+        const targetSec = document.querySelector(`.editor-section[data-section="${key}"]`);
+        if (targetSec) targetSec.classList.add('active');
+        updateProgressBar();
+      });
     });
-  });
-}
+  }
+
+  function bindStepsNav() {
+    document.querySelectorAll('.step-nav-item').forEach((step) => {
+      step.addEventListener('click', () => {
+        const key = step.dataset.step;
+        const matchingRailItem = document.querySelector(`.rail-item[data-section="${key}"]`);
+        if (matchingRailItem) {
+          matchingRailItem.click();
+        }
+      });
+    });
+  }
 function renderPreview() {
     const p = state.personal;
     const el = document.getElementById('livePreview');
