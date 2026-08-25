@@ -1,16 +1,14 @@
 /**
- * API SERVICE
+ * ResumeForge API SERVICE
  * -----------------------------------------------------------------------
- * Points at the new simple backend (server.js) running on port 3001.
- * Falls back to localStorage mock mode when the backend is unreachable,
- * so the UI still works during development without a running server.
+ * Production-ready API client with robust JWT token refresh queue,
+ * explicit error propagation (no silent mock fallbacks), and typed endpoints.
  * -----------------------------------------------------------------------
  */
 
 const ApiService = (() => {
   // Production vs Local API URL configuration
   const IS_PROD = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-  // Fallback to a placeholder that should be replaced during actual deployment or via env vars in build step
   const PROD_API_URL = "https://ai-resume-builder-rb1m.onrender.com/api";
   const BASE_URL = IS_PROD ? PROD_API_URL : `http://${window.location.hostname}:5000/api`;
 
@@ -40,55 +38,62 @@ const ApiService = (() => {
     catch { return null; }
   }
 
-  // ── Core request wrapper ──────────────────────────────────────────────
-  let isRefreshing = false;
-  let refreshSubscribers = [];
-
-  function subscribeTokenRefresh(cb) {
-    refreshSubscribers.push(cb);
+  // ── Error class ───────────────────────────────────────────────────────
+  class ApiError extends Error {
+    constructor(message, status, payload) {
+      super(message);
+      this.name = 'ApiError';
+      this.status = status;
+      this.payload = payload;
+    }
   }
 
-  function onRefreshed(token) {
-    refreshSubscribers.forEach(cb => cb(token));
-    refreshSubscribers = [];
-  }
+  // ── Token Refresh Mutex Queue ─────────────────────────────────────────
+  let refreshPromise = null;
 
-  function getMockCoverLetter() {
-    return {
-      id: 'mock_cl_' + Math.random().toString(36).slice(2, 9),
-      title: 'Cover Letter - Tailored Role',
-      content: `Dear Hiring Manager,
+  async function performTokenRefresh() {
+    const refreshToken = localStorage.getItem(REFRESH_KEY);
+    if (!refreshToken) {
+      clearTokens();
+      throw new ApiError('Session expired. Please log in again.', 401);
+    }
 
-I am writing to express my strong interest in the opportunity to join your team. Based on my uploaded resume, my experience aligns closely with the requirements of this role.
+    try {
+      const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: refreshToken })
+      });
 
-I look forward to discussing how my skills can contribute to your company.
-
-Sincerely,
-Candidate`
-    };
-  }
-
-  function getMockUploadReport() {
-    return {
-      success: true,
-      report: {
-        id: 'mock_ats_' + Math.random().toString(36).slice(2, 9),
-        overall_score: Math.floor(Math.random() * 21) + 75,
-        keyword_match: Math.floor(Math.random() * 21) + 70,
-        formatting_score: Math.floor(Math.random() * 11) + 88,
-        grammar_score: Math.floor(Math.random() * 11) + 85,
-        readability_score: Math.floor(Math.random() * 16) + 80,
-        missing_keywords: ['Docker', 'CI/CD', 'Kubernetes', 'REST APIs'],
-        suggestions: [
-          'Add missing technical keywords (Docker, CI/CD)',
-          'Quantify achievements in your work experience bullet points',
-          'Use standard margins and structure'
-        ],
-        createdAt: new Date().toISOString()
+      if (!refreshRes.ok) {
+        throw new Error('Refresh rejected');
       }
-    };
+
+      const refreshData = await refreshRes.json();
+      if (!refreshData.accessToken) {
+        throw new Error('No access token in refresh response');
+      }
+
+      localStorage.setItem(TOKEN_KEY, refreshData.accessToken);
+      return refreshData.accessToken;
+    } catch (err) {
+      clearTokens();
+      if (
+        window.location.pathname.includes('/pages/') &&
+        !window.location.pathname.includes('login.html') &&
+        !window.location.pathname.includes('register.html') &&
+        !window.location.pathname.includes('forgot-password.html') &&
+        !window.location.pathname.includes('reset-password.html')
+      ) {
+        window.location.href = 'login.html';
+      }
+      throw new ApiError('Session expired. Please log in again.', 401);
+    } finally {
+      refreshPromise = null;
+    }
   }
 
+  // ── Core request wrapper ──────────────────────────────────────────────
   async function request(path, { method = 'GET', body, auth = true, headers = {} } = {}) {
     const finalHeaders = { 'Content-Type': 'application/json', ...headers };
 
@@ -105,219 +110,36 @@ Candidate`
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch (networkError) {
-      console.warn('[ApiService] Network error or backend unreachable, falling back to mock storage', networkError);
-      return mockRequest(path, method, body);
+      console.error('[ApiService] Network error connecting to backend:', networkError);
+      throw new ApiError('Unable to connect to the server. Please check your internet connection.', 0);
     }
 
     let data = null;
     try { data = await response.json(); } catch (_) { /* empty body */ }
 
-    // Intercept 403 (Invalid/Expired token) to perform silent refresh
-    if (response.status === 403 && auth && localStorage.getItem(REFRESH_KEY)) {
-      if (!isRefreshing) {
-        isRefreshing = true;
-        try {
-          const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: localStorage.getItem(REFRESH_KEY) })
-          });
-
-          if (refreshRes.ok) {
-            const refreshData = await refreshRes.json();
-            if (refreshData.accessToken) {
-              localStorage.setItem(TOKEN_KEY, refreshData.accessToken);
-              onRefreshed(refreshData.accessToken);
-              isRefreshing = false;
-            } else {
-              throw new Error('Refresh failed');
-            }
-          } else {
-            throw new Error('Refresh failed');
-          }
-        } catch (refreshErr) {
-          isRefreshing = false;
-          clearTokens();
-          onRefreshed(null); // Notify queued requests to fail
-          if (window.location.pathname.includes('/pages/') && !window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
-            window.location.href = 'login.html';
-          }
-          throw new ApiError('Session expired. Please log in again.', 401);
-        }
+    // Intercept 401 / 403 TOKEN_EXPIRED to perform single-flight silent refresh
+    const isTokenExpired = response.status === 401 || (response.status === 403 && data?.code === 'TOKEN_EXPIRED');
+    if (isTokenExpired && auth && localStorage.getItem(REFRESH_KEY) && !path.includes('/auth/login') && !path.includes('/auth/refresh')) {
+      if (!refreshPromise) {
+        refreshPromise = performTokenRefresh();
       }
 
-      return new Promise((resolve, reject) => {
-        subscribeTokenRefresh((newToken) => {
-          if (!newToken) {
-            return reject(new ApiError('Session expired. Please log in again.', 401));
-          }
-          finalHeaders['Authorization'] = `Bearer ${newToken}`;
-          resolve(request(path, { method, body, auth, headers: finalHeaders }));
-        });
-      });
+      try {
+        const newToken = await refreshPromise;
+        const retryHeaders = { ...finalHeaders, 'Authorization': `Bearer ${newToken}` };
+        return request(path, { method, body, auth, headers: retryHeaders });
+      } catch (refreshErr) {
+        throw refreshErr;
+      }
     }
 
     if (!response.ok) {
-      if (response.status === 500 || response.status === 503) {
-        console.warn(`[ApiService] Server error (${response.status}), falling back to mock storage`);
-        try {
-          return mockRequest(path, method, body);
-        } catch (mockErr) {
-          // Fall through to throw original error if mock fails
-        }
-      }
-      throw new ApiError(data?.error || `Request failed (${response.status})`, response.status, data);
+      throw new ApiError(data?.error || `Request failed with status ${response.status}`, response.status, data);
     }
 
     // Cache user info from login/register responses
     if (data?.accessToken) setTokens(data);
     return data;
-  }
-
-  // ── LocalStorage mock (runs when backend is offline) ─────────────────
-  function mockRequest(path, method, body) {
-    const db = JSON.parse(localStorage.getItem('rf_mock_db') || '{"users":[],"resumes":[],"ats_reports":[]}');
-
-    const save = () => localStorage.setItem('rf_mock_db', JSON.stringify(db));
-    const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-    const now = () => new Date().toISOString();
-
-    // Profile get
-    if (path === '/profile' && method === 'GET') {
-      if (!db.profiles) db.profiles = [];
-      let p = db.profiles.find(x => x.userId === userId);
-      if (!p) {
-        const u = db.users.find(x => x.id === userId) || {};
-        p = {
-          id: userId,
-          email: u.email || '',
-          firstName: u.firstName || '',
-          lastName: u.lastName || '',
-          phone: '',
-          location: '',
-          bio: '',
-          profileImageUrl: '',
-          linkedinUrl: '',
-          portfolioUrl: '',
-          githubUrl: ''
-        };
-      }
-      return p;
-    }
-
-    // Profile update
-    if (path === '/profile' && method === 'PUT') {
-      if (!db.profiles) db.profiles = [];
-      let idx = db.profiles.findIndex(x => x.userId === userId);
-      const p = { id: userId, userId, ...body };
-      if (idx >= 0) {
-        db.profiles[idx] = p;
-      } else {
-        db.profiles.push(p);
-      }
-      let uIdx = db.users.findIndex(x => x.id === userId);
-      if (uIdx >= 0) {
-        db.users[uIdx].firstName = body.firstName || '';
-        db.users[uIdx].lastName = body.lastName || '';
-        db.users[uIdx].email = body.email || db.users[uIdx].email;
-      }
-      save();
-      return { message: 'Profile updated', profile: p };
-    }
-
-    // Register
-    if (path === '/auth/register' && method === 'POST') {
-      const { email, password, firstName, lastName } = body;
-      if (db.users.find(u => u.email === email)) throw new ApiError('Email already exists', 409);
-      const user = { id: newId(), email, firstName: firstName || '', lastName: lastName || '', password, createdAt: now() };
-      db.users.push(user);
-      const token = 'mock_' + newId();
-      localStorage.setItem(TOKEN_KEY, token);
-      localStorage.setItem('rf_mock_uid', user.id);
-      save();
-      return { accessToken: token, refreshToken: token, user };
-    }
-
-    // Login
-    if (path === '/auth/login' && method === 'POST') {
-      const user = db.users.find(u => u.email === body.email && u.password === body.password);
-      if (!user) throw new ApiError('Invalid email or password', 401);
-      const token = 'mock_' + newId();
-      localStorage.setItem(TOKEN_KEY, token);
-      localStorage.setItem('rf_mock_uid', user.id);
-      save();
-      return { accessToken: token, refreshToken: token, user };
-    }
-
-    const userId = localStorage.getItem('rf_mock_uid');
-
-    // Logout
-    if (path === '/auth/logout') { clearTokens(); localStorage.removeItem('rf_mock_uid'); return { message: 'Logged out' }; }
-
-    // Resumes list
-    if (path === '/resumes' && method === 'GET') {
-      return db.resumes.filter(r => r.userId === userId);
-    }
-    // Create resume
-    if (path === '/resumes' && method === 'POST') {
-      const r = { id: newId(), userId, ...body, createdAt: now(), updatedAt: now() };
-      db.resumes.push(r); save(); return r;
-    }
-    // Get / update / delete resume
-    const resumeMatch = path.match(/^\/resumes\/([^/]+)$/);
-    if (resumeMatch) {
-      const id = resumeMatch[1];
-      const idx = db.resumes.findIndex(r => r.id === id && r.userId === userId);
-      if (method === 'GET') return idx >= 0 ? db.resumes[idx] : (() => { throw new ApiError('Not found', 404); })();
-      if (method === 'PUT') { Object.assign(db.resumes[idx], body, { updatedAt: now() }); save(); return db.resumes[idx]; }
-      if (method === 'DELETE') { db.resumes.splice(idx, 1); save(); return { message: 'Deleted' }; }
-    }
-
-    // ATS history
-    if (path === '/ats/history') return db.ats_reports.filter(r => r.userId === userId);
-    // ATS analyze
-    if (path === '/ats/analyze' && method === 'POST') {
-      const report = {
-        id: newId(), userId, ...body,
-        overall_score: Math.floor(Math.random() * 20) + 75,
-        keyword_match: Math.floor(Math.random() * 20) + 70,
-        formatting_score: Math.floor(Math.random() * 10) + 88,
-        grammar_score: Math.floor(Math.random() * 10) + 85,
-        readability_score: Math.floor(Math.random() * 15) + 80,
-        missing_keywords: ['Docker', 'CI/CD', 'Kubernetes'],
-        suggestions: ['Add missing keywords', 'Use stronger action verbs'],
-        createdAt: now(),
-      };
-      db.ats_reports.push(report); save(); return report;
-    }
-
-    // Templates
-    if (path === '/templates') return [
-      { id: '1', name: 'Professional', atsScore: 98 },
-      { id: '2', name: 'Modern', atsScore: 95 },
-      { id: '3', name: 'Creative', atsScore: 90 },
-      { id: '4', name: 'Academic', atsScore: 97 },
-      { id: '5', name: 'Classic Academic', category: 'Classic', atsScore: 99 },
-    ];
-
-    // Auth me
-    if (path === '/auth/me') {
-      const user = db.users.find(u => u.id === userId);
-      if (!user) throw new ApiError('Not found', 404);
-      return user;
-    }
-
-    // Default stub
-    return { message: 'Mock response — backend not running', mock: true };
-  }
-
-  // ── Error class ───────────────────────────────────────────────────────
-  class ApiError extends Error {
-    constructor(message, status, payload) {
-      super(message);
-      this.status = status;
-      this.payload = payload;
-    }
   }
 
   // ── AUTH ─────────────────────────────────────────────────────────────
@@ -340,8 +162,15 @@ Candidate`
 
     async logout() {
       const refreshToken = localStorage.getItem(REFRESH_KEY);
-      try { await request('/auth/logout', { method: 'POST', body: { token: refreshToken } }); }
-      finally { clearTokens(); }
+      try { 
+        if (refreshToken) {
+          await request('/auth/logout', { method: 'POST', body: { token: refreshToken } });
+        }
+      } catch (_) {
+        // Continue cleanup even if server logout call fails
+      } finally { 
+        clearTokens(); 
+      }
     },
 
     forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', auth: false, body: { email } }),
@@ -386,18 +215,14 @@ Candidate`
           body: formData,
         });
       } catch (err) {
-        console.warn('[ApiService] Upload analysis failed or unreachable, returning mock report', err);
-        return getMockUploadReport();
+        console.error('[ApiService] Upload analysis network failure:', err);
+        throw new ApiError('Unable to connect to the server for resume analysis. Please try again.', 0);
       }
 
       let data = null;
       try { data = await res.json(); } catch (_) {}
 
       if (!res.ok) {
-        if (res.status === 500 || res.status === 503) {
-          console.warn('[ApiService] Server error on upload analysis, returning mock report');
-          return getMockUploadReport();
-        }
         throw new ApiError(data?.error || `Upload analysis failed (${res.status})`, res.status, data);
       }
       return data;
@@ -418,15 +243,11 @@ Candidate`
     optimize: (resumeId) => request('/ai/optimize', { method: 'POST', body: { resumeId } }),
   };
 
-
-
   // ── LINKEDIN ─────────────────────────────────────────────────────────
   const linkedin = {
     review: (profileText) => request('/linkedin/review', { method: 'POST', body: { profileText } }),
     history: () => request('/linkedin/history'),
   };
-
-
 
   // ── JOB MATCH ────────────────────────────────────────────────────────
   const jobMatch = {
@@ -469,18 +290,14 @@ Candidate`
           body: formData,
         });
       } catch (err) {
-        console.warn('[ApiService] Upload cover letter failed or unreachable, returning mock cover letter', err);
-        return getMockCoverLetter();
+        console.error('[ApiService] Cover letter upload network failure:', err);
+        throw new ApiError('Unable to connect to the server for cover letter generation. Please try again.', 0);
       }
 
       let data = null;
       try { data = await res.json(); } catch (_) {}
 
       if (!res.ok) {
-        if (res.status === 500 || res.status === 503) {
-          console.warn('[ApiService] Server error on cover letter upload, returning mock cover letter');
-          return getMockCoverLetter();
-        }
         throw new ApiError(data?.error || `Cover letter upload failed (${res.status})`, res.status, data);
       }
       return data;

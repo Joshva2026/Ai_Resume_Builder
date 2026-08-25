@@ -816,7 +816,7 @@ function renderPreview() {
   }
 
   /* ---------------------------------------------------------------------
-     Autosave
+     Local Draft Persistence (Session Safety)
   --------------------------------------------------------------------- */
 function saveDraftToLocalStorage() {
   const key = `resume_builder_draft_${currentResumeId || 'new'}`;
@@ -835,10 +835,15 @@ function loadDraftFromLocalStorage() {
 
   async function saveResume() {
     const indicator = document.getElementById('saveIndicator');
-    const title = document.getElementById('resumeTitle').value || 'Untitled Resume';
+    const titleEl = document.getElementById('resumeTitle');
+    const title = (titleEl && titleEl.value.trim()) || 'Untitled Resume';
     const payload = { title, content: state };
 
     try {
+      if (indicator) {
+        indicator.innerHTML = '<span class="dot" style="background:var(--primary-400, #3b82f6)"></span> Saving...';
+      }
+
       if (currentResumeId) {
         await ApiService.resumes.update(currentResumeId, payload);
       } else {
@@ -846,15 +851,27 @@ function loadDraftFromLocalStorage() {
         currentResumeId = resume.id;
         window.history.replaceState({}, '', `resume-builder?id=${resume.id}`);
       }
-      indicator.innerHTML = '<span class="dot"></span> All changes saved';
+
+      if (indicator) {
+        indicator.innerHTML = '<span class="dot" style="background:#10b981"></span> All changes saved';
+      }
+
       // Clear undo history and local draft after successful save
       stateHistory = [];
       const draftKey = `resume_builder_draft_${currentResumeId || 'new'}`;
       try { localStorage.removeItem(draftKey); } catch(e) {}
+
+      if (typeof window.showToast === 'function') {
+        window.showToast('Resume saved successfully', 'success');
+      }
     } catch (err) {
-      indicator.innerHTML = `<span class="dot" style="background:var(--signal-500)"></span> Save failed — retrying...`;
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveResume, 5000);
+      console.error('Save resume error:', err);
+      if (indicator) {
+        indicator.innerHTML = `<span class="dot" style="background:#ef4444"></span> Save failed`;
+      }
+      if (typeof window.showToast === 'function') {
+        window.showToast(err.message || 'Failed to save resume. Please try again.', 'error');
+      }
     }
   }
 

@@ -123,7 +123,8 @@
         if (confirm('Would you like to edit a copy of this resume to keep your original? (Recommended)')) {
           try {
             const duplicate = await ApiService.resumes.duplicate(resumeId);
-            window.location.href = `resume-builder.html?id=${duplicate.id}`;
+            const newId = duplicate.resume ? duplicate.resume.id : duplicate.id;
+            window.location.href = `resume-builder.html?id=${newId}`;
           } catch (err) {
             console.warn('Failed to duplicate resume via API. Creating local copy instead.');
             const draft = localStorage.getItem(`resume_builder_draft_${resumeId}`) || localStorage.getItem('rf_draft');

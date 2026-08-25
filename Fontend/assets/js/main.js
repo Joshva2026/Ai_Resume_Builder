@@ -468,20 +468,6 @@ class ResumeBuilder {
             UIUtils.showError(error);
         }
     }
-
-    static setupAutoSave() {
-        let saveTimeout;
-        const form = document.getElementById('resumeForm');
-        
-        if (!form) return;
-
-        form.addEventListener('change', () => {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                UIUtils.showAlert('Auto-saving...', 'info');
-            }, 1000);
-        });
-    }
 }
 
 // ==========================================
@@ -500,9 +486,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update navbar
     UIUtils.updateNavbarAuth();
-    
-    // Setup resume builder if on that page
-    ResumeBuilder.setupAutoSave();
     
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
