@@ -319,6 +319,7 @@ async function generateLinkedInReview(profileText) {
   }
 
   try {
+    console.log('[LINKEDIN AI] Starting analysis');
     const prompt = `You are a professional LinkedIn optimizer and recruiter.
     Carefully read and analyze ONLY the specific LinkedIn profile text provided below. 
     Your analysis MUST be based entirely on what is actually written in this specific profile.
@@ -341,6 +342,7 @@ async function generateLinkedInReview(profileText) {
       ]
     }`;
 
+    console.log('[LINKEDIN AI] Calling Gemini 3.6 (using configured gemini-2.0-flash)');
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
       contents: prompt,
@@ -350,13 +352,15 @@ async function generateLinkedInReview(profileText) {
       }
     });
 
-    let resultText = response.text || '';
+    console.log('[LINKEDIN AI] Gemini response received');
+    let resultText = response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
     resultText = resultText.replace(/```json/gi, '').replace(/```/g, '').trim();
     
+    console.log('[LINKEDIN AI] Parsing response');
     return JSON.parse(resultText);
   } catch (error) {
-    console.error('Gemini LinkedIn API Error:', error.message || error);
-    throw new Error('Failed to analyze LinkedIn profile with AI');
+    console.error(`[LINKEDIN AI] ERROR: ${error.message || error}`);
+    throw new Error(`Failed to analyze LinkedIn profile: ${error.message || 'Unknown AI Error'}`);
   }
 }
 

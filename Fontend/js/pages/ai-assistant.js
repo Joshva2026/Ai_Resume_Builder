@@ -12,6 +12,7 @@
   let currentAnalysisMode = null;
   let currentAnalysisResumeId = null;
   let workingResumeState = null;
+  let activeInputMode = null; // 'upload' or 'saved'
   let appliedModifications = {
     summary: false,
     skills: false,
@@ -32,7 +33,6 @@
 
     bindTabs();
     bindUploadAndDropzone();
-    bindSavedResumeSelector();
     bindChatEvents();
     loadSavedResumesList();
     checkUrlParams();
@@ -92,8 +92,6 @@
         dropzone.classList.remove('dragover');
       });
     });
-
-    let activeInputMode = null; // 'upload' or 'saved'
 
     dropzone.addEventListener('drop', (e) => {
       const files = e.dataTransfer.files;
@@ -693,8 +691,9 @@
 
     if (!sendBtn || !input) return;
 
-    sendBtn.addEventListener('click', () => {
-      console.log('[AI CHAT] Send clicked');
+    sendBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('[AI CHAT DEBUG] SEND CLICKED');
       if (isThinking) {
         stopGeneration();
       } else {
@@ -759,6 +758,8 @@
   }
 
   async function sendMessage(userText) {
+    console.log('[AI CHAT DEBUG] sendMessage() STARTED');
+    console.log('[AI CHAT DEBUG] message length:', userText?.length);
     if (isThinking) return;
     const container = document.getElementById('chatMessages');
     const sendBtn = document.getElementById('sendBtn');
@@ -791,7 +792,7 @@
     abortController = new AbortController();
     let replyText = '';
 
-    console.log('[AI CHAT] Sending request');
+    console.log('[AI CHAT DEBUG] Sending request to:', `${ApiService.BASE_URL}/ai/chat`);
     try {
       const response = await fetch(`${ApiService.BASE_URL}/ai/chat`, {
         method: 'POST',
