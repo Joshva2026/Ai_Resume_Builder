@@ -1,5 +1,7 @@
 const { GoogleGenAI } = require('@google/genai');
 
+const GEMINI_MODEL = 'gemini-3.6-flash';
+
 function getAiClient() {
   if (!process.env.GEMINI_API_KEY) {
     return null;
@@ -169,7 +171,7 @@ Format your responses using clean markdown (bolding, bullet points, numbered lis
 
   if (stream) {
     return await ai.models.generateContentStream({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: contents,
       config: {
         systemInstruction: systemInstruction
@@ -177,7 +179,7 @@ Format your responses using clean markdown (bolding, bullet points, numbered lis
     });
   } else {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: contents,
       config: {
         systemInstruction: systemInstruction
@@ -198,7 +200,7 @@ async function rewriteText(text) {
   try {
     const prompt = `You are a professional resume writer. Rewrite the following bullet point to be more professional, concise, and impactful. Ensure it starts with a strong action verb and removes any first-person pronouns (I, we). Do not make up any facts, only use what is provided. Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"original": "${text}", "rewritten": "...", "improvements": ["improvement 1", "improvement 2"]}\n\nBullet point to rewrite: "${text}"`;
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -221,7 +223,7 @@ async function generateSummary(careerSummary) {
   try {
     const prompt = `You are an expert resume writer. Create a professional, impactful 2-3 sentence resume summary based on the following input: "${careerSummary}". If the input is empty or vague, create a strong general professional summary. Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"suggestion": "..."}`;
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -245,7 +247,7 @@ async function getKeywords(jobRole) {
   try {
     const prompt = `Provide a list of 10-15 key skills and ATS keywords commonly found in job descriptions for the role of "${role}". Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"keywords": ["keyword 1", "keyword 2"]}`;
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -292,7 +294,7 @@ async function getAtsQualitativeFeedback(jobDescription, resumeText, missingKeyw
     }`;
     
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -342,9 +344,9 @@ async function generateLinkedInReview(profileText) {
       ]
     }`;
 
-    console.log('[LINKEDIN AI] Calling Gemini 3.6 (using configured gemini-2.0-flash)');
+    console.log('[LINKEDIN AI] Calling Gemini 3.6 (using configured gemini-3.6-flash)');
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -392,7 +394,7 @@ async function generateJobMatch(resumeText, jobDescription) {
     }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -439,7 +441,7 @@ async function generateOptimizationPlan(resumeText) {
     }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -476,7 +478,7 @@ async function generateCoverLetter(resumeText, jobTitle, companyName, jobDescrip
     }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -832,7 +834,7 @@ Return ONLY a JSON object matching this exact schema:
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -850,6 +852,18 @@ Return ONLY a JSON object matching this exact schema:
   }
 }
 
+async function testConnection() {
+  const ai = getAiClient();
+  if (!ai) {
+    throw new Error('AI service is not configured.');
+  }
+  const response = await ai.models.generateContent({
+    model: GEMINI_MODEL,
+    contents: 'Reply with exactly: Gemini connection successful'
+  });
+  return response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
+}
+
 module.exports = {
   ACTION_VERBS,
   VALID_TEMPLATES,
@@ -863,6 +877,7 @@ module.exports = {
   generateJobMatch,
   generateOptimizationPlan,
   generateCoverLetter,
-  parseAndImproveResume
+  parseAndImproveResume,
+  testConnection
 };
 

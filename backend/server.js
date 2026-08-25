@@ -1648,6 +1648,12 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
     console.log('[AI CHAT DEBUG] MESSAGE RECEIVED:', message ? 'yes' : 'no');
     console.log('[AI CHAT DEBUG] STREAM REQUEST:', stream === true ? 'true' : 'false');
 
+    const hasKey = !!process.env.GEMINI_API_KEY;
+    console.log('[AI CHAT DEBUG] GEMINI_API_KEY configured:', hasKey);
+    if (!hasKey) {
+      return res.status(500).json({ error: 'Gemini API key is not configured' });
+    }
+
     if (!message && (!conversation || conversation.length === 0)) {
       return res.status(400).json({ error: 'Message or conversation history is required' });
     }
@@ -1730,7 +1736,17 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
 
     if (stream === true) {
       console.log('[AI CHAT DEBUG] CALLING AI SERVICE');
-      const responseStream = await aiService.assistantChat(messages, userContext, true);
+      let responseStream;
+      try {
+        responseStream = await aiService.assistantChat(messages, userContext, true);
+      } catch (geminiError) {
+        console.error('[AI CHAT GEMINI ERROR]', {
+          message: geminiError.message,
+          status: geminiError.status || geminiError.statusCode,
+          code: geminiError.code || geminiError.status
+        });
+        throw geminiError;
+      }
       
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache, no-transform');
@@ -1754,7 +1770,17 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
         res.end();
       }
     } else {
-      const result = await aiService.assistantChat(messages, userContext, false);
+      let result;
+      try {
+        result = await aiService.assistantChat(messages, userContext, false);
+      } catch (geminiError) {
+        console.error('[AI CHAT GEMINI ERROR]', {
+          message: geminiError.message,
+          status: geminiError.status || geminiError.statusCode,
+          code: geminiError.code || geminiError.status
+        });
+        throw geminiError;
+      }
       res.json({
         success: true,
         message: result.reply
@@ -1762,7 +1788,22 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
     }
   } catch (error) {
     console.error('AI Chat route error:', error.message);
-    res.status(500).json({ error: 'Sorry, I couldn\'t connect to the AI service right now. Please try again.' });
+    res.status(500).json({ error: error.message || 'Failed to generate AI response' });
+  }
+});
+
+app.get('/api/ai/test-connection', async (req, res) => {
+  try {
+    const hasKey = !!process.env.GEMINI_API_KEY;
+    console.log('[AI CHAT DEBUG] Testing connection. GEMINI_API_KEY configured:', hasKey);
+    if (!hasKey) {
+      return res.status(500).json({ error: 'Gemini API key is not configured' });
+    }
+    const reply = await aiService.testConnection();
+    res.json({ success: true, reply });
+  } catch (error) {
+    console.error('[AI CHAT DEBUG] Test Connection Error:', error);
+    res.status(500).json({ error: error.message || 'Test connection failed' });
   }
 });
 
