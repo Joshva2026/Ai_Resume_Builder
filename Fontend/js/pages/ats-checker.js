@@ -321,14 +321,74 @@
         </div>
       </div>
 
+    const keywordScore = report.keywordMatch ?? report.keyword_match ?? 0;
+    const completenessScore = report.sectionCompleteness ?? report.section_completeness ?? 0;
+    const formattingScore = report.formattingScore ?? report.formatting_score ?? 0;
+    const actionVerbScore = report.actionVerbScore ?? report.action_verb_score ?? 0;
+    const achievementsScore = report.achievementsScore ?? report.achievements_score ?? 0;
+
+    let strengths = [];
+    let weaknesses = [];
+
+    // Analyze Formatting
+    if (formattingScore >= 85) strengths.push('✓ Excellent resume formatting detected');
+    else weaknesses.push('⚠ Formatting lacks standard bullet points');
+
+    // Analyze Keywords
+    if (keywordScore >= 80) strengths.push('✓ Strong keyword coverage for this role');
+    else if (keywordScore > 0) weaknesses.push('⚠ Weak keyword match against job description');
+
+    // Analyze Completeness
+    if (completenessScore >= 90) strengths.push('✓ Core sections are complete');
+    else weaknesses.push('⚠ Missing important resume sections (e.g. Education, Experience)');
+
+    // Analyze Content (Action verbs / Achievements)
+    if (actionVerbScore >= 80) strengths.push('✓ Good use of strong action verbs');
+    else weaknesses.push('⚠ Use more action verbs to start bullet points');
+
+    if (achievementsScore >= 80) strengths.push('✓ Measurable achievements detected');
+    else weaknesses.push('⚠ Missing quantifiable achievements (numbers, metrics)');
+
+    results.innerHTML = `
+      <div class="big-gauge-card">
+        <div class="big-gauge">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="14"/>
+            <circle id="gaugeProgressCircle" cx="90" cy="90" r="78" fill="none" stroke="${verdict.color}" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" style="transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)"/>
+          </svg>
+          <div class="num"><span class="n">${score}</span><span class="l">out of 100</span></div>
+        </div>
+        <div class="gauge-verdict">
+          <span class="verdict-tag" style="background:${verdict.bg}; color:${verdict.color}">${verdict.label}</span>
+          <h2>Your resume scored ${score}/100</h2>
+          <p>${report.fileName ? `File analyzed: <strong>${escapeHtml(report.fileName)}</strong>.` : 'Analyzed against industry ATS parsing standards.'}</p>
+        </div>
+      </div>
+
       <div class="category-grid">
-        ${categoryCard('Keyword Match', report.keywordMatch ?? report.keyword_match ?? 0, 'fa-key')}
-        ${categoryCard('Formatting', report.formattingScore ?? report.formatting_score ?? 0, 'fa-table-cells')}
-        ${categoryCard('Grammar', report.grammarScore ?? report.grammar_score ?? 90, 'fa-spell-check')}
-        ${categoryCard('Readability', report.readabilityScore ?? report.readability_score ?? 88, 'fa-book-open')}
+        ${categoryCard('Keyword Match', keywordScore, 'fa-key')}
+        ${categoryCard('Formatting', formattingScore, 'fa-table-cells')}
+        ${categoryCard('Completeness', completenessScore, 'fa-list-check')}
+        ${categoryCard('Best Practices', Math.round((actionVerbScore + achievementsScore) / 2), 'fa-star')}
       </div>
 
       <div class="two-col">
+        <div class="result-panel">
+          <h4><i class="fa-solid fa-arrow-up-right-dots" style="color:var(--score-high)"></i> Strengths</h4>
+          <ul class="suggestion-list" style="margin-top:12px;">
+            ${strengths.map(s => `<li style="color:var(--ink-800);">${escapeHtml(s)}</li>`).join('') || '<li style="color:var(--ink-600);">No significant strengths identified yet.</li>'}
+          </ul>
+        </div>
+        <div class="result-panel">
+          <h4><i class="fa-solid fa-triangle-exclamation" style="color:var(--score-low)"></i> Needs Improvement</h4>
+          <ul class="suggestion-list" style="margin-top:12px;">
+            ${weaknesses.map(s => `<li style="color:var(--ink-800);">${escapeHtml(s)}</li>`).join('') || '<li style="color:var(--ink-600);">Great job! No major improvements needed.</li>'}
+          </ul>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-top: var(--sp-4);">
         <div class="result-panel">
           <h4><i class="fa-solid fa-check-circle" style="color:var(--score-high)"></i> Matched Keywords</h4>
           <div class="keyword-chips">
@@ -343,12 +403,6 @@
         </div>
       </div>
 
-      <div class="result-panel" style="margin-top: var(--sp-4);">
-        <h4><i class="fa-solid fa-lightbulb" style="color:var(--signal-500)"></i> AI Recommendations</h4>
-        <ul class="suggestion-list">
-          ${suggestions.map((s) => `<li><i class="fa-solid fa-arrow-right"></i> ${escapeHtml(s)}</li>`).join('') || '<li>Keep layout clean and use strong action verbs.</li>'}
-        </ul>
-      </div>
 
       <!-- Action Buttons Bar -->
       <div class="ats-actions-bar">

@@ -1906,9 +1906,9 @@ app.post('/api/ai/rewrite', authenticateToken, async (req, res) => {
 
 app.post('/api/ai/summary', authenticateToken, async (req, res) => {
   try {
-    const { careerSummary } = req.body;
+    const { careerSummary, resumeState, experienceLevel } = req.body;
 
-    const result = await aiService.generateSummary(careerSummary);
+    const result = await aiService.generateSummary(careerSummary, resumeState, experienceLevel);
 
     res.json({ message: 'Summary enhanced', enhanced: result.suggestion });
   } catch (error) {

@@ -192,11 +192,11 @@
 
       <div class="filter-bar" id="filterBar">
         <button class="filter-btn active" data-filter="all">All Styles</button>
-        <button class="filter-btn" data-filter="classic ats">Classic ATS</button>
-        <button class="filter-btn" data-filter="modern">Modern</button>
-        <button class="filter-btn" data-filter="technical">Technical</button>
-        <button class="filter-btn" data-filter="fresher">Fresher</button>
-        <button class="filter-btn" data-filter="executive">Executive</button>
+        <button class="filter-btn" data-filter="Modern">Modern</button>
+        <button class="filter-btn" data-filter="Classic">Classic</button>
+        <button class="filter-btn" data-filter="Minimalist">Minimalist</button>
+        <button class="filter-btn" data-filter="Academic">Academic</button>
+        <button class="filter-btn" data-filter="Classic Academic">ATS Pro</button>
       </div>
     </div>
 
@@ -207,78 +207,185 @@
 
   <script src="../js/services/api-service.js"></script>
   <script src="../js/auth-guard.js"></script>
+  <script src="../js/services/template-renderer.js"></script>
   <script src="../js/components/app-shell.js"></script>
   <script>
     AppShell.render({ active: 'templates', title: 'Templates' });
     const content = document.getElementById('appContent');
     content.appendChild(document.getElementById('templatesTemplate').content.cloneNode(true));
 
-    
-    const templatesList = [
-      // ATS-Friendly
-      { id: 'classic-ats', name: 'Classic ATS', description: 'Standard ATS-friendly block layout with high readability.', category: 'Classic ATS' },
-      { id: 'minimal-ats', name: 'Minimal ATS', description: 'Very clean, no borders, left-aligned standard layout.', category: 'Classic ATS' },
-      { id: 'corporate-ats', name: 'Corporate ATS', description: 'Heavy lines and clearly defined structured headers.', category: 'Classic ATS' },
-      { id: 'clean-ats', name: 'Clean ATS', description: 'Spacious, light lines, and ATS parsed safely.', category: 'Classic ATS' },
-      { id: 'professional-ats', name: 'Professional ATS', description: 'Centered header with standard structured body.', category: 'Classic ATS' },
-      // Modern
-      { id: 'modern-professional', name: 'Modern Professional', description: 'Left sidebar for skills/contact with clean right body.', category: 'Modern' },
-      { id: 'modern-minimal', name: 'Modern Minimal', description: 'Grid-based header with minimal structured body.', category: 'Modern' },
-      { id: 'contemporary', name: 'Contemporary', description: 'Right sidebar layout for a fresh look.', category: 'Modern' },
-      { id: 'clean-modern', name: 'Clean Modern', description: 'Compact right-aligned header with inline skills.', category: 'Modern' },
-      // Technical
-      { id: 'technical', name: 'Technical', description: 'Monospace elements optimized for tech roles.', category: 'Technical' },
-      { id: 'software-engineer', name: 'Software Engineer', description: 'Code-like brackets and clean developer layout.', category: 'Technical' },
-      { id: 'developer', name: 'Developer', description: 'Compact layout optimized for long tech stacks.', category: 'Technical' },
-      { id: 'data-analytics', name: 'Data/Analytics', description: 'Table-like grid structure for analytical skills.', category: 'Technical' },
-      { id: 'engineering', name: 'Engineering', description: 'Strict block layout for traditional engineering.', category: 'Technical' },
-      // Fresher / Student
-      { id: 'fresher', name: 'Fresher', description: 'Focus on education and academic projects.', category: 'Fresher' },
-      { id: 'graduate', name: 'Graduate', description: 'Academic style for recent grads.', category: 'Fresher' },
-      { id: 'student-professional', name: 'Student Professional', description: 'Compact clean layout bridging school to work.', category: 'Fresher' },
-      // Executive
-      { id: 'executive', name: 'Executive', description: 'Heavy serif, conservative classic layout.', category: 'Executive' },
-      { id: 'senior-professional', name: 'Senior Professional', description: 'Two column top header for dense experience.', category: 'Executive' },
-      { id: 'leadership', name: 'Leadership', description: 'Bold, authoritative layout for management.', category: 'Executive' }
-    ];
+    function buildMock(t) {
+      const accent = t.accent || '#2563EB';
+      const cat = (t.category || '').toLowerCase();
+
+      if (cat === 'classic') {
+        return `<div class="tpl-mock">
+          <div style="text-align:center;border-bottom:1px solid ${accent};padding-bottom:4px;margin-bottom:6px;">
+            <div class="tpl-mock-name">Jane Doe</div>
+            <div class="tpl-mock-sub">Senior Developer</div>
+          </div>
+          <div class="tpl-mock-section" style="color:${accent};text-align:center;">Experience</div>
+          <div class="tpl-mock-line"></div><div class="tpl-mock-line short" style="margin:0 auto 4px auto;"></div>
+        </div>`;
+      }
+      if (cat === 'minimalist') {
+        return `<div class="tpl-mock">
+          <div class="tpl-mock-name" style="font-size:7px;margin-bottom:0;">Jane Doe</div>
+          <div class="tpl-mock-sub" style="font-size:5px;margin-bottom:4px;color:${accent}">UX Designer</div>
+          <div class="tpl-mock-section" style="color:#0f172a;border:none;margin-top:2px;">Summary</div>
+          <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+        </div>`;
+      }
+      if (cat === 'academic') {
+        return `<div class="tpl-mock" style="line-height:1.3;">
+          <div class="tpl-mock-name">Jane Doe</div>
+          <div class="tpl-mock-sub">Research Assistant</div>
+          <div class="tpl-mock-line accent" style="background:#475569;"></div>
+          <div class="tpl-mock-section" style="color:#0F172A;border-bottom:0.5px solid #CBD5E1;">Publications</div>
+          <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+        </div>`;
+      }
+      if (cat === 'classic academic') {
+        return `<div class="tpl-mock" style="font-family:'Times New Roman',Times,serif;">
+          <div style="text-align:center;border-bottom:1px solid #111;padding-bottom:3px;margin-bottom:4px;">
+            <div class="tpl-mock-name" style="letter-spacing:0.1em;text-transform:uppercase;font-size:7px;">JANE DOE</div>
+            <div class="tpl-mock-sub" style="font-size:5px;color:#555;">Data Analyst</div>
+            <div style="font-size:4px;color:#444;">&#9990; +1 555 | &#9993; jane@email.com</div>
+          </div>
+          <div class="tpl-mock-section" style="color:#111;border-bottom:0.5px solid #111;font-size:5px;">Profile Summary</div>
+          <div class="tpl-mock-line" style="height:2px;"></div><div class="tpl-mock-line short" style="height:2px;"></div>
+          <div class="tpl-mock-section" style="color:#111;border-bottom:0.5px solid #111;font-size:5px;margin-top:3px;">Experience</div>
+          <div style="display:flex;justify-content:space-between;"><div class="tpl-mock-line" style="height:2px;width:55%;"></div><div class="tpl-mock-line xshort" style="height:2px;width:25%;"></div></div>
+          <div class="tpl-mock-line short" style="height:2px;"></div>
+        </div>`;
+      }
+      // default / modern
+      return `<div class="tpl-mock">
+        <div class="tpl-mock-header" style="background:${accent};"></div>
+        <div class="tpl-mock-name">Jane Doe</div>
+        <div class="tpl-mock-sub">Senior Software Developer</div>
+        <div class="tpl-mock-line accent" style="background:${accent};opacity:0.4;"></div>
+        <div class="tpl-mock-section" style="color:${accent};">Experience</div>
+        <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
+      </div>`;
+    }
+
+    let currentTpl = localStorage.getItem('rf_selected_template') || '1';
+
+    // Check if there is a draft to synchronize current template style
+    const draftStr = localStorage.getItem('rf_draft');
+    if (draftStr) {
+      try {
+        const draft = JSON.parse(draftStr);
+        if (draft.styling && draft.styling.template) {
+          const nameToId = {
+            'modern': '1',
+            'executive': '2',
+            'minimal': '3',
+            'academic': '4',
+            'classic-academic': '5',
+            'creative': '3'
+          };
+          currentTpl = nameToId[draft.styling.template.toLowerCase()] || currentTpl;
+        }
+      } catch (e) {}
+    }
 
     function renderCard(t) {
-      const isSelected = t.id === currentTpl;
-      return \`
-        <div class="tpl-card \${isSelected ? 'selected' : ''}" data-category="\${t.category}" id="tpl_card_\${t.id}">
-          <div class="tpl-thumb">
-            <!-- A4 miniature CSS render -->
-            <div class="tpl-mock">
-              <div class="tpl-mock-header"></div>
-              <div class="tpl-mock-name">\${t.name}</div>
-              <div class="tpl-mock-sub">Layout Structure Preview</div>
-              <div class="tpl-mock-line accent"></div>
-              <div class="tpl-mock-section">Experience</div>
-              <div class="tpl-mock-line"></div><div class="tpl-mock-line short"></div>
-              <div class="tpl-mock-section" style="margin-top:8px">Education</div>
-              <div class="tpl-mock-line short"></div>
-            </div>
+      const colors = { 1: '#2563EB', 2: '#1D4ED8', 3: '#475569', 4: '#0D9488', 5: '#334155' };
+      t.accent = colors[t.id] || '#2563EB';
+      if (!t.category) t.category = t.id === '1' ? 'Modern' : t.id === '2' ? 'Modern' : t.id === '3' ? 'Minimalist' : t.id === '4' ? 'Academic' : 'Classic Academic';
+
+      const isSelected = t.id.toString() === currentTpl.toString();
+
+      return `
+        <div class="tpl-card ${isSelected ? 'selected' : ''}" data-category="${t.category}" id="tpl_card_${t.id}">
+          <div class="tpl-thumb" style="background:${t.accent}10;">
+            <div class="tpl-badge">${t.atsScore || 95}% ATS</div>
+            ${buildMock(t)}
           </div>
           <div class="tpl-info">
-            <h3>\${t.name}</h3>
-            <p>\${t.description}</p>
+            <h3>${t.name} Layout</h3>
+            <p>${t.description}</p>
             <div class="tpl-meta" style="margin-bottom: 12px;">
-              <span class="tpl-score"><i class="fa-solid fa-check-circle"></i> 99% ATS</span>
-              <span class="tpl-cat">\${t.category}</span>
+              <span class="tpl-score"><i class="fa-solid fa-check-circle"></i> Vetted Score</span>
+              <span class="tpl-cat">${t.category}</span>
             </div>
-            <button type="button" class="btn btn-sm btn-block select-tpl-btn \${isSelected ? 'btn-primary' : 'btn-ghost'}" data-id="\${t.id}" data-name="\${t.name}">
-              \${isSelected ? '<i class="fa-solid fa-circle-check"></i> Currently Active' : 'Select Template'}
+            <button type="button" class="btn btn-sm btn-block select-tpl-btn ${isSelected ? 'btn-primary' : 'btn-ghost'}" data-id="${t.id}" data-name="${t.name}">
+              ${isSelected ? '<i class="fa-solid fa-circle-check"></i> Currently Active' : 'Select Template'}
             </button>
           </div>
-        </div>\`;
+        </div>`;
     }
 
     async function loadTemplates() {
       const grid = document.getElementById('templatesGrid');
-      grid.innerHTML = templatesList.map(renderCard).join('');
+      try {
+        let templates = [];
+        if (typeof TemplateRenderer !== 'undefined' && TemplateRenderer.templatesList) {
+          templates = TemplateRenderer.templatesList;
+        } else {
+          templates = await ApiService.templates.list();
+        }
+        grid.innerHTML = templates.map(renderCard).join('');
+      } catch(e) {
+        console.warn('Error loading templates:', e);
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--ink-400);">
+            <i class="fa-solid fa-plug-circle-xmark fa-2x" style="margin-bottom:12px;display:block;color:var(--score-low);"></i>
+            Could not fetch layout templates list.
+          </div>`;
+      }
     }
 
-    loadTemplates();
+    // Bind template selection click listener
+    document.getElementById('templatesGrid').addEventListener('click', async e => {
+      const btn = e.target.closest('.select-tpl-btn');
+      if (!btn) return;
+
+      const templateId = btn.dataset.id;
+      const templateName = btn.dataset.name;
+
+      // Save selection
+      localStorage.setItem('rf_selected_template', templateId);
+      currentTpl = templateId;
+
+      // Map id to template style name
+      const idToName = {
+        '1': 'modern',
+        '2': 'executive',
+        '3': 'minimal',
+        '4': 'academic',
+        '5': 'classic-academic'
+      };
+      const tplStyleName = idToName[templateId] || 'modern';
+
+      // Synchronize into current draft (both new and loaded if we have local draft)
+      const draftStr = localStorage.getItem('rf_draft');
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          draft.styling = draft.styling || {};
+          draft.styling.template = tplStyleName;
+          localStorage.setItem('rf_draft', JSON.stringify(draft));
+        } catch (err) {}
+      }
+
+      // Also update any specific builder draft
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key.startsWith('resume_builder_draft_')) {
+            const dr = JSON.parse(localStorage.getItem(key));
+            dr.styling = dr.styling || {};
+            dr.styling.template = tplStyleName;
+            localStorage.setItem(key, JSON.stringify(dr));
+          }
+        }
+      } catch (err) {}
+
+      // Re-render cards
+      await loadTemplates();
 
       // Provide user feedback and offer redirect
       const toast = document.createElement('div');

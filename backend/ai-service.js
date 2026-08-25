@@ -214,14 +214,36 @@ async function rewriteText(text) {
   }
 }
 
-async function generateSummary(careerSummary) {
+async function generateSummary(careerSummary, resumeState = null, experienceLevel = 'fresher') {
   const ai = getAiClient();
   if (!ai) {
     throw new Error('AI service is not configured.');
   }
 
   try {
-    const prompt = `You are an expert resume writer. Create a professional, impactful 2-3 sentence resume summary based on the following input: "${careerSummary}". If the input is empty or vague, create a strong general professional summary. Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"suggestion": "..."}`;
+    let contextStr = `Base Summary/Input: "${careerSummary}"\n\n`;
+    if (resumeState) {
+      contextStr += getResumeContext(resumeState);
+    }
+
+    let levelInstructions = '';
+    if (experienceLevel === 'fresher') {
+      levelInstructions = 'The user is an Entry Level / Fresher. Focus on: Education, Skills, Projects, Career interests, Strengths, and Learning mindset. DO NOT invent work experience.';
+    } else {
+      levelInstructions = 'The user is an Experienced Professional. Use ONLY the information provided (Current role, Experience, Skills, Technologies, Achievements, Responsibilities). Do not invent roles or companies.';
+    }
+
+    const prompt = `You are an expert resume writer. Create a professional, impactful 2-3 sentence resume summary based on the following context. 
+
+${levelInstructions}
+
+Context:
+${contextStr}
+
+Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:
+
+{"suggestion": "..."}`;
+    
     const response = await ai.models.generateContent({
       model: GEMINI_MODEL,
       contents: prompt,
