@@ -1643,7 +1643,9 @@ app.get('/api/ats/report/:id', authenticateToken, async (req, res) => {
 
 app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
   try {
+    console.log('[AI CHAT] Route reached');
     const { message, conversation, resumeContext, resumeId, stream } = req.body;
+    console.log('[AI CHAT] Message received:', message ? 'yes' : 'no');
 
     if (!message && (!conversation || conversation.length === 0)) {
       return res.status(400).json({ error: 'Message or conversation history is required' });
@@ -1726,6 +1728,7 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
     }
 
     if (stream === true) {
+      console.log('[AI CHAT] Calling Gemini');
       const responseStream = await aiService.assistantChat(messages, userContext, true);
       
       res.setHeader('Content-Type', 'text/event-stream');
@@ -1734,12 +1737,15 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
       res.setHeader('X-Accel-Buffering', 'no');
 
       try {
+        console.log('[AI CHAT] Gemini stream started');
         for await (const chunk of responseStream) {
-          if (chunk.text) {
-            res.write(`data: ${JSON.stringify({ text: chunk.text })}\n\n`);
+          const chunkText = chunk.text || (chunk.candidates?.[0]?.content?.parts?.[0]?.text) || '';
+          if (chunkText) {
+            res.write(`data: ${JSON.stringify({ text: chunkText })}\n\n`);
           }
         }
         res.write(`data: [DONE]\n\n`);
+        console.log('[AI CHAT] Gemini response received');
         res.end();
       } catch (streamErr) {
         console.error('Error during AI streaming:', streamErr);

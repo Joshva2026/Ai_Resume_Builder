@@ -694,6 +694,7 @@
     if (!sendBtn || !input) return;
 
     sendBtn.addEventListener('click', () => {
+      console.log('[AI CHAT] Send clicked');
       if (isThinking) {
         stopGeneration();
       } else {
@@ -790,6 +791,7 @@
     abortController = new AbortController();
     let replyText = '';
 
+    console.log('[AI CHAT] Sending request');
     try {
       const response = await fetch(`${ApiService.BASE_URL}/ai/chat`, {
         method: 'POST',
@@ -819,6 +821,8 @@
         const errJson = await response.json();
         throw new Error(errJson.error || 'Failed to connect to AI service.');
       }
+      
+      console.log('[AI CHAT] Response received (stream)', response.status);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
@@ -837,17 +841,27 @@
           if (clean.startsWith('data: ')) {
             const dataStr = clean.slice(6).trim();
             if (dataStr === '[DONE]') break;
+            let parsed = null;
             try {
-              const parsed = JSON.parse(dataStr);
+              parsed = JSON.parse(dataStr);
+              if (parsed.error) {
+                throw new Error(parsed.error);
+              }
               if (parsed.text) {
                 replyText += parsed.text;
                 textEl.innerHTML = formatMarkdown(replyText);
                 container.scrollTop = container.scrollHeight;
               }
-            } catch (_) {}
+            } catch (parseErr) {
+              if (parsed && parseErr.message === parsed.error || parseErr.message.includes('Stream failed') || parseErr.message.includes('JSON')) {
+                 if (parsed && parsed.error) throw parseErr; 
+                 // otherwise ignore JSON parse error on incomplete chunks
+              }
+            }
           }
         }
       }
+      console.log('[AI CHAT] Stream finished normally');
 
       if (replyText) {
         conversationHistory.push({ role: 'assistant', content: replyText });
