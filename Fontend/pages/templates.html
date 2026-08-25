@@ -192,11 +192,11 @@
 
       <div class="filter-bar" id="filterBar">
         <button class="filter-btn active" data-filter="all">All Styles</button>
+        <button class="filter-btn" data-filter="Classic ATS">ATS Pro</button>
         <button class="filter-btn" data-filter="Modern">Modern</button>
-        <button class="filter-btn" data-filter="Classic">Classic</button>
-        <button class="filter-btn" data-filter="Minimalist">Minimalist</button>
-        <button class="filter-btn" data-filter="Academic">Academic</button>
-        <button class="filter-btn" data-filter="Classic Academic">ATS Pro</button>
+        <button class="filter-btn" data-filter="Technical">Technical</button>
+        <button class="filter-btn" data-filter="Executive">Executive</button>
+        <button class="filter-btn" data-filter="Fresher">Fresher</button>
       </div>
     </div>
 
@@ -294,7 +294,7 @@
     function renderCard(t) {
       const colors = { 1: '#2563EB', 2: '#1D4ED8', 3: '#475569', 4: '#0D9488', 5: '#334155' };
       t.accent = colors[t.id] || '#2563EB';
-      if (!t.category) t.category = t.id === '1' ? 'Modern' : t.id === '2' ? 'Modern' : t.id === '3' ? 'Minimalist' : t.id === '4' ? 'Academic' : 'Classic Academic';
+      if (!t.category) t.category = 'Modern';
 
       const isSelected = t.id.toString() === currentTpl.toString();
 

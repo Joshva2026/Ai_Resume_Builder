@@ -71,15 +71,6 @@
       <div class="step-icon"><i class="fa-solid fa-file-invoice"></i></div>
       <span>Summary</span>
     </div>
-    <div class="step-nav-item" data-step="template">
-      <div class="step-icon"><i class="fa-solid fa-cubes"></i></div>
-      <span>Template</span>
-    </div>
-    <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="font">
-      <div class="step-icon"><i class="fa-solid fa-font"></i></div>
-      <span>Font</span>
-    </div>
     <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="review">
       <div class="step-icon"><i class="fa-solid fa-list-check"></i></div>
@@ -87,11 +78,31 @@
     </div>
   </div>
 
-  <div class="builder-layout">
+  <!-- START SCREEN: Choose Resume Type -->
+  <div id="startScreen" style="max-width:600px; margin:40px auto; background:var(--paper-0); padding:40px; border-radius:12px; box-shadow:var(--shadow-md); text-align:center;">
+    <h2 style="margin-bottom:16px;">Choose Resume Type</h2>
+    <p style="color:var(--ink-600); margin-bottom:32px;">Select your experience level to structure your resume sections optimally.</p>
+    
+    <div style="display:flex; gap:16px; margin-bottom:32px; justify-content:center;">
+      <button class="btn btn-ghost" id="btnFresher" style="flex:1; padding:24px; flex-direction:column; gap:12px; height:auto; border:2px solid var(--line);">
+        <i class="fa-solid fa-graduation-cap" style="font-size:32px;"></i>
+        <span style="font-size:16px; font-weight:700;">Fresher</span>
+        <span style="font-size:12px; font-weight:400; color:var(--ink-500);">Entry Level / Student</span>
+      </button>
+      <button class="btn btn-ghost" id="btnExperienced" style="flex:1; padding:24px; flex-direction:column; gap:12px; height:auto; border:2px solid var(--line);">
+        <i class="fa-solid fa-briefcase" style="font-size:32px;"></i>
+        <span style="font-size:16px; font-weight:700;">Professional</span>
+        <span style="font-size:12px; font-weight:400; color:var(--ink-500);">Experienced</span>
+      </button>
+    </div>
+
+    <button class="btn btn-primary" id="btnStartContinue" style="width:100%; padding:16px; font-size:16px;" disabled>Continue</button>
+  </div>
+
+  <div class="builder-layout" id="builderLayout" style="display:none;">
     <!-- Section rail -->
     <aside class="section-rail" id="sectionRail">
       <h4>Resume Sections</h4>
-      <div class="rail-item active" draggable="true" data-section="type"><i class="fa-solid fa-grip-vertical grip"></i> Resume Type</div>
       <div class="rail-item" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check" style="display:none"></i></div>
       <div class="rail-item" draggable="true" data-section="summary"><i class="fa-solid fa-grip-vertical grip"></i> Summary</div>
       <div class="rail-item" draggable="true" data-section="experience"><i class="fa-solid fa-grip-vertical grip"></i> Experience</div>
@@ -103,9 +114,7 @@
       <div class="rail-item" draggable="true" data-section="volunteer"><i class="fa-solid fa-grip-vertical grip"></i> Volunteer Work</div>
       <div class="rail-item" draggable="true" data-section="awards"><i class="fa-solid fa-grip-vertical grip"></i> Awards</div>
       <div class="rail-item" draggable="true" data-section="publications"><i class="fa-solid fa-grip-vertical grip"></i> Publications</div>
-      <div class="rail-item" data-section="template" style="margin-top:var(--sp-4); border-top:1px solid var(--line); padding-top:var(--sp-3);"><i class="fa-solid fa-cubes" style="margin-right:8px; color:var(--primary);"></i> Select Template</div>
-      <div class="rail-item" data-section="font"><i class="fa-solid fa-font" style="margin-right:8px; color:var(--primary);"></i> Typography</div>
-      <div class="rail-item" data-section="review"><i class="fa-solid fa-list-check" style="margin-right:8px; color:var(--primary);"></i> Review & Finalize</div>
+      <div class="rail-item" data-section="review" style="margin-top:var(--sp-4); border-top:1px solid var(--line); padding-top:var(--sp-3);"><i class="fa-solid fa-list-check" style="margin-right:8px; color:var(--primary);"></i> Review & Finalize</div>
 
       <div class="rail-completion-box">
         <div class="circle-progress">
@@ -121,18 +130,8 @@
 
     <!-- Editor -->
     <section class="editor-pane">
-      <!-- Resume Type Section -->
-      <div class="editor-section active" data-section="type">
-        <h3>Resume Experience Tier</h3>
-        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Select your experience level to structure section order.</p>
-        <div style="display:flex; gap:var(--sp-3)">
-          <button class="btn btn-primary" id="btnFresher" style="flex:1; padding:var(--sp-4)">Entry Level (Fresher)</button>
-          <button class="btn btn-ghost" id="btnExperienced" style="flex:1; padding:var(--sp-4)">Experienced Professional</button>
-        </div>
-      </div>
-
       <!-- Personal Info Section -->
-      <div class="editor-section" data-section="personal">
+      <div class="editor-section active" data-section="personal">
         <h3>Personal Information</h3>
         <div class="field-row">
           <div class="field"><label>Full name</label><input type="text" id="f_fullName" placeholder="Jane Doe"></div>
@@ -268,55 +267,6 @@
         <h3>Publications</h3>
         <div id="publicationBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addPublication" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Publication</button>
-        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Template Section -->
-      <div class="editor-section" data-section="template">
-        <h3>Select Template</h3>
-        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Choose a professional template. Your data will instantly adapt.</p>
-        
-        <div id="templateGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px;">
-          <!-- Populated dynamically by JS -->
-        </div>
-
-        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Font Section -->
-      <div class="editor-section" data-section="font">
-        <h3>Typography</h3>
-        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Select a font combination to refine your resume's look.</p>
-        
-        <div id="fontGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-          <div class="font-card active" data-font="sans" style="border:2px solid var(--primary); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
-            <div style="font-family:'Inter', sans-serif; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
-            <div style="font-size:14px; font-weight:600;">Inter (Sans-Serif)</div>
-            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Clean, readable, modern</div>
-          </div>
-          <div class="font-card" data-font="serif" style="border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
-            <div style="font-family:Georgia, serif; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
-            <div style="font-size:14px; font-weight:600;">Georgia (Serif)</div>
-            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Classic, elegant, professional</div>
-          </div>
-          <div class="font-card" data-font="mono" style="border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
-            <div style="font-family:'IBM Plex Mono', monospace; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
-            <div style="font-size:14px; font-weight:600;">IBM Plex Mono</div>
-            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Technical, distinct, developer</div>
-          </div>
-          <div class="font-card" data-font="roboto" style="border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
-            <div style="font-family:Roboto, sans-serif; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
-            <div style="font-size:14px; font-weight:600;">Roboto (Sans-Serif)</div>
-            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Standard, reliable, ATS friendly</div>
-          </div>
-        </div>
-
         <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>

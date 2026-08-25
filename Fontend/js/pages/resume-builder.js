@@ -287,53 +287,19 @@ function bindUndo() {
         pushState();
         state.styling.template = selTemplate.value;
         renderPreview();
-        updateTemplateGridSelection();
       });
     }
     
-    // Setup Template Grid
-    const templateGrid = document.getElementById('templateGrid');
-    if (templateGrid && typeof TemplateRenderer !== 'undefined') {
-      templateGrid.innerHTML = TemplateRenderer.templatesList.map(t => `
-        <div class="template-card" data-template="${t.id}" style="border:1px solid var(--line); border-radius:8px; padding:12px; cursor:pointer; background:var(--paper-0);">
-          <div style="font-weight:600; font-size:14px; margin-bottom:4px; color:var(--ink-950);">${t.name}</div>
-          <div style="font-size:11px; color:var(--ink-600);">${t.category} &bull; ${t.description}</div>
-        </div>
-      `).join('');
 
-      templateGrid.querySelectorAll('.template-card').forEach(card => {
-        card.addEventListener('click', () => {
-          pushState();
-          state.styling.template = card.dataset.template;
-          if (selTemplate) selTemplate.value = card.dataset.template;
-          renderPreview();
-          updateTemplateGridSelection();
-        });
-      });
-      updateTemplateGridSelection();
-    }
 
-    if (selFont) {
       selFont.addEventListener('change', () => {
         pushState();
         state.styling.font = selFont.value;
         renderPreview();
-        updateFontGridSelection();
       });
     }
 
-    // Setup Font Grid
-    const fontCards = document.querySelectorAll('.font-card');
-    fontCards.forEach(card => {
-      card.addEventListener('click', () => {
-        pushState();
-        state.styling.font = card.dataset.font;
-        if (selFont) selFont.value = card.dataset.font;
-        renderPreview();
-        updateFontGridSelection();
-      });
-    });
-    updateFontGridSelection();
+
 
     if (rngSpacing) {
       rngSpacing.addEventListener('input', () => {
@@ -343,29 +309,7 @@ function bindUndo() {
     }
   }
 
-  function updateTemplateGridSelection() {
-    document.querySelectorAll('.template-card').forEach(c => {
-      if (c.dataset.template === state.styling.template) {
-        c.style.borderColor = 'var(--primary)';
-        c.style.backgroundColor = 'var(--primary-50)';
-      } else {
-        c.style.borderColor = 'var(--line)';
-        c.style.backgroundColor = 'var(--paper-0)';
-      }
-    });
-  }
 
-  function updateFontGridSelection() {
-    document.querySelectorAll('.font-card').forEach(c => {
-      if (c.dataset.font === state.styling.font) {
-        c.style.borderColor = 'var(--primary)';
-        c.style.borderWidth = '2px';
-      } else {
-        c.style.borderColor = 'var(--line)';
-        c.style.borderWidth = '1px';
-      }
-    });
-  }
 
   /* ---------------------------------------------------------------------
      Repeating blocks: Experience / Education / Projects
@@ -900,15 +844,15 @@ function loadDraftFromLocalStorage() {
       setVal('selFont', state.styling.font || 'sans');
       setVal('rngSpacing', state.styling.spacing || 1.4);
       
-      updateTemplateGridSelection();
-      updateFontGridSelection();
-
-      document.querySelectorAll('.accent-dot').forEach(dot => {
-        if (dot.dataset.color === state.styling.accent) {
-          document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
-          dot.classList.add('active');
-        }
-      });
+      if (state.styling.accent) {
+        document.querySelectorAll('.accent-dot').forEach(dot => {
+          if (dot.dataset.color === state.styling.accent) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
     }
 
     const clearAndPopulate = (containerId, items, addFn) => {
@@ -1086,6 +1030,7 @@ function loadDraftFromLocalStorage() {
   function bindExperienceTier() {
     const btnFresher = document.getElementById('btnFresher');
     const btnExperienced = document.getElementById('btnExperienced');
+    const btnStartContinue = document.getElementById('btnStartContinue');
     if (!btnFresher || !btnExperienced) return;
 
     btnFresher.addEventListener('click', () => {
@@ -1095,6 +1040,16 @@ function loadDraftFromLocalStorage() {
     btnExperienced.addEventListener('click', () => {
       setExperienceTier('experienced');
     });
+
+    if (btnStartContinue) {
+      btnStartContinue.addEventListener('click', () => {
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('builderLayout').style.display = 'flex';
+        // Auto-select the first section (Personal Info)
+        const first = document.querySelector('.rail-item[data-section="personal"]');
+        if (first) first.click();
+      });
+    }
   }
 
   function setExperienceTier(tier) {
@@ -1115,15 +1070,25 @@ function loadDraftFromLocalStorage() {
   function updateExperienceTierUI() {
     const btnFresher = document.getElementById('btnFresher');
     const btnExperienced = document.getElementById('btnExperienced');
+    const btnStartContinue = document.getElementById('btnStartContinue');
     if (!btnFresher || !btnExperienced) return;
 
-    const tier = state.experienceLevel || 'fresher';
+    const tier = state.experienceLevel || null;
+    
+    // Reset styles
+    btnFresher.style.borderColor = 'var(--line)';
+    btnFresher.style.backgroundColor = 'transparent';
+    btnExperienced.style.borderColor = 'var(--line)';
+    btnExperienced.style.backgroundColor = 'transparent';
+
     if (tier === 'fresher') {
-      btnFresher.className = 'btn btn-primary';
-      btnExperienced.className = 'btn btn-ghost';
-    } else {
-      btnExperienced.className = 'btn btn-primary';
-      btnFresher.className = 'btn btn-ghost';
+      btnFresher.style.borderColor = 'var(--primary)';
+      btnFresher.style.backgroundColor = 'var(--primary-50)';
+      if (btnStartContinue) btnStartContinue.removeAttribute('disabled');
+    } else if (tier === 'experienced') {
+      btnExperienced.style.borderColor = 'var(--primary)';
+      btnExperienced.style.backgroundColor = 'var(--primary-50)';
+      if (btnStartContinue) btnStartContinue.removeAttribute('disabled');
     }
   }
 
