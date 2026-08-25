@@ -350,3 +350,309 @@
     font-weight: 600;
   }
 }
+
+/* ==========================================================================
+   USER PROFILE DROPDOWN MENU
+   ========================================================================== */
+
+.user-menu-wrapper {
+  position: relative;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: var(--paper-0, #ffffff);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: var(--radius-md, 10px);
+  box-shadow: var(--shadow-lg, 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1));
+  padding: 6px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  animation: dropdownFade 0.15s ease-out;
+}
+
+.user-dropdown-menu.is-open {
+  display: flex;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-dropdown-header {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--line, #e2e8f0);
+  margin-bottom: 4px;
+}
+
+.user-dropdown-header .dropdown-user-name {
+  font-weight: 700;
+  font-size: var(--fs-xs, 13px);
+  color: var(--ink-950, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown-header .dropdown-user-email {
+  font-size: var(--fs-3xs, 11px);
+  color: var(--ink-500, #64748b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--ink-800, #1e293b);
+  font-size: var(--fs-xs, 13px);
+  font-weight: 500;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--dur-fast, 0.15s);
+}
+
+.user-dropdown-item:hover {
+  background: var(--paper-100, #f1f5f9);
+  color: var(--primary, #2563eb);
+}
+
+.user-dropdown-item i {
+  font-size: 14px;
+  color: var(--ink-500, #64748b);
+  width: 16px;
+  text-align: center;
+}
+
+.user-dropdown-item:hover i {
+  color: var(--primary, #2563eb);
+}
+
+.user-dropdown-divider {
+  height: 1px;
+  background: var(--line, #e2e8f0);
+  margin: 4px 0;
+}
+
+.user-dropdown-item.logout-item {
+  color: var(--score-low, #ef4444);
+}
+
+.user-dropdown-item.logout-item i {
+  color: var(--score-low, #ef4444);
+}
+
+.user-dropdown-item.logout-item:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--score-low, #ef4444);
+}
+
+/* ==========================================================================
+   CUSTOM ACCESSIBLE CONFIRMATION MODAL SYSTEM
+   ========================================================================== */
+
+.rf-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modalBackdropFade 0.2s ease-out;
+}
+
+@keyframes modalBackdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rf-modal-card {
+  background: var(--paper-0, #ffffff);
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 440px;
+  padding: var(--sp-5, 24px);
+  animation: modalCardScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@keyframes modalCardScale {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.rf-modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.rf-modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.rf-modal-icon.danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--score-low, #ef4444);
+}
+
+.rf-modal-icon.info {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--primary, #2563eb);
+}
+
+.rf-modal-icon.warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.rf-modal-title {
+  font-size: var(--fs-base, 16px);
+  font-weight: 700;
+  color: var(--ink-950, #0f172a);
+  margin: 0 0 4px 0;
+}
+
+.rf-modal-message {
+  font-size: var(--fs-xs, 13px);
+  color: var(--ink-600, #64748b);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.rf-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.rf-modal-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm, 6px);
+  font-size: var(--fs-xs, 13px);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--dur-fast, 0.15s);
+}
+
+.rf-modal-btn.cancel {
+  background: var(--paper-100, #f1f5f9);
+  color: var(--ink-700, #334155);
+  border-color: var(--line, #cbd5e1);
+}
+
+.rf-modal-btn.cancel:hover {
+  background: var(--paper-200, #e2e8f0);
+}
+
+.rf-modal-btn.confirm-primary {
+  background: var(--primary, #2563eb);
+  color: #ffffff;
+}
+
+.rf-modal-btn.confirm-primary:hover {
+  background: var(--primary-dark, #1d4ed8);
+}
+
+.rf-modal-btn.confirm-danger {
+  background: var(--score-low, #ef4444);
+  color: #ffffff;
+}
+
+.rf-modal-btn.confirm-danger:hover {
+  background: #dc2626;
+}
+
+/* ==========================================================================
+   GLOBAL TOAST NOTIFICATION CONTAINER
+   ========================================================================== */
+
+#rfToastContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  max-width: 380px;
+  width: 100%;
+}
+
+.rf-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--paper-0, #ffffff);
+  border: 1px solid var(--line, #e2e8f0);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  font-size: var(--fs-xs, 13px);
+  color: var(--ink-900, #0f172a);
+  animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s ease-out;
+}
+
+.rf-toast.success {
+  border-left: 4px solid var(--score-high, #10b981);
+}
+.rf-toast.success i { color: var(--score-high, #10b981); }
+
+.rf-toast.error {
+  border-left: 4px solid var(--score-low, #ef4444);
+}
+.rf-toast.error i { color: var(--score-low, #ef4444); }
+
+.rf-toast.info {
+  border-left: 4px solid var(--primary, #2563eb);
+}
+.rf-toast.info i { color: var(--primary, #2563eb); }
+
+.rf-toast.warning {
+  border-left: 4px solid #f59e0b;
+}
+.rf-toast.warning i { color: #f59e0b; }
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.rf-toast.toast-hiding {
+  opacity: 0;
+  transform: translateY(-10px);
+}

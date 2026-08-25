@@ -118,24 +118,67 @@
     if (confirmEditBtn) {
       confirmEditBtn.addEventListener('click', async () => {
         const resumeId = currentReport.resumeId || currentReport.id;
-        if (!resumeId) return alert('No active resume found to edit.');
-        
-        if (confirm('Would you like to edit a copy of this resume to keep your original? (Recommended)')) {
-          try {
-            const duplicate = await ApiService.resumes.duplicate(resumeId);
-            const newId = duplicate.resume ? duplicate.resume.id : duplicate.id;
-            window.location.href = `resume-builder.html?id=${newId}`;
-          } catch (err) {
-            console.warn('Failed to duplicate resume via API. Creating local copy instead.');
-            const draft = localStorage.getItem(`resume_builder_draft_${resumeId}`) || localStorage.getItem('rf_draft');
-            if (draft) {
-              localStorage.setItem('rf_draft', draft);
-            }
-            window.location.href = `resume-builder.html?id=new`;
+        if (!resumeId) {
+          if (typeof window.showToast === 'function') {
+            window.showToast('No active resume found to edit.', 'warning');
           }
-        } else {
-          window.location.href = `resume-builder.html?id=${resumeId}`;
+          return;
         }
+        
+        let existingResume = null;
+        try {
+          existingResume = await ApiService.resumes.get(resumeId);
+        } catch (_) {}
+
+        const originalContent = existingResume?.content || {};
+        const missingKeywords = Array.isArray(currentReport.missingKeywords) ? currentReport.missingKeywords : [];
+        
+        // Construct improved content with ATS recommendations
+        let currentSkills = typeof originalContent.skills === 'string' ? originalContent.skills : '';
+        if (missingKeywords.length > 0) {
+          const currentSkillsArr = currentSkills.split(',').map(s => s.trim().toLowerCase());
+          const toAdd = missingKeywords.filter(k => !currentSkillsArr.includes(k.toLowerCase()));
+          if (toAdd.length > 0) {
+            currentSkills = currentSkills ? `${currentSkills}, ${toAdd.join(', ')}` : toAdd.join(', ');
+          }
+        }
+
+        const improvedResume = {
+          ...originalContent,
+          skills: currentSkills,
+          styling: originalContent.styling || { template: 'modern' }
+        };
+
+        // Store temporary improved resume state
+        try {
+          localStorage.setItem('rf_ai_improved_resume', JSON.stringify(improvedResume));
+          localStorage.setItem('rf_ai_improved_meta', JSON.stringify({
+            modifiedSections: ['skills'],
+            modifiedFields: { skills: true }
+          }));
+        } catch (_) {}
+
+        if (typeof window.confirmModal === 'function') {
+          const makeDuplicate = await window.confirmModal({
+            title: 'Edit Resume with ATS Improvements',
+            message: 'Would you like to duplicate this resume to keep your original version intact before editing?',
+            confirmText: 'Duplicate & Edit',
+            cancelText: 'Edit Original'
+          });
+
+          if (makeDuplicate) {
+            try {
+              const duplicate = await ApiService.resumes.duplicate(resumeId);
+              const newId = duplicate.resume ? duplicate.resume.id : duplicate.id;
+              window.location.href = `resume-builder.html?from=ai_improve&section=skills&id=${newId}`;
+              return;
+            } catch (err) {
+              console.warn('Duplicate error:', err.message);
+            }
+          }
+        }
+
+        window.location.href = `resume-builder.html?from=ai_improve&section=skills&id=${resumeId}`;
       });
     }
   }

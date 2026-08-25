@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Assistant — ResumeForge</title>
+<title>AI Career Assistant — ResumeForge</title>
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +16,319 @@
 <link rel="stylesheet" href="../css/app-shell.css">
 <link rel="stylesheet" href="../css/animations.css">
 <style>
+.ai-page-header {
+  margin-bottom: var(--sp-6);
+}
+.ai-page-header h2 {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--ink-950);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ai-page-header h2 i {
+  color: var(--primary);
+}
+.ai-page-header p {
+  color: var(--ink-600);
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+
+/* Tabs */
+.ai-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-6);
+}
+.ai-tab-btn {
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--ink-600);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--dur-fast);
+}
+.ai-tab-btn:hover {
+  color: var(--primary);
+}
+.ai-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Upload Card */
+.ai-card {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--sp-5);
+  margin-bottom: var(--sp-6);
+}
+
+.upload-dropzone {
+  border: 2px dashed var(--line-strong, #cbd5e1);
+  border-radius: var(--radius-md);
+  padding: 36px 20px;
+  text-align: center;
+  background: var(--paper-50);
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+.upload-dropzone:hover, .upload-dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--signal-100);
+}
+.upload-dropzone i.upload-icon {
+  font-size: 38px;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+.upload-dropzone h3 {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--ink-950);
+  margin-bottom: 4px;
+}
+.upload-dropzone p {
+  font-size: var(--fs-2xs);
+  color: var(--ink-500);
+  margin: 0;
+}
+
+/* Progress indicator */
+.ai-loading-box {
+  display: none;
+  text-align: center;
+  padding: var(--sp-8) var(--sp-4);
+}
+.ai-loading-box .spinner {
+  font-size: 32px;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+/* Dashboard Grid */
+.ai-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+.metric-box {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.metric-box .label {
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+.metric-box .val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.metric-box .val-big {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--ink-950);
+}
+.strength-badge {
+  font-size: var(--fs-3xs);
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+.strength-badge.strong { background: rgba(16, 185, 129, 0.12); color: var(--score-high); border: 1px solid rgba(16, 185, 129, 0.3); }
+.strength-badge.good { background: rgba(59, 130, 246, 0.12); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.3); }
+.strength-badge.needs-work { background: rgba(239, 68, 68, 0.12); color: var(--score-low); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* Sections checklist */
+.sections-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.sec-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+}
+.sec-chip.detected { background: rgba(16, 185, 129, 0.1); color: var(--score-high); border: 1px solid rgba(16, 185, 129, 0.25); }
+.sec-chip.missing { background: rgba(239, 68, 68, 0.08); color: var(--score-low); border: 1px solid rgba(239, 68, 68, 0.25); }
+
+/* Template Recommendation Card */
+.template-rec-card {
+  background: linear-gradient(135deg, var(--paper-0) 0%, var(--paper-50) 100%);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+  margin-bottom: var(--sp-6);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15), var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+.template-rec-info h3 {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--ink-950);
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.template-rec-info p {
+  font-size: var(--fs-xs);
+  color: var(--ink-600);
+  margin: 0;
+  max-width: 600px;
+}
+
+/* Suggestion Cards */
+.suggestion-card {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+  margin-bottom: var(--sp-4);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--dur-fast);
+}
+.suggestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line);
+}
+.suggestion-header h4 {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink-950);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.suggestion-content {
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: var(--ink-800);
+}
+.suggestion-diff {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+@media (max-width: 768px) {
+  .suggestion-diff { grid-template-columns: 1fr; }
+}
+.diff-box {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-2xs);
+}
+.diff-box.original {
+  background: var(--paper-100);
+  border: 1px solid var(--line);
+  color: var(--ink-700);
+}
+.diff-box.improved {
+  background: var(--signal-100);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: var(--ink-950);
+}
+.diff-box .diff-title {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+.diff-box.original .diff-title { color: var(--ink-500); }
+.diff-box.improved .diff-title { color: var(--primary); }
+
+.apply-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--dur-fast);
+}
+.apply-btn.btn-outline {
+  background: var(--paper-0);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+.apply-btn.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+.apply-btn.applied {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--score-high);
+  cursor: default;
+}
+
+/* Bottom Action Bar */
+.ai-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4) var(--sp-5);
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--sp-6);
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  position: sticky;
+  bottom: 20px;
+  z-index: 50;
+}
+
+/* Chat Tab Container */
 .assistant-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
-  max-width: 1000px;
-  margin: 0 auto;
+  height: calc(100vh - 240px);
+  min-height: 480px;
   background: var(--paper-0);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -30,7 +337,7 @@
 }
 
 .assistant-header {
-  padding: var(--sp-4) var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
   border-bottom: 1px solid var(--line);
   background: var(--paper-50);
   display: flex;
@@ -38,40 +345,6 @@
   align-items: center;
 }
 
-.assistant-header-info {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-}
-
-.assistant-avatar-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  background: var(--primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-}
-
-.assistant-header h2 {
-  font-size: var(--fs-base);
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-950);
-}
-
-.assistant-header p {
-  font-size: var(--fs-3xs);
-  color: var(--ink-600);
-  margin: 2px 0 0 0;
-}
-
-/* Quick Prompts Container */
 .quick-prompts-wrapper {
   padding: var(--sp-3) var(--sp-4);
   background: var(--paper-50);
@@ -80,7 +353,6 @@
   white-space: nowrap;
   display: flex;
   gap: 8px;
-  scrollbar-width: thin;
 }
 
 .prompt-chip {
@@ -95,28 +367,21 @@
   font-size: var(--fs-2xs);
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-out);
+  transition: all var(--dur-fast);
   flex-shrink: 0;
 }
-
 .prompt-chip:hover {
   background: var(--signal-100);
   color: var(--primary);
-  border-color: rgba(37, 99, 235, 0.15);
 }
 
-.prompt-chip i {
-  color: var(--primary);
-}
-
-/* Chat Messages Scroll Area */
 .chat-messages {
   flex: 1;
-  padding: var(--sp-5);
+  padding: var(--sp-4);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
   background: var(--paper-50);
 }
 
@@ -125,208 +390,56 @@
   gap: var(--sp-3);
   max-width: 85%;
 }
-
 .msg-row.user {
   align-self: flex-end;
   flex-direction: row-reverse;
 }
 
 .msg-avatar {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  font-weight: 700;
   flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
 }
-
-.msg-row.assistant .msg-avatar {
-  background: var(--primary);
-  color: white;
-}
-
-.msg-row.user .msg-avatar {
-  background: var(--paper-0);
-  border: 1px solid var(--line-strong);
-  color: var(--ink-950);
-}
+.msg-row.assistant .msg-avatar { background: var(--primary); color: white; }
+.msg-row.user .msg-avatar { background: var(--paper-0); border: 1px solid var(--line); color: var(--ink-950); }
 
 .msg-bubble {
-  padding: var(--sp-3) var(--sp-4);
+  padding: 10px 14px;
   border-radius: var(--radius-md);
-  font-size: var(--fs-sm);
-  line-height: 1.55;
-  word-break: break-word;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
   box-shadow: var(--shadow-sm);
 }
+.msg-row.assistant .msg-bubble { background: var(--paper-0); border: 1px solid var(--line); color: var(--ink-900); }
+.msg-row.user .msg-bubble { background: var(--primary); color: white; }
 
-.msg-row.assistant .msg-bubble {
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  color: var(--ink-900);
-  border-top-left-radius: 2px;
-}
-
-.msg-row.user .msg-bubble {
-  background: var(--primary);
-  color: white;
-  border-top-right-radius: 2px;
-}
-
-.msg-bubble p { margin-bottom: 8px; }
-.msg-bubble p:last-child { margin-bottom: 0; }
-.msg-bubble ul, .msg-bubble ol { margin: 8px 0 8px 20px; }
-.msg-bubble li { margin-bottom: 4px; }
-.msg-bubble strong { font-weight: 700; }
-
-/* Loading typing indicator */
-.typing-indicator {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 14px;
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  border-top-left-radius: 2px;
-  width: fit-content;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--primary);
-  animation: typingBounce 1.4s infinite ease-in-out both;
-}
-
-.dot:nth-child(1) { animation-delay: -0.32s; }
-.dot:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes typingBounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
-}
-
-/* Chat Input Bar */
 .chat-input-bar {
-  padding: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
   background: var(--paper-0);
   border-top: 1px solid var(--line);
   display: flex;
   gap: var(--sp-3);
   align-items: center;
 }
-
-.chat-input-wrapper {
+.chat-input-bar textarea {
   flex: 1;
-  position: relative;
-}
-
-textarea#chatInput {
-  width: 100%;
-  min-height: 44px;
-  max-height: 120px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  font-family: inherit;
-  font-size: var(--fs-sm);
   resize: none;
+  font-family: inherit;
+  font-size: var(--fs-xs);
   outline: none;
   background: var(--paper-0);
   color: var(--ink-950);
-  transition: border-color var(--dur-fast);
 }
-
-textarea#chatInput:focus {
+.chat-input-bar textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--signal-100);
-}
-
-.send-btn {
-  height: 44px;
-  padding: 0 var(--sp-4);
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: var(--fs-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background var(--dur-fast);
-}
-
-.send-btn:hover {
-  background: var(--primary-dark);
-}
-
-.send-btn:disabled {
-  background: var(--paper-100);
-  border: 1px solid var(--line);
-  color: var(--ink-400);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.clear-btn {
-  height: 44px;
-  padding: 0 14px;
-  background: var(--paper-0);
-  border: 1px solid var(--line);
-  color: var(--ink-600);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--dur-fast);
-}
-
-.clear-btn:hover {
-  background: var(--paper-50);
-  color: var(--score-low);
-  border-color: rgba(220, 38, 38, 0.2);
-}
-
-/* Code block & styling */
-.msg-bubble pre {
-  background: #1E293B;
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
-  margin: 8px 0;
-  border: 1px solid #334155;
-  font-family: 'IBM Plex Mono', Courier, monospace;
-  font-size: 11px;
-  color: #E2E8F0;
-}
-.msg-bubble code {
-  font-family: 'IBM Plex Mono', Courier, monospace;
-  background: var(--paper-100);
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  color: var(--primary);
-}
-.msg-bubble pre code {
-  background: transparent;
-  padding: 0;
-  color: inherit;
-  font-size: inherit;
-}
-
-@media (max-width: 768px) {
-  .assistant-container {
-    height: calc(100vh - 100px);
-    border-radius: 0;
-    border: none;
-  }
-  .msg-row { max-width: 95%; }
 }
 </style>
 </head>
@@ -335,45 +448,172 @@ textarea#chatInput:focus {
 <div id="appShellRoot"></div>
 
 <template id="aiAssistantTemplate">
-  <div class="assistant-container">
-    <div class="assistant-header">
-      <div class="assistant-header-info">
-        <div class="assistant-avatar-badge"><i class="fa-solid fa-robot"></i></div>
-        <div>
-          <h2>AI Assistant</h2>
-          <p>Ask anything about resume writing, ATS optimization, and career growth.</p>
+  <div>
+    <!-- Page Header -->
+    <div class="ai-page-header">
+      <h2><i class="fa-solid fa-wand-magic-sparkles"></i> AI Career Assistant</h2>
+      <p>Analyze, improve, and optimize your resume with AI.</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="ai-tabs">
+      <button class="ai-tab-btn active" id="tabAnalysisBtn"><i class="fa-solid fa-file-waveform"></i> Resume Analysis & Improvements</button>
+      <button class="ai-tab-btn" id="tabChatBtn"><i class="fa-solid fa-robot"></i> Career & Interview Chat</button>
+    </div>
+
+    <!-- TAB 1: RESUME ANALYSIS & IMPROVEMENTS -->
+    <div id="viewAnalysisTab">
+      <!-- Upload Card -->
+      <div class="ai-card" id="uploadCard">
+        <div class="upload-dropzone" id="dropzone">
+          <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+          <h3>Upload Resume for Smart AI Analysis</h3>
+          <p>Supports PDF, DOCX, DOC, or TXT (Max 5MB)</p>
+          <input type="file" id="resumeFileInput" accept=".pdf,.docx,.doc,.txt" style="display:none;" />
+          <button type="button" class="btn btn-primary btn-sm" style="margin-top:14px;" id="browseBtn">
+            <i class="fa-solid fa-folder-open"></i> Browse Files
+          </button>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+            <label for="selExistingResume" style="font-size: var(--fs-2xs); font-weight: 600; color: var(--ink-600);">Or analyze saved resume:</label>
+            <select id="selExistingResume" style="flex:1; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: var(--fs-2xs); background: var(--paper-0); color: var(--ink-950);">
+              <option value="">Select a saved resume...</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btnAnalyzeSaved" disabled>
+            <i class="fa-solid fa-chart-simple"></i> Analyze Selected
+          </button>
+        </div>
+
+        <!-- Optional Job Description for Targeted Match -->
+        <div style="margin-top: 14px;">
+          <details style="font-size: var(--fs-2xs); color: var(--ink-600);">
+            <summary style="cursor:pointer; font-weight:600; color:var(--primary);"><i class="fa-solid fa-bullseye"></i> Target a specific job description (Optional)</summary>
+            <textarea id="targetJobDesc" placeholder="Paste the target job description to get role-specific keywords and customized bullet points..." rows="3" style="width:100%; margin-top:8px; padding:8px 12px; border:1px solid var(--line); border-radius:var(--radius-sm); font-family:inherit; font-size:var(--fs-2xs); background:var(--paper-0); color:var(--ink-950);"></textarea>
+          </details>
         </div>
       </div>
-      <button class="clear-btn" id="clearChatBtn" title="Clear chat history"><i class="fa-solid fa-trash-can"></i></button>
-    </div>
 
-    <!-- Quick Action Prompts -->
-    <div class="quick-prompts-wrapper">
-      <button class="prompt-chip" data-prompt="How can I improve my resume for a software developer job?"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve My Resume</button>
-      <button class="prompt-chip" data-prompt="How do I improve my ATS score to pass keyword filters?"><i class="fa-solid fa-gauge-high"></i> Improve ATS Score</button>
-      <button class="prompt-chip" data-prompt="Write a compelling professional summary for my resume."><i class="fa-solid fa-pen-nib"></i> Write Summary</button>
-      <button class="prompt-chip" data-prompt="Generate 5 strong bullet points with metrics for a software engineer."><i class="fa-solid fa-list-check"></i> Generate Bullet Points</button>
-      <button class="prompt-chip" data-prompt="What are the top technical & soft skills I should list on my resume?"><i class="fa-solid fa-lightbulb"></i> Suggest Skills</button>
-      <button class="prompt-chip" data-prompt="Review my profile bio and suggest improvements."><i class="fa-solid fa-user-check"></i> Review My Profile</button>
-    </div>
+      <!-- Loading Box -->
+      <div class="ai-loading-box ai-card" id="aiLoadingBox">
+        <i class="fa-solid fa-circle-notch fa-spin spinner"></i>
+        <h4 style="font-size:var(--fs-base); font-weight:700; color:var(--ink-950); margin-bottom:4px;" id="loadingTitle">AI is analyzing your resume...</h4>
+        <p style="font-size:var(--fs-xs); color:var(--ink-600); margin:0;" id="loadingSub">Extracting structured sections, evaluating ATS score, and generating improvements.</p>
+      </div>
 
-    <!-- Chat Messages -->
-    <div class="chat-messages" id="chatMessages">
-      <div class="msg-row assistant">
-        <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
-        <div class="msg-bubble">
-          <p>Hello! I am your <strong>ResumeForge AI Assistant</strong>. How can I help you today?</p>
-          <p>You can pick a quick topic above or type any question about your resume, ATS match, or career goals below!</p>
+      <!-- ANALYSIS DASHBOARD (Revealed after upload/analysis) -->
+      <div id="analysisDashboard" style="display:none;">
+        <!-- Top Metrics Grid -->
+        <div class="ai-dash-grid">
+          <div class="metric-box">
+            <span class="label">ATS Score</span>
+            <div class="val-row">
+              <span class="val-big" id="dashAtsScore">--</span>
+              <span class="strength-badge strong" id="dashStrengthBadge">Strong</span>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="label">Keyword Match</span>
+            <div class="val-row">
+              <span class="val-big" id="dashKeywordMatch">--%</span>
+              <i class="fa-solid fa-key" style="color:var(--primary); font-size:18px;"></i>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="label">Readability Score</span>
+            <div class="val-row">
+              <span class="val-big" id="dashReadability">--%</span>
+              <i class="fa-solid fa-glasses" style="color:var(--score-high); font-size:18px;"></i>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="label">Sections Status</span>
+            <div class="val-row">
+              <span class="val-big" id="dashSectionsCount">--/7</span>
+              <i class="fa-solid fa-list-check" style="color:var(--primary); font-size:18px;"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sections Breakdown Card -->
+        <div class="ai-card">
+          <h4 style="font-size:var(--fs-sm); font-weight:700; color:var(--ink-950); margin:0 0 8px 0;">Detected & Missing Resume Sections</h4>
+          <div class="sections-checklist" id="sectionsChecklist"></div>
+        </div>
+
+        <!-- Recommended Template Card -->
+        <div class="template-rec-card" id="templateRecCard">
+          <div class="template-rec-info">
+            <h3><i class="fa-solid fa-palette" style="color:var(--primary);"></i> Recommended Template: <span id="recTemplateName" style="color:var(--primary);">Modern Professional</span></h3>
+            <p id="recTemplateReason">Your resume contains technical experience and projects. A clean, ATS-compliant layout maximizes readability.</p>
+          </div>
+          <button type="button" class="apply-btn btn-outline" id="btnApplyTemplate">
+            <i class="fa-solid fa-check"></i> Apply Template
+          </button>
+        </div>
+
+        <!-- Structured AI Improvement Cards Container -->
+        <div id="improvementsContainer"></div>
+
+        <!-- Action Bar -->
+        <div class="ai-actions-bar">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnApplyAll">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Apply All Improvements
+            </button>
+            <span style="font-size:var(--fs-3xs); color:var(--ink-500);" id="appliedCountIndicator">0 improvements applied to local draft</span>
+          </div>
+
+          <button type="button" class="btn btn-primary" id="btnEditResume">
+            <i class="fa-solid fa-pen-to-square"></i> Edit in Resume Builder
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Chat Input -->
-    <div class="chat-input-bar">
-      <div class="chat-input-wrapper">
-        <textarea id="chatInput" placeholder="Ask about resume tips, bullet points, or career advice..." rows="1"></textarea>
+    <!-- TAB 2: CAREER & INTERVIEW CHAT -->
+    <div id="viewChatTab" style="display:none;">
+      <div class="assistant-container">
+        <div class="assistant-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:var(--radius-sm); background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:14px;"><i class="fa-solid fa-robot"></i></div>
+            <div>
+              <h3 style="font-size:var(--fs-xs); font-weight:700; margin:0; color:var(--ink-950);">Career & Resume Chat</h3>
+              <p style="font-size:10px; color:var(--ink-500); margin:0;">Ask anything about bullet points, interview prep, or career growth.</p>
+            </div>
+          </div>
+          <button class="icon-btn" id="clearChatBtn" title="Clear chat history"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+
+        <!-- Quick Prompts -->
+        <div class="quick-prompts-wrapper">
+          <button class="prompt-chip" data-prompt="How can I improve my resume for a software engineer position?"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve Resume</button>
+          <button class="prompt-chip" data-prompt="Write a high-impact professional summary for my domain."><i class="fa-solid fa-pen-nib"></i> Write Summary</button>
+          <button class="prompt-chip" data-prompt="Generate 5 strong bullet points with metrics for full stack development."><i class="fa-solid fa-list-check"></i> Generate Bullets</button>
+          <button class="prompt-chip" data-prompt="What are top technical keywords recruiters look for?"><i class="fa-solid fa-key"></i> Key Tech Skills</button>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg-row assistant">
+            <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+            <div class="msg-bubble">
+              <p>Hello! I am your <strong>ResumeForge AI Career Assistant</strong>. How can I help you optimize your resume or prepare for applications today?</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="chat-input-bar">
+          <textarea id="chatInput" placeholder="Ask about resume tips, bullet points, or career advice..." rows="1"></textarea>
+          <button class="btn btn-primary btn-sm" id="sendBtn"><i class="fa-solid fa-paper-plane"></i> Send</button>
+        </div>
       </div>
-      <button class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane"></i> Send</button>
     </div>
   </div>
 </template>
@@ -382,7 +622,7 @@ textarea#chatInput:focus {
 <script src="../js/auth-guard.js"></script>
 <script src="../js/components/app-shell.js"></script>
 <script>
-AppShell.render({ active: 'ai-assistant', title: 'AI Assistant' });
+AppShell.render({ active: 'ai-assistant', title: 'AI Career Assistant' });
 const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('aiAssistantTemplate').content.cloneNode(true));
 </script>

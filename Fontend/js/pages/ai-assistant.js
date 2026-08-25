@@ -1,32 +1,630 @@
 /**
- * DEDICATED REAL MODEL-BASED AI ASSISTANT CHAT LOGIC
- * Connects to POST /api/ai/chat with streaming support
+ * AI CAREER ASSISTANT & RESUME IMPROVEMENT WORKFLOW
+ * Analyzes uploaded / selected resumes, presents structured improvements,
+ * and allows 1-click application into Resume Builder without automatic server saves.
  */
 (function () {
   document.addEventListener('DOMContentLoaded', init);
   setTimeout(init, 0);
 
   let initialized = false;
+  let currentAnalysisData = null;
+  let workingResumeState = null;
+  let appliedModifications = {
+    summary: false,
+    skills: false,
+    experience: {},
+    projects: {},
+    template: false
+  };
+
+  // Chat state
   let conversationHistory = [];
   let isThinking = false;
   let abortController = null;
-  let activeResumeId = null;
 
   function init() {
     if (initialized) return;
-    const sendBtn = document.getElementById('sendBtn');
-    if (!sendBtn) return;
+    if (!document.getElementById('dropzone')) return;
     initialized = true;
 
-    bindEvents();
-    checkUrlPrompt();
+    bindTabs();
+    bindUploadAndDropzone();
+    bindSavedResumeSelector();
+    bindChatEvents();
+    loadSavedResumesList();
+    checkUrlParams();
   }
 
-  function bindEvents() {
-    const sendBtn  = document.getElementById('sendBtn');
-    const input    = document.getElementById('chatInput');
+  /* ---------------------------------------------------------------------
+     Tab Switching
+  --------------------------------------------------------------------- */
+  function bindTabs() {
+    const tabAnalysisBtn = document.getElementById('tabAnalysisBtn');
+    const tabChatBtn = document.getElementById('tabChatBtn');
+    const viewAnalysisTab = document.getElementById('viewAnalysisTab');
+    const viewChatTab = document.getElementById('viewChatTab');
+
+    tabAnalysisBtn?.addEventListener('click', () => {
+      tabAnalysisBtn.classList.add('active');
+      tabChatBtn?.classList.remove('active');
+      if (viewAnalysisTab) viewAnalysisTab.style.display = 'block';
+      if (viewChatTab) viewChatTab.style.display = 'none';
+    });
+
+    tabChatBtn?.addEventListener('click', () => {
+      tabChatBtn.classList.add('active');
+      tabAnalysisBtn?.classList.remove('active');
+      if (viewChatTab) viewChatTab.style.display = 'block';
+      if (viewAnalysisTab) viewAnalysisTab.style.display = 'none';
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Resume Upload & Dropzone Handling
+  --------------------------------------------------------------------- */
+  function bindUploadAndDropzone() {
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('resumeFileInput');
+    const browseBtn = document.getElementById('browseBtn');
+
+    if (!dropzone || !fileInput) return;
+
+    browseBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        processUploadedFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        processUploadedFile(fileInput.files[0]);
+      }
+    });
+  }
+
+  async function processUploadedFile(file) {
+    const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    if (!validExtensions.includes(ext)) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Please upload a valid PDF, DOC, DOCX, or TXT file.', 'error');
+      }
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('File size limit exceeded (maximum 5MB allowed).', 'error');
+      }
+      return;
+    }
+
+    const jobDescription = document.getElementById('targetJobDesc')?.value.trim() || '';
+    const formData = new FormData();
+    formData.append('resume', file);
+    if (jobDescription) formData.append('jobDescription', jobDescription);
+
+    showLoading(true, 'Extracting & Analyzing Resume...', 'Extracting structured sections and generating targeted AI improvements.');
+
+    try {
+      const response = await fetch(`${ApiService.BASE_URL}/ai/analyze-resume`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${ApiService.getToken()}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to analyze uploaded resume.');
+      }
+
+      renderAnalysisResults(data);
+      if (typeof window.showToast === 'function') {
+        window.showToast('Resume analyzed successfully!', 'success');
+      }
+    } catch (err) {
+      console.error('Analyze upload error:', err);
+      if (typeof window.showToast === 'function') {
+        window.showToast(err.message || 'Unable to analyze this resume. Please try again.', 'error');
+      }
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Saved Resume Selector Handling
+  --------------------------------------------------------------------- */
+  async function loadSavedResumesList() {
+    const sel = document.getElementById('selExistingResume');
+    const btnAnalyzeSaved = document.getElementById('btnAnalyzeSaved');
+    if (!sel) return;
+
+    try {
+      const resumes = await ApiService.resumes.list();
+      sel.innerHTML = '<option value="">Select a saved resume...</option>';
+      if (resumes && resumes.length) {
+        resumes.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.textContent = `${r.title} (ID: ${r.id})`;
+          sel.appendChild(opt);
+        });
+      }
+    } catch (_) {}
+
+    sel.addEventListener('change', () => {
+      if (btnAnalyzeSaved) btnAnalyzeSaved.disabled = !sel.value;
+    });
+
+    btnAnalyzeSaved?.addEventListener('click', async () => {
+      const resumeId = sel.value;
+      if (!resumeId) return;
+
+      const jobDescription = document.getElementById('targetJobDesc')?.value.trim() || '';
+      showLoading(true, 'Analyzing Saved Resume...', 'Evaluating ATS match and generating structured recommendations.');
+
+      try {
+        const response = await fetch(`${ApiService.BASE_URL}/ai/analyze-resume`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ApiService.getToken()}`
+          },
+          body: JSON.stringify({ resumeId, jobDescription })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Analysis failed');
+
+        renderAnalysisResults(data);
+        if (typeof window.showToast === 'function') {
+          window.showToast('Analysis complete!', 'success');
+        }
+      } catch (err) {
+        if (typeof window.showToast === 'function') {
+          window.showToast(err.message || 'Unable to analyze selected resume.', 'error');
+        }
+      } finally {
+        showLoading(false);
+      }
+    });
+  }
+
+  function showLoading(show, title, sub) {
+    const box = document.getElementById('aiLoadingBox');
+    const titleEl = document.getElementById('loadingTitle');
+    const subEl = document.getElementById('loadingSub');
+    if (!box) return;
+
+    if (show) {
+      if (title && titleEl) titleEl.textContent = title;
+      if (sub && subEl) subEl.textContent = sub;
+      box.style.display = 'block';
+    } else {
+      box.style.display = 'none';
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Render Analysis Dashboard & Structured Improvements
+  --------------------------------------------------------------------- */
+  function renderAnalysisResults(data) {
+    currentAnalysisData = data;
+    workingResumeState = JSON.parse(JSON.stringify(data.structuredResume || {}));
+    appliedModifications = { summary: false, skills: false, experience: {}, projects: {}, template: false };
+
+    const dashboard = document.getElementById('analysisDashboard');
+    if (!dashboard) return;
+    dashboard.style.display = 'block';
+
+    // 1. Top Metrics
+    const atsScore = data.analysis?.atsScore || 75;
+    const strength = data.analysis?.resumeStrength || (atsScore >= 80 ? 'Strong' : atsScore >= 60 ? 'Good' : 'Needs Work');
+    const keywordMatch = data.analysis?.keywordMatch || 70;
+    const readability = data.analysis?.readability || 88;
+    const detectedSecs = data.analysis?.sectionsDetected || [];
+    const missingSecs = data.analysis?.missingSections || [];
+
+    document.getElementById('dashAtsScore').textContent = `${atsScore}`;
+    const strengthBadge = document.getElementById('dashStrengthBadge');
+    if (strengthBadge) {
+      strengthBadge.textContent = strength;
+      strengthBadge.className = `strength-badge ${strength.toLowerCase().replace(/\s+/g, '-')}`;
+    }
+    document.getElementById('dashKeywordMatch').textContent = `${keywordMatch}%`;
+    document.getElementById('dashReadability').textContent = `${readability}%`;
+    document.getElementById('dashSectionsCount').textContent = `${detectedSecs.length}/7`;
+
+    // 2. Sections Checklist
+    const secContainer = document.getElementById('sectionsChecklist');
+    if (secContainer) {
+      secContainer.innerHTML = '';
+      detectedSecs.forEach(s => {
+        secContainer.innerHTML += `<span class="sec-chip detected"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(s)}</span>`;
+      });
+      missingSecs.forEach(s => {
+        secContainer.innerHTML += `<span class="sec-chip missing"><i class="fa-solid fa-triangle-exclamation"></i> Missing ${escapeHtml(s)}</span>`;
+      });
+    }
+
+    // 3. Recommended Template
+    const recTemplate = data.templateRecommendation || { name: 'Modern Professional', templateId: 'modern', reason: 'Balanced ATS structure.' };
+    document.getElementById('recTemplateName').textContent = recTemplate.name;
+    document.getElementById('recTemplateReason').textContent = recTemplate.reason;
+
+    const btnApplyTpl = document.getElementById('btnApplyTemplate');
+    if (btnApplyTpl) {
+      btnApplyTpl.className = 'apply-btn btn-outline';
+      btnApplyTpl.innerHTML = '<i class="fa-solid fa-check"></i> Apply Template';
+      btnApplyTpl.onclick = () => applyTemplateSuggestion(recTemplate);
+    }
+
+    // 4. Structured Improvement Cards
+    renderImprovementCards(data.improvements || {});
+    updateAppliedCountUI();
+
+    // Scroll to analysis dashboard smoothly
+    dashboard.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function renderImprovementCards(improvements) {
+    const container = document.getElementById('improvementsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // A. Professional Summary Improvement
+    if (improvements.summary) {
+      const s = improvements.summary;
+      const card = document.createElement('div');
+      card.className = 'suggestion-card';
+      card.innerHTML = `
+        <div class="suggestion-header">
+          <h4><i class="fa-solid fa-pen-nib" style="color:var(--primary);"></i> Professional Summary Recommendation</h4>
+          <button type="button" class="apply-btn btn-outline" id="btnApplySummary">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Apply Improvement
+          </button>
+        </div>
+        <div class="suggestion-content">
+          <p style="margin:0 0 6px 0; color:var(--ink-600); font-style:italic;"><strong>Why:</strong> ${escapeHtml(s.reason)}</p>
+          <div class="suggestion-diff">
+            <div class="diff-box original">
+              <span class="diff-title">Current Summary</span>
+              <div>${escapeHtml(s.current || 'No summary currently defined.')}</div>
+            </div>
+            <div class="diff-box improved">
+              <span class="diff-title">AI Recommendation</span>
+              <div>${escapeHtml(s.improved)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+
+      card.querySelector('#btnApplySummary').addEventListener('click', () => {
+        applySummarySuggestion(s.improved, card.querySelector('#btnApplySummary'));
+      });
+    }
+
+    // B. Skills Improvement
+    if (improvements.skills && improvements.skills.add && improvements.skills.add.length > 0) {
+      const sk = improvements.skills;
+      const card = document.createElement('div');
+      card.className = 'suggestion-card';
+      card.innerHTML = `
+        <div class="suggestion-header">
+          <h4><i class="fa-solid fa-key" style="color:var(--primary);"></i> Technical Skills & Keyword Additions</h4>
+          <button type="button" class="apply-btn btn-outline" id="btnApplySkills">
+            <i class="fa-solid fa-plus"></i> Add Recommended Skills
+          </button>
+        </div>
+        <div class="suggestion-content">
+          <p style="margin:0 0 8px 0; color:var(--ink-600); font-style:italic;"><strong>Why:</strong> ${escapeHtml(sk.reason || 'Adds high-demand keywords detected in target job profiles.')}</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            ${sk.add.map(skill => `<span style="background:var(--signal-100); border:1px solid rgba(37,99,235,0.25); color:var(--primary); padding:4px 10px; border-radius:var(--radius-pill); font-size:11px; font-weight:700;"><i class="fa-solid fa-plus"></i> ${escapeHtml(skill)}</span>`).join('')}
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+
+      card.querySelector('#btnApplySkills').addEventListener('click', () => {
+        applySkillsSuggestion(sk.add, card.querySelector('#btnApplySkills'));
+      });
+    }
+
+    // C. Experience Improvements
+    if (improvements.experience && Array.isArray(improvements.experience) && improvements.experience.length > 0) {
+      improvements.experience.forEach((exp, idx) => {
+        const card = document.createElement('div');
+        card.className = 'suggestion-card';
+        const improvedBullets = Array.isArray(exp.improvedBullets) ? exp.improvedBullets : [];
+        card.innerHTML = `
+          <div class="suggestion-header">
+            <h4><i class="fa-solid fa-briefcase" style="color:var(--primary);"></i> Experience #${idx + 1}: ${escapeHtml(exp.position || 'Role')} at ${escapeHtml(exp.company || 'Company')}</h4>
+            <button type="button" class="apply-btn btn-outline btn-apply-exp" data-index="${idx}">
+              <i class="fa-solid fa-arrow-up-right-dots"></i> Improve Experience
+            </button>
+          </div>
+          <div class="suggestion-content">
+            <p style="margin:0 0 6px 0; color:var(--ink-600); font-style:italic;"><strong>Why:</strong> ${escapeHtml(exp.reason || 'Strengthens action verbs and measurable performance outcomes.')}</p>
+            <div class="diff-box improved" style="margin-top:8px;">
+              <span class="diff-title">AI Enhanced Bullet Points</span>
+              <ul style="margin:4px 0 0 16px; padding:0;">
+                ${improvedBullets.map(b => `<li style="margin-bottom:4px;">${escapeHtml(b)}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+
+        card.querySelector('.btn-apply-exp').addEventListener('click', (e) => {
+          applyExperienceSuggestion(idx, exp, e.currentTarget);
+        });
+      });
+    }
+
+    // D. Projects Improvements
+    if (improvements.projects && Array.isArray(improvements.projects) && improvements.projects.length > 0) {
+      improvements.projects.forEach((proj, idx) => {
+        const card = document.createElement('div');
+        card.className = 'suggestion-card';
+        card.innerHTML = `
+          <div class="suggestion-header">
+            <h4><i class="fa-solid fa-diagram-project" style="color:var(--primary);"></i> Project #${idx + 1}: ${escapeHtml(proj.title || 'Project')}</h4>
+            <button type="button" class="apply-btn btn-outline btn-apply-proj" data-index="${idx}">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Improve Project
+            </button>
+          </div>
+          <div class="suggestion-content">
+            <p style="margin:0 0 6px 0; color:var(--ink-600); font-style:italic;"><strong>Why:</strong> ${escapeHtml(proj.reason || 'Highlights modern technologies and measurable outcomes.')}</p>
+            <div class="diff-box improved" style="margin-top:8px;">
+              <span class="diff-title">Enhanced Project Description & Tech Stack</span>
+              <p style="margin:0 0 6px 0;">${escapeHtml(proj.improvedDescription || '')}</p>
+              ${proj.technologiesToAdd && proj.technologiesToAdd.length ? `<div style="font-size:11px; color:var(--primary); font-weight:600;">Technologies: ${escapeHtml(proj.technologiesToAdd.join(', '))}</div>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+
+        card.querySelector('.btn-apply-proj').addEventListener('click', (e) => {
+          applyProjectSuggestion(idx, proj, e.currentTarget);
+        });
+      });
+    }
+
+    // Bind Apply All & Edit Resume buttons
+    document.getElementById('btnApplyAll')?.addEventListener('click', applyAllImprovements);
+    document.getElementById('btnEditResume')?.addEventListener('click', navigateToResumeBuilder);
+  }
+
+  /* ---------------------------------------------------------------------
+     Suggestion Application Logic (Purely In-Memory / Local State)
+  --------------------------------------------------------------------- */
+  function applySummarySuggestion(improvedText, btn) {
+    if (!workingResumeState) return;
+    workingResumeState.summary = improvedText;
+    appliedModifications.summary = true;
+
+    if (btn) {
+      btn.className = 'apply-btn applied';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Applied';
+    }
+
+    persistWorkingDraft();
+    updateAppliedCountUI();
+  }
+
+  function applySkillsSuggestion(skillsToAdd, btn) {
+    if (!workingResumeState) return;
+    let currentSkills = typeof workingResumeState.skills === 'string' ? workingResumeState.skills : '';
+    const currentList = currentSkills.split(',').map(s => s.trim()).filter(Boolean);
+    const currentLower = currentList.map(s => s.toLowerCase());
+
+    skillsToAdd.forEach(s => {
+      if (!currentLower.includes(s.toLowerCase())) {
+        currentList.push(s);
+      }
+    });
+
+    workingResumeState.skills = currentList.join(', ');
+    appliedModifications.skills = true;
+
+    if (btn) {
+      btn.className = 'apply-btn applied';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Added to Draft';
+    }
+
+    persistWorkingDraft();
+    updateAppliedCountUI();
+  }
+
+  function applyExperienceSuggestion(index, expData, btn) {
+    if (!workingResumeState) return;
+    workingResumeState.experience = workingResumeState.experience || [];
+    if (workingResumeState.experience[index]) {
+      const improvedBullets = Array.isArray(expData.improvedBullets) ? expData.improvedBullets : [];
+      workingResumeState.experience[index].bullets = improvedBullets;
+      workingResumeState.experience[index].description = improvedBullets.join('\n');
+      appliedModifications.experience[index] = true;
+    }
+
+    if (btn) {
+      btn.className = 'apply-btn applied';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Applied';
+    }
+
+    persistWorkingDraft();
+    updateAppliedCountUI();
+  }
+
+  function applyProjectSuggestion(index, projData, btn) {
+    if (!workingResumeState) return;
+    workingResumeState.projects = workingResumeState.projects || [];
+    if (workingResumeState.projects[index]) {
+      workingResumeState.projects[index].description = projData.improvedDescription || workingResumeState.projects[index].description;
+      if (projData.technologiesToAdd && projData.technologiesToAdd.length) {
+        const existingTech = workingResumeState.projects[index].technologies || '';
+        const techArr = existingTech.split(',').map(t => t.trim()).filter(Boolean);
+        projData.technologiesToAdd.forEach(t => {
+          if (!techArr.some(x => x.toLowerCase() === t.toLowerCase())) techArr.push(t);
+        });
+        workingResumeState.projects[index].technologies = techArr.join(', ');
+      }
+      appliedModifications.projects[index] = true;
+    }
+
+    if (btn) {
+      btn.className = 'apply-btn applied';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Applied';
+    }
+
+    persistWorkingDraft();
+    updateAppliedCountUI();
+  }
+
+  function applyTemplateSuggestion(recTemplate) {
+    if (!workingResumeState) return;
+    workingResumeState.styling = workingResumeState.styling || {};
+    workingResumeState.styling.template = recTemplate.templateId || 'modern';
+    appliedModifications.template = true;
+
+    const btn = document.getElementById('btnApplyTemplate');
+    if (btn) {
+      btn.className = 'apply-btn applied';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Template Applied';
+    }
+
+    persistWorkingDraft();
+    updateAppliedCountUI();
+  }
+
+  function applyAllImprovements() {
+    if (!currentAnalysisData || !currentAnalysisData.improvements) return;
+    const imps = currentAnalysisData.improvements;
+
+    if (imps.summary) {
+      applySummarySuggestion(imps.summary.improved, document.getElementById('btnApplySummary'));
+    }
+    if (imps.skills && imps.skills.add) {
+      applySkillsSuggestion(imps.skills.add, document.getElementById('btnApplySkills'));
+    }
+    if (imps.experience && Array.isArray(imps.experience)) {
+      imps.experience.forEach((exp, idx) => {
+        const btn = document.querySelector(`.btn-apply-exp[data-index="${idx}"]`);
+        applyExperienceSuggestion(idx, exp, btn);
+      });
+    }
+    if (imps.projects && Array.isArray(imps.projects)) {
+      imps.projects.forEach((proj, idx) => {
+        const btn = document.querySelector(`.btn-apply-proj[data-index="${idx}"]`);
+        applyProjectSuggestion(idx, proj, btn);
+      });
+    }
+    if (currentAnalysisData.templateRecommendation) {
+      applyTemplateSuggestion(currentAnalysisData.templateRecommendation);
+    }
+
+    if (typeof window.showToast === 'function') {
+      window.showToast('All improvements applied to temporary draft!', 'success');
+    }
+  }
+
+  function persistWorkingDraft() {
+    if (!workingResumeState) return;
+    try {
+      localStorage.setItem('rf_ai_improved_resume', JSON.stringify(workingResumeState));
+    } catch (_) {}
+  }
+
+  function updateAppliedCountUI() {
+    const indicator = document.getElementById('appliedCountIndicator');
+    if (!indicator) return;
+
+    let count = 0;
+    if (appliedModifications.summary) count++;
+    if (appliedModifications.skills) count++;
+    if (appliedModifications.template) count++;
+    count += Object.keys(appliedModifications.experience).length;
+    count += Object.keys(appliedModifications.projects).length;
+
+    indicator.textContent = `${count} improvement${count === 1 ? '' : 's'} applied to local draft`;
+  }
+
+  /* ---------------------------------------------------------------------
+     Navigate into Resume Builder in Edit Mode
+  --------------------------------------------------------------------- */
+  function navigateToResumeBuilder() {
+    if (!workingResumeState) {
+      window.location.href = 'resume-builder.html';
+      return;
+    }
+
+    // Determine first modified section
+    let firstSection = 'summary';
+    const modifiedSectionsList = [];
+
+    if (appliedModifications.summary) modifiedSectionsList.push('summary');
+    if (appliedModifications.skills) modifiedSectionsList.push('skills');
+    if (Object.keys(appliedModifications.experience).length > 0) modifiedSectionsList.push('experience');
+    if (Object.keys(appliedModifications.projects).length > 0) modifiedSectionsList.push('projects');
+
+    if (modifiedSectionsList.length > 0) {
+      firstSection = modifiedSectionsList[0];
+    }
+
+    // Save temporary improved state + metadata for builder highlighting
+    try {
+      localStorage.setItem('rf_ai_improved_resume', JSON.stringify(workingResumeState));
+      localStorage.setItem('rf_ai_improved_meta', JSON.stringify({
+        modifiedSections: modifiedSectionsList,
+        modifiedFields: {
+          summary: appliedModifications.summary,
+          skills: appliedModifications.skills,
+          experience: Object.keys(appliedModifications.experience).length > 0,
+          projects: Object.keys(appliedModifications.projects).length > 0,
+          template: appliedModifications.template
+        }
+      }));
+    } catch (_) {}
+
+    window.location.href = `resume-builder.html?from=ai_improve&section=${firstSection}`;
+  }
+
+  /* ---------------------------------------------------------------------
+     Chat Assistant Event Binding & Streaming Response
+  --------------------------------------------------------------------- */
+  function bindChatEvents() {
+    const sendBtn = document.getElementById('sendBtn');
+    const input = document.getElementById('chatInput');
     const clearBtn = document.getElementById('clearChatBtn');
-    const chips    = document.querySelectorAll('.prompt-chip');
+    const chips = document.querySelectorAll('.prompt-chip');
+
+    if (!sendBtn || !input) return;
 
     sendBtn.addEventListener('click', () => {
       if (isThinking) {
@@ -35,7 +633,6 @@
         const text = input.value.trim();
         if (text) {
           input.value = '';
-          input.style.height = 'auto'; // Reset height after send
           sendMessage(text);
         }
       }
@@ -48,28 +645,30 @@
         const text = input.value.trim();
         if (text) {
           input.value = '';
-          input.style.height = 'auto'; // Reset height after send
           sendMessage(text);
         }
       }
     });
 
-    // Auto-grow textarea height
-    input.addEventListener('input', () => {
-      input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-    });
-
-    clearBtn.addEventListener('click', () => {
-      if (confirm('Clear chat conversation?')) {
-        stopGeneration();
-        conversationHistory = [];
-        const container = document.getElementById('chatMessages');
+    clearBtn?.addEventListener('click', async () => {
+      if (typeof window.confirmModal === 'function') {
+        const ok = await window.confirmModal({
+          title: 'Clear Conversation',
+          message: 'Are you sure you want to clear your current chat history?',
+          confirmText: 'Clear Chat',
+          isDanger: true
+        });
+        if (!ok) return;
+      }
+      stopGeneration();
+      conversationHistory = [];
+      const container = document.getElementById('chatMessages');
+      if (container) {
         container.innerHTML = `
           <div class="msg-row assistant">
             <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
             <div class="msg-bubble">
-              <p>Chat cleared! How can I help you next?</p>
+              <p>Chat cleared! How can I assist with your career and resume optimization?</p>
             </div>
           </div>`;
       }
@@ -79,27 +678,9 @@
       chip.addEventListener('click', () => {
         if (isThinking) return;
         const prompt = chip.getAttribute('data-prompt');
-        if (prompt) {
-          sendMessage(prompt);
-        }
+        if (prompt) sendMessage(prompt);
       });
     });
-  }
-
-  function checkUrlPrompt() {
-    const params = new URLSearchParams(window.location.search);
-    const prompt = params.get('prompt');
-    const score = params.get('score');
-    const rId = params.get('resumeId');
-
-    if (rId) {
-      activeResumeId = parseInt(rId, 10);
-    }
-
-    if (prompt) {
-      const fullText = score ? `${prompt} (Current ATS Score: ${score}/100)` : prompt;
-      setTimeout(() => sendMessage(fullText), 300);
-    }
   }
 
   function stopGeneration() {
@@ -109,58 +690,38 @@
     }
   }
 
-  async function sendMessage(userText, isRegeneration = false) {
-    if (isThinking && !isRegeneration) return;
-    
+  async function sendMessage(userText) {
+    if (isThinking) return;
     const container = document.getElementById('chatMessages');
-    const sendBtn   = document.getElementById('sendBtn');
-    
-    let lastUserMsg = userText;
-    let previousHistory = [...conversationHistory];
+    const sendBtn = document.getElementById('sendBtn');
 
-    if (isRegeneration) {
-      // Find the last user message in history
-      let lastUserMsgIdx = -1;
-      for (let i = conversationHistory.length - 1; i >= 0; i--) {
-        if (conversationHistory[i].role === 'user') {
-          lastUserMsgIdx = i;
-          break;
-        }
-      }
+    // Append user message
+    const userRow = document.createElement('div');
+    userRow.className = 'msg-row user';
+    userRow.innerHTML = `
+      <div class="msg-avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="msg-bubble"><p>${escapeHtml(userText)}</p></div>`;
+    container.appendChild(userRow);
+    conversationHistory.push({ role: 'user', content: userText });
 
-      if (lastUserMsgIdx === -1) return; // Nothing to regenerate
+    // Typing bubble
+    const typingRow = document.createElement('div');
+    typingRow.className = 'msg-row assistant';
+    typingRow.id = 'chatTypingIndicator';
+    typingRow.innerHTML = `
+      <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+      <div class="msg-bubble"><i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...</div>`;
+    container.appendChild(typingRow);
+    container.scrollTop = container.scrollHeight;
 
-      // Remove items starting from the index after the last user message
-      conversationHistory.splice(lastUserMsgIdx + 1);
-
-      // Get user message and history before it
-      lastUserMsg = conversationHistory[lastUserMsgIdx].content;
-      previousHistory = conversationHistory.slice(0, lastUserMsgIdx);
-
-      // Remove the last assistant bubble in DOM
-      const assistantBubbles = container.querySelectorAll('.msg-row.assistant');
-      if (assistantBubbles.length > 1) {
-        // Keep the greeting (index 0), remove the last response
-        assistantBubbles[assistantBubbles.length - 1].remove();
-      }
-    } else {
-      // Render User Message bubble for new inputs
-      appendUserBubble(userText);
-      conversationHistory.push({ role: 'user', content: userText });
-    }
-
-    // Render Typing Indicator
-    const typingId = showTypingIndicator();
     isThinking = true;
-    
-    // Toggle send button to Stop mode
-    sendBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop';
-    sendBtn.classList.add('stop-state');
-    sendBtn.style.background = 'var(--score-low, #ef4444)';
+    if (sendBtn) {
+      sendBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop';
+      sendBtn.style.background = 'var(--score-low, #ef4444)';
+    }
 
     abortController = new AbortController();
     let replyText = '';
-    let assistantBubbleId = null;
 
     try {
       const response = await fetch(`${ApiService.BASE_URL}/ai/chat`, {
@@ -170,336 +731,110 @@
           'Authorization': `Bearer ${ApiService.getToken()}`
         },
         body: JSON.stringify({
-          message: lastUserMsg,
-          conversation: previousHistory,
-          resumeId: activeResumeId || null,
+          message: userText,
+          conversation: conversationHistory.slice(0, -1),
           stream: true
         }),
         signal: abortController.signal
       });
 
-      if (!response.ok) {
-        let errData = {};
-        try { errData = await response.json(); } catch(_) {}
-        throw new Error(errData.error || `Server returned error status ${response.status}`);
-      }
+      typingRow.remove();
 
-      removeTypingIndicator(typingId);
+      const assistantRow = document.createElement('div');
+      assistantRow.className = 'msg-row assistant';
+      assistantRow.innerHTML = `
+        <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="msg-bubble"><p id="liveAssistantText"></p></div>`;
+      container.appendChild(assistantRow);
+      const textEl = assistantRow.querySelector('#liveAssistantText');
+
+      if (!response.ok) {
+        const errJson = await response.json();
+        throw new Error(errJson.error || 'Failed to connect to AI service.');
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
-      let done = false;
       let buffer = '';
 
-      while (!done) {
-        const { value, done: readerDone } = await reader.read();
-        done = readerDone;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-        if (value) {
-          const chunkStr = decoder.decode(value, { stream: !done });
-          buffer += chunkStr;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
 
-          const lines = buffer.split('\n');
-          buffer = lines.pop(); // Keep incomplete line in buffer
-
-          for (const line of lines) {
-            const cleanLine = line.trim();
-            if (cleanLine.startsWith('data: ')) {
-              const dataContent = cleanLine.slice(6).trim();
-              if (dataContent === '[DONE]') {
-                done = true;
-                break;
+        for (const line of lines) {
+          const clean = line.trim();
+          if (clean.startsWith('data: ')) {
+            const dataStr = clean.slice(6).trim();
+            if (dataStr === '[DONE]') break;
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.text) {
+                replyText += parsed.text;
+                textEl.innerHTML = formatMarkdown(replyText);
+                container.scrollTop = container.scrollHeight;
               }
-              try {
-                const parsed = JSON.parse(dataContent);
-                if (parsed.text) {
-                  replyText += parsed.text;
-
-                  if (!assistantBubbleId) {
-                    assistantBubbleId = appendEmptyAssistantBubble();
-                  }
-                  updateAssistantBubble(assistantBubbleId, replyText);
-                } else if (parsed.error) {
-                  throw new Error(parsed.error);
-                }
-              } catch (e) {
-                // Ignore chunk parse errors
-              }
-            }
+            } catch (_) {}
           }
         }
-      }
-
-      if (!assistantBubbleId && replyText) {
-        assistantBubbleId = appendEmptyAssistantBubble();
-        updateAssistantBubble(assistantBubbleId, replyText);
       }
 
       if (replyText) {
         conversationHistory.push({ role: 'assistant', content: replyText });
-        finalizeAssistantBubble(assistantBubbleId, replyText);
       }
-
     } catch (err) {
-      removeTypingIndicator(typingId);
-
-      if (err.name === 'AbortError') {
-        if (replyText) {
-          const finishedText = replyText + '\n\n*(Generation stopped by user)*';
-          if (!assistantBubbleId) {
-            assistantBubbleId = appendEmptyAssistantBubble();
-          }
-          updateAssistantBubble(assistantBubbleId, finishedText);
-          conversationHistory.push({ role: 'assistant', content: replyText });
-          finalizeAssistantBubble(assistantBubbleId, replyText);
-        } else {
-          const stopBubbleId = appendEmptyAssistantBubble();
-          updateAssistantBubble(stopBubbleId, '*(Generation stopped)*');
-          conversationHistory.push({ role: 'assistant', content: '(Generation stopped)' });
-          finalizeAssistantBubble(stopBubbleId, '(Generation stopped)');
-        }
-      } else {
-        const errorMsg = err.message || 'Sorry, I couldn\'t connect to the AI service right now. Please try again.';
-        appendErrorBubble(errorMsg, lastUserMsg);
+      if (document.getElementById('chatTypingIndicator')) {
+        document.getElementById('chatTypingIndicator').remove();
+      }
+      if (err.name !== 'AbortError') {
+        const errRow = document.createElement('div');
+        errRow.className = 'msg-row assistant';
+        errRow.innerHTML = `
+          <div class="msg-avatar" style="background:var(--score-low);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="msg-bubble" style="border-left:3px solid var(--score-low); color:var(--score-low);">
+            <p>${escapeHtml(err.message || 'AI service is temporarily unavailable.')}</p>
+          </div>`;
+        container.appendChild(errRow);
       }
     } finally {
       isThinking = false;
-      sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send';
-      sendBtn.classList.remove('stop-state');
-      sendBtn.style.background = ''; // restore original background
-      abortController = null;
-      scrollToBottom();
-    }
-  }
-
-  function appendUserBubble(text) {
-    const container = document.getElementById('chatMessages');
-    const row = document.createElement('div');
-    row.className = 'msg-row user';
-    row.innerHTML = `
-      <div class="msg-avatar"><i class="fa-solid fa-user"></i></div>
-      <div class="msg-bubble">
-        <p>${escapeHtml(text)}</p>
-      </div>`;
-    container.appendChild(row);
-    scrollToBottom();
-  }
-
-  function appendEmptyAssistantBubble() {
-    const container = document.getElementById('chatMessages');
-    const id = 'assistant_msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
-    const row = document.createElement('div');
-    row.className = 'msg-row assistant';
-    row.id = id;
-    row.innerHTML = `
-      <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
-      <div class="msg-bubble">
-        <div class="msg-content"></div>
-      </div>`;
-    container.appendChild(row);
-    scrollToBottom();
-    return id;
-  }
-
-  function updateAssistantBubble(id, rawMarkdown) {
-    const row = document.getElementById(id);
-    if (row) {
-      const contentDiv = row.querySelector('.msg-content');
-      if (contentDiv) {
-        contentDiv.innerHTML = formatMarkdown(rawMarkdown);
+      if (sendBtn) {
+        sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send';
+        sendBtn.style.background = '';
       }
-    }
-  }
-
-  function finalizeAssistantBubble(id, rawMarkdown) {
-    const row = document.getElementById(id);
-    if (!row) return;
-    const bubble = row.querySelector('.msg-bubble');
-    if (!bubble) return;
-
-    if (bubble.querySelector('.msg-actions')) return;
-
-    const actions = document.createElement('div');
-    actions.className = 'msg-actions';
-    actions.style.cssText = 'margin-top:8px; text-align:right; display:flex; gap:8px; justify-content:flex-end;';
-    actions.innerHTML = `
-      <button type="button" class="btn btn-sm btn-ghost copy-msg-btn" style="font-size:11px; padding:3px 8px; color:var(--ink-500); border:1px solid var(--line); border-radius:4px; background:white; cursor:pointer;"><i class="fa-regular fa-copy"></i> Copy</button>
-      <button type="button" class="btn btn-sm btn-ghost regenerate-msg-btn" style="font-size:11px; padding:3px 8px; color:var(--ink-500); border:1px solid var(--line); border-radius:4px; background:white; cursor:pointer;"><i class="fa-solid fa-rotate-right"></i> Regenerate</button>
-    `;
-    bubble.appendChild(actions);
-
-    const copyBtn = actions.querySelector('.copy-msg-btn');
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(rawMarkdown).then(() => {
-        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
-        setTimeout(() => { copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy'; }, 2000);
-      }).catch(() => {});
-    });
-
-    const regenBtn = actions.querySelector('.regenerate-msg-btn');
-    regenBtn.addEventListener('click', () => {
-      sendMessage('', true);
-    });
-  }
-
-  function appendErrorBubble(errorMsg, originalPrompt) {
-    const container = document.getElementById('chatMessages');
-    const row = document.createElement('div');
-    row.className = 'msg-row assistant';
-    row.innerHTML = `
-      <div class="msg-avatar" style="background:var(--score-low, #ef4444); color:white;"><i class="fa-solid fa-circle-exclamation"></i></div>
-      <div class="msg-bubble" style="border-color:var(--score-low, #ef4444)">
-        <p style="color:var(--score-low, #ef4444); font-weight:600;"><i class="fa-solid fa-plug-circle-xmark"></i> ${escapeHtml(errorMsg)}</p>
-        <button type="button" class="btn btn-sm btn-ghost retry-btn" style="margin-top:6px; font-size:12px; border:1px solid var(--line); border-radius:4px; padding:4px 8px; cursor:pointer;"><i class="fa-solid fa-rotate-right"></i> Retry request</button>
-      </div>`;
-
-    container.appendChild(row);
-    const retryBtn = row.querySelector('.retry-btn');
-    if (retryBtn) {
-      retryBtn.addEventListener('click', () => {
-        row.remove();
-        sendMessage(originalPrompt);
-      });
-    }
-    scrollToBottom();
-  }
-
-  function showTypingIndicator() {
-    const container = document.getElementById('chatMessages');
-    const id = 'typing_' + Date.now();
-    const row = document.createElement('div');
-    row.className = 'msg-row assistant';
-    row.id = id;
-    row.innerHTML = `
-      <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
-      <div class="typing-indicator">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>`;
-    container.appendChild(row);
-    scrollToBottom();
-    return id;
-  }
-
-  function removeTypingIndicator(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-  }
-
-  function scrollToBottom() {
-    const container = document.getElementById('chatMessages');
-    if (container) {
+      abortController = null;
       container.scrollTop = container.scrollHeight;
+    }
+  }
+
+  function checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    if (action === 'chat') {
+      document.getElementById('tabChatBtn')?.click();
     }
   }
 
   function formatMarkdown(text) {
     if (!text) return '';
-    
-    // 1. Handle code blocks: ```lang ... ```
-    const codeBlocks = [];
-    let formatted = text.replace(/```([\s\S]*?)```/g, (match, code) => {
-      const firstNewline = code.indexOf('\n');
-      let lang = 'code';
-      let codeContent = code;
-      if (firstNewline !== -1) {
-        const possibleLang = code.slice(0, firstNewline).trim();
-        if (possibleLang && possibleLang.length < 15) {
-          lang = possibleLang;
-          codeContent = code.slice(firstNewline + 1);
-        }
-      }
-      const token = `__CODE_BLOCK_PLACEHOLDER_${codeBlocks.length}__`;
-      codeBlocks.push(`<pre><code class="language-${escapeHtml(lang)}">${escapeHtml(codeContent.trim())}</code></pre>`);
-      return token;
-    });
-
-    // 2. Escape HTML to prevent injection (keeps placeholders intact)
-    formatted = escapeHtml(formatted);
-
-    // 3. Restore code blocks
-    codeBlocks.forEach((htmlCode, index) => {
-      const token = `__CODE_BLOCK_PLACEHOLDER_${index}__`;
-      formatted = formatted.replace(token, htmlCode);
-    });
-
-    // 4. Handle Inline code: `code`
-    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-    // 5. Handle Bold: **text**
-    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-    // 6. Handle Italic: *text* or _text_
-    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    formatted = formatted.replace(/_([^_]+)_/g, '<em>$1</em>');
-
-    // 7. Handle Headers: ### Title, ## Title, # Title
-    formatted = formatted.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-    formatted = formatted.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    formatted = formatted.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-    // 8. Handle Lists (ordered and unordered)
-    const lines = formatted.split('\n');
-    let inUl = false;
-    let inOl = false;
-    const result = [];
-
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      
-      const ulMatch = line.match(/^([*\-+])\s+(.*)$/);
-      const olMatch = line.match(/^(\d+)\.\s+(.*)$/);
-
-      if (ulMatch) {
-        if (inOl) {
-          result.push('</ol>');
-          inOl = false;
-        }
-        if (!inUl) {
-          result.push('<ul style="margin: 8px 0 8px 20px; padding-left:0;">');
-          inUl = true;
-        }
-        result.push(`<li style="margin-bottom: 4px;">${ulMatch[2]}</li>`);
-      } else if (olMatch) {
-        if (inUl) {
-          result.push('</ul>');
-          inUl = false;
-        }
-        if (!inOl) {
-          result.push('<ol style="margin: 8px 0 8px 20px; padding-left:0;">');
-          inOl = true;
-        }
-        result.push(`<li style="margin-bottom: 4px;">${olMatch[2]}</li>`);
-      } else {
-        if (inUl) {
-          result.push('</ul>');
-          inUl = false;
-        }
-        if (inOl) {
-          result.push('</ol>');
-          inOl = false;
-        }
-        
-        if (trimmed) {
-          if (/^<h[1-6]|<pre|<ul|<ol|<li|<code/.test(trimmed)) {
-            result.push(line);
-          } else {
-            result.push(`<p style="margin-bottom: 8px;">${line}</p>`);
-          }
-        }
-      }
-    });
-
-    if (inUl) result.push('</ul>');
-    if (inOl) result.push('</ol>');
-
-    return result.join('\n');
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br/>');
   }
 
   function escapeHtml(str) {
+    if (!str) return '';
     const div = document.createElement('div');
-    div.textContent = str ?? '';
+    div.textContent = str;
     return div.innerHTML;
   }
 })();

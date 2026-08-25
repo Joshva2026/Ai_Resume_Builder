@@ -20,6 +20,7 @@ const crypto = require('crypto');
 const multer = require('multer');
 const aiService = require('./ai-service');
 const atsEngine = require('./ats-engine');
+const puppeteer = require('puppeteer');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
@@ -1914,6 +1915,76 @@ app.post('/api/ai/action-verbs', authenticateToken, async (req, res) => {
   }
 });
 
+// ==========================================
+// STRUCTURED RESUME ANALYSIS & IMPROVEMENT
+// ==========================================
+
+app.post('/api/ai/analyze-resume', optionalAuthenticateToken, upload.single('resume'), async (req, res) => {
+  let tempPath = req.file ? req.file.path : null;
+
+  try {
+    let rawText = '';
+    let existingContent = null;
+    const { resumeId, resumeText, jobDescription } = req.body || {};
+
+    if (req.file) {
+      const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
+      const ext = (req.file.originalname.split('.').pop() || '').toLowerCase();
+      if (!validExtensions.includes(ext)) {
+        return res.status(400).json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are supported.' });
+      }
+
+      if (!validateFileSignature(tempPath, ext)) {
+        return res.status(400).json({ error: 'Uploaded file contents do not match the expected file signature.' });
+      }
+
+      rawText = await atsEngine.extractText(tempPath, req.file.mimetype, req.file.originalname);
+    } else if (resumeId && req.user && req.user.id) {
+      const connection = await pool.getConnection();
+      const [resumes] = await connection.query(
+        'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
+        [resumeId, req.user.id]
+      );
+      connection.release();
+
+      if (resumes.length === 0) {
+        return res.status(404).json({ error: 'Resume not found' });
+      }
+
+      const r = resumes[0];
+      existingContent = safeJsonParse(r.content, null);
+      rawText = r.raw_text || (existingContent ? aiService.getResumeContext(existingContent) : '');
+    } else if (resumeText) {
+      rawText = resumeText;
+    } else if (req.body && req.body.content) {
+      existingContent = safeJsonParse(req.body.content, req.body.content);
+      rawText = aiService.getResumeContext(existingContent);
+    } else {
+      return res.status(400).json({ error: 'Please upload a resume file (PDF, DOCX, TXT) or provide resume content to analyze.' });
+    }
+
+    if (!rawText && !existingContent) {
+      return res.status(400).json({ error: 'Could not extract readable text from the provided resume.' });
+    }
+
+    const result = await aiService.parseAndImproveResume(rawText, existingContent, jobDescription || '');
+    res.json({
+      success: true,
+      message: 'Resume analysis and improvement plan ready',
+      ...result
+    });
+  } catch (error) {
+    console.error('Analyze resume error:', error);
+    res.status(500).json({ error: error.message || 'Unable to analyze this resume. Please try again.' });
+  } finally {
+    if (tempPath) {
+      try {
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      } catch (_) {}
+    }
+  }
+});
+
 
 
 // ==========================================
@@ -1968,7 +2039,7 @@ app.get('/api/templates/:id', async (req, res) => {
 // DOWNLOAD ROUTES
 // ==========================================
 
-const puppeteer = require('puppeteer');
+
 
 // Concurrency queue for PDF rendering to avoid RAM exhaustion
 let activePdfJobs = 0;
@@ -2012,7 +2083,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     connection = await pool.getConnection();
 
     const [resumes] = await connection.query(
-      'SELECT content FROM resumes WHERE id = ? AND user_id = ?',
+      'SELECT content, title FROM resumes WHERE id = ? AND user_id = ?',
       [resumeId, req.user.id]
     );
 
@@ -2023,33 +2094,39 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     }
 
     const rawContent = resumes[0].content;
+    const resumeTitle = (resumes[0].title || 'Resume').replace(/[^a-z0-9_\-\s]/gi, '').trim() || 'Resume';
     const resumeContent = safeJsonParse(rawContent, typeof rawContent === 'object' ? rawContent : {});
 
     const templateGenerator = require('./resume-pdf-template');
     const theme = resumeContent.styling?.template || 'modern';
     const htmlContent = templateGenerator.generateResumeHtml(resumeContent, theme);
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    // Log download record before generating PDF
+    await connection.query(
+      'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',
+      [resumeId, 'pdf', `inline-stream-${Date.now()}`]
+    );
+    connection.release();
+    connection = null;
 
-    const fileName = `resume-${resumeId}-${Date.now()}.pdf`;
-    const filePath = path.join(uploadsDir, fileName);
-    const fileUrl = `/uploads/${fileName}`;
-
+    // Stream the PDF directly to the response — no disk I/O needed
+    let pdfBuffer;
     await runPdfTask(async () => {
       let browser;
       try {
         browser = await puppeteer.launch({
           headless: 'new',
-          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--single-process'
+          ]
         });
         const page = await browser.newPage();
         await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
-        await page.pdf({
-          path: filePath,
+        pdfBuffer = await page.pdf({
           format: 'A4',
           printBackground: true,
           margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
@@ -2062,21 +2139,22 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       }
     });
 
-    await connection.query(
-      'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',
-      [resumeId, 'pdf', fileUrl]
-    );
-
-    connection.release();
-    connection = null;
-
-    res.json({ message: 'PDF generated', downloadUrl: fileUrl, url: fileUrl });
+    const safeFileName = `${resumeTitle.replace(/\s+/g, '_')}.pdf`;
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${safeFileName}"`,
+      'Content-Length': pdfBuffer.length,
+      'Cache-Control': 'no-cache'
+    });
+    res.end(pdfBuffer);
   } catch (error) {
     if (connection) {
       try { connection.release(); } catch (_) {}
     }
     console.error('PDF download error:', error);
-    res.status(500).json({ error: 'PDF generation failed. Please try again.' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'PDF generation failed. Please try again.' });
+    }
   }
 });
 

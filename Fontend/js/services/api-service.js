@@ -316,7 +316,45 @@ const ApiService = (() => {
 
   // ── DOWNLOADS ─────────────────────────────────────────────────────────
   const downloads = {
-    pdf: (resumeId) => request('/download/pdf', { method: 'POST', body: { resumeId } }),
+    pdf: async (resumeId) => {
+      const token = getToken();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      let res;
+      try {
+        res = await fetch(`${BASE_URL}/download/pdf`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ resumeId })
+        });
+      } catch (err) {
+        throw new ApiError('Unable to connect to the server for PDF generation. Please try again.', 0);
+      }
+
+      if (!res.ok) {
+        let errData = null;
+        try { errData = await res.json(); } catch (_) {}
+        throw new ApiError(errData?.error || `PDF generation failed (${res.status})`, res.status, errData);
+      }
+
+      // Backend streams the PDF binary directly
+      const blob = await res.blob();
+      const contentDisposition = res.headers.get('content-disposition') || '';
+      const match = contentDisposition.match(/filename="?([^"]+)"?/);
+      const fileName = match ? match[1] : 'Resume.pdf';
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+      return { success: true, fileName };
+    },
     docx: (resumeId) => request('/download/docx', { method: 'POST', body: { resumeId } }),
     history: () => request('/download/history'),
   };

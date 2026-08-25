@@ -183,7 +183,7 @@ jest.mock('puppeteer', () => {
     launch: jest.fn().mockResolvedValue({
       newPage: jest.fn().mockResolvedValue({
         setContent: jest.fn().mockResolvedValue(null),
-        pdf: jest.fn().mockResolvedValue(null),
+        pdf: jest.fn().mockResolvedValue(Buffer.from('%PDF-1.4 fake pdf content for test')),
         close: jest.fn().mockResolvedValue(null)
       }),
       close: jest.fn().mockResolvedValue(null)
@@ -362,14 +362,15 @@ describe('ResumeForge Comprehensive Production Verification Suite', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test('13. POST /api/download/pdf handles concurrency and returns download URL', async () => {
+  test('13. POST /api/download/pdf streams binary PDF directly to client', async () => {
     const res = await request(app)
       .post('/api/download/pdf')
       .set('Authorization', `Bearer ${authToken}`)
       .send({ resumeId: 1 });
 
     expect(res.status).toBe(200);
-    expect(res.body.downloadUrl).toContain('.pdf');
+    expect(res.headers['content-type']).toMatch(/application\/pdf/);
+    expect(res.headers['content-disposition']).toMatch(/attachment.*\.pdf/);
   });
 
   test('14. File Upload rejects files with fake or invalid magic byte headers', async () => {
@@ -396,4 +397,59 @@ describe('ResumeForge Comprehensive Production Verification Suite', () => {
     expect(res.status).toBe(200);
     expect(res.body.message).toBe('Logout successful');
   });
+
+  test('16. POST /api/ai/analyze-resume returns structured resume, template recommendation, and section improvements', async () => {
+    const sampleResumeText = `
+      Jane Doe
+      Senior Full Stack Engineer
+      jane.doe@example.com | (555) 123-4567 | San Francisco, CA
+      https://linkedin.com/in/janedoe | https://github.com/janedoe
+
+      SUMMARY
+      Experienced software engineer building scalable web platforms with React, Node.js, and SQL.
+
+      EXPERIENCE
+      Tech Innovators Inc. - Senior Developer (2021-Present)
+      - Developed high throughput microservices handling 50k requests per minute.
+      - Led front-end migration to React and TypeScript.
+
+      EDUCATION
+      University of California, Berkeley - B.S. in Computer Science (2017-2021)
+
+      SKILLS
+      JavaScript, TypeScript, React, Node.js, Express, SQL, Git
+    `;
+
+    const res = await request(app)
+      .post('/api/ai/analyze-resume')
+      .send({
+        resumeText: sampleResumeText,
+        jobDescription: 'Looking for a Senior React Node Developer with Docker and AWS experience.'
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.structuredResume).toBeTruthy();
+    expect(res.body.structuredResume.personal.email).toBe('jane.doe@example.com');
+    expect(res.body.analysis.atsScore).toBeGreaterThan(0);
+    expect(res.body.analysis.sectionsDetected).toContain('Summary');
+    expect(res.body.templateRecommendation.name).toBeTruthy();
+    expect(res.body.improvements.summary.improved).toBeTruthy();
+    expect(res.body.improvements.skills.add.length).toBeGreaterThan(0);
+  });
+
+  test('17. POST /api/ai/analyze-resume does NOT save to resumes table (No autosave)', async () => {
+    const resumesCountBefore = mockResumes.length;
+    const res = await request(app)
+      .post('/api/ai/analyze-resume')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        resumeText: 'Test User\ntest@example.com\nSUMMARY\nTest summary\nSKILLS\nJavaScript',
+        jobDescription: 'Frontend Dev'
+      });
+
+    expect(res.status).toBe(200);
+    expect(mockResumes.length).toBe(resumesCountBefore);
+  });
 });
+

@@ -577,24 +577,21 @@ async function loadDashboard() {
 async function duplicateResume(id) {
   try {
     await ApiService.resumes.duplicate(id);
+    if (typeof window.showToast === 'function') window.showToast('Resume duplicated successfully!', 'success');
     loadDashboard();
   } catch (err) {
-    alert('Failed to duplicate resume: ' + err.message);
+    if (typeof window.showToast === 'function') window.showToast('Failed to duplicate resume: ' + err.message, 'error');
   }
 }
 
 // Download PDF trigger
 async function downloadPdf(id) {
   try {
-    const res = await ApiService.downloads.pdf(id);
-    const url = res.downloadUrl || res.url;
-    if (url) {
-      window.open(url, '_blank');
-    } else {
-      alert('PDF is being generated. Please wait.');
-    }
+    if (typeof window.showToast === 'function') window.showToast('Generating PDF — this may take a moment...', 'info');
+    await ApiService.downloads.pdf(id);
+    if (typeof window.showToast === 'function') window.showToast('PDF downloaded successfully!', 'success');
   } catch (err) {
-    alert('Failed to generate PDF: ' + err.message);
+    if (typeof window.showToast === 'function') window.showToast('Failed to generate PDF: ' + err.message, 'error');
   }
 }
 
@@ -602,46 +599,49 @@ async function downloadPdf(id) {
 async function viewVersions(id) {
   try {
     const versions = await ApiService.resumes.getVersions(id);
-    if (versions.length === 0) {
-      alert('No saved versions found for this resume. Version checkpoints are created automatically upon restores.');
+    if (!versions || versions.length === 0) {
+      if (typeof window.showToast === 'function') window.showToast('No saved versions found for this resume. Version checkpoints are created automatically upon restoring.', 'info');
       return;
     }
     
-    const versionList = versions.map(v => 
-      `Version ${v.version_number} - Saved on ${new Date(v.created_at).toLocaleString()}`
-    ).join('\n');
-    
-    const choice = prompt(
-      `Versions found for this resume:\n\n${versionList}\n\nEnter a Version Number to restore (e.g. 1):`
-    );
-    
-    if (choice) {
-      const verNo = parseInt(choice);
-      const targetVersion = versions.find(v => v.version_number === verNo);
-      if (!targetVersion) {
-        alert('Invalid version number selected.');
-        return;
-      }
-      if (confirm(`Are you sure you want to restore Version ${verNo}? Your current resume state will be safely saved as a new version checkpoint.`)) {
-        const restoreRes = await ApiService.resumes.restoreVersion(id, targetVersion.id);
-        alert(restoreRes.message);
-        window.location.reload();
+    const latestVersion = versions[0];
+    if (typeof window.confirmModal === 'function') {
+      const ok = await window.confirmModal({
+        title: `Restore Version ${latestVersion.version_number}?`,
+        message: `Would you like to restore Version ${latestVersion.version_number} (saved on ${new Date(latestVersion.created_at).toLocaleString()})? Your current resume state will be archived as a new version checkpoint.`,
+        confirmText: 'Restore Version',
+        cancelText: 'Cancel'
+      });
+      
+      if (ok) {
+        const restoreRes = await ApiService.resumes.restoreVersion(id, latestVersion.id);
+        if (typeof window.showToast === 'function') window.showToast(restoreRes.message || 'Version restored successfully!', 'success');
+        setTimeout(() => window.location.reload(), 600);
       }
     }
   } catch (err) {
-    alert('Failed to fetch versions: ' + err.message);
+    if (typeof window.showToast === 'function') window.showToast('Failed to fetch versions: ' + err.message, 'error');
   }
 }
 
 // Delete resume
 async function deleteResume(id) {
-  if (confirm('Are you sure you want to delete this resume? This action is irreversible.')) {
-    try {
-      await ApiService.resumes.remove(id);
-      loadDashboard();
-    } catch (err) {
-      alert('Delete failed: ' + err.message);
-    }
+  if (typeof window.confirmModal === 'function') {
+    const ok = await window.confirmModal({
+      title: 'Delete Resume?',
+      message: 'Are you sure you want to delete this resume? This action is irreversible.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      isDanger: true
+    });
+    if (!ok) return;
+  }
+  try {
+    await ApiService.resumes.remove(id);
+    if (typeof window.showToast === 'function') window.showToast('Resume deleted successfully.', 'success');
+    loadDashboard();
+  } catch (err) {
+    if (typeof window.showToast === 'function') window.showToast('Delete failed: ' + err.message, 'error');
   }
 }
 

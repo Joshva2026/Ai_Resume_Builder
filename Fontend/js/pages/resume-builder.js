@@ -48,13 +48,29 @@
     bindStylingControls();
     bindExperienceTier();
 
-    if (resumeId) {
+    const fromAi = urlParams.get('from') === 'ai_improve';
+    const aiDraftStr = localStorage.getItem('rf_ai_improved_resume');
+
+    if (fromAi && aiDraftStr) {
+      try {
+        const aiDraft = JSON.parse(aiDraftStr);
+        state = { ...state, ...aiDraft };
+        if (resumeId) currentResumeId = resumeId;
+        populateStateAndUI(state);
+        highlightAiModifiedFields();
+        if (typeof window.showToast === 'function') {
+          window.showToast('AI improvements loaded! Review your fields and click Save Resume when ready.', 'success');
+        }
+      } catch (e) {
+        console.warn('Error loading AI improved draft:', e);
+      }
+    } else if (resumeId) {
       loadExistingResume(resumeId);
     } else {
       const draft = loadDraftFromLocalStorage();
-      if (draft && confirm('Restore unsaved draft?')) {
+      if (draft) {
         state = draft;
-        renderPreview();
+        populateStateAndUI(state);
       } else {
         addExperienceBlock();
         addEducationBlock();
@@ -65,6 +81,12 @@
     renderSectionRail();
     updateExperienceTierUI();
     setupAiSuggestionsDrawer();
+
+    // Auto-navigate to requested section
+    const targetSec = urlParams.get('section');
+    if (targetSec) {
+      setTimeout(() => navigateToSection(targetSec), 100);
+    }
 
     // Apply template from query parameter if provided
     const tplParam = urlParams.get('template');
@@ -84,9 +106,59 @@
       state.styling.template = tplName;
       saveDraftToLocalStorage();
       renderPreview();
-      // Re-sync selector
       const sel = document.getElementById('selTemplate');
       if (sel) sel.value = tplName;
+    }
+  }
+
+  function navigateToSection(secName) {
+    const item = document.querySelector(`.rail-item[data-section="${secName}"]`);
+    if (item) item.click();
+  }
+
+  function highlightAiModifiedFields() {
+    const metaStr = localStorage.getItem('rf_ai_improved_meta');
+    if (!metaStr) return;
+    try {
+      const meta = JSON.parse(metaStr);
+      const modifiedFields = meta.modifiedFields || {};
+
+      if (modifiedFields.summary) {
+        addAiBadgeToField('f_summary');
+      }
+      if (modifiedFields.skills) {
+        addAiBadgeToField('f_skills');
+      }
+      if (modifiedFields.experience) {
+        document.querySelectorAll('#experienceBlocks .repeat-block').forEach(b => addAiBadgeToBlock(b));
+      }
+      if (modifiedFields.projects) {
+        document.querySelectorAll('#projectBlocks .repeat-block').forEach(b => addAiBadgeToBlock(b));
+      }
+    } catch (_) {}
+  }
+
+  function addAiBadgeToField(fieldId) {
+    const input = document.getElementById(fieldId);
+    if (!input) return;
+    input.classList.add('ai-improved-field-highlight');
+    const label = input.closest('.field')?.querySelector('label');
+    if (label && !label.querySelector('.ai-improved-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'ai-improved-badge';
+      badge.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Improved';
+      label.appendChild(badge);
+    }
+  }
+
+  function addAiBadgeToBlock(block) {
+    block.classList.add('ai-improved-field-highlight');
+    const label = block.querySelector('.field label');
+    if (label && !label.querySelector('.ai-improved-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'ai-improved-badge';
+      badge.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Improved';
+      label.appendChild(badge);
     }
   }
 
@@ -103,23 +175,14 @@
     saveDraftToLocalStorage();
   }
 function undo() {
-  if (stateHistory.length === 0) return alert('Nothing to undo');
+  if (stateHistory.length === 0) {
+    if (typeof window.showToast === 'function') window.showToast('Nothing to undo', 'info');
+    return;
+  }
   state = stateHistory.pop();
-  renderPreview();
-  // Re-sync fields for simple inputs
-  document.getElementById('f_fullName').value = state.personal.fullName || '';
-  document.getElementById('f_headline').value = state.personal.headline || '';
-  document.getElementById('f_email').value = state.personal.email || '';
-  document.getElementById('f_phone').value = state.personal.phone || '';
-  document.getElementById('f_location').value = state.personal.location || '';
-  document.getElementById('f_link').value = state.personal.link || '';
-  const ghEl = document.getElementById('f_github');
-  if (ghEl) ghEl.value = state.personal.github || '';
-  document.getElementById('f_summary').value = state.summary || '';
-  document.getElementById('f_skills').value = state.skills || '';
-  document.getElementById('f_certs').value = state.certifications || '';
-  // Note: repeat blocks not fully restored here for brevity.
+  populateStateAndUI(state);
 }
+
 function bindUndo() {
   const btn = document.getElementById('btnUndo');
   btn && btn.addEventListener('click', undo);
@@ -428,12 +491,13 @@ function bindUndo() {
       btn.addEventListener('click', async () => {
         const textarea = document.getElementById('f_summary');
         await withLoading(btn, async () => {
-          const { suggestion } = await ApiService.ai.summary(textarea.value);
-          const enhanced = suggestion || textarea.value;
+          const result = await ApiService.ai.summary(textarea.value);
+          // Backend returns { enhanced } (not { suggestion })
+          const enhanced = result.enhanced || result.suggestion || textarea.value;
           textarea.value = enhanced;
           state.summary = enhanced;
           renderPreview();
-          scheduleSave();
+          // scheduleSave removed — autosave is disabled; use Save Resume button
         });
       });
     });
@@ -448,7 +512,7 @@ function bindUndo() {
           textarea.value = merged;
           state.skills = merged;
           renderPreview();
-          scheduleSave();
+          // scheduleSave removed — autosave is disabled; use Save Resume button
         });
       });
     });
@@ -473,7 +537,9 @@ function bindUndo() {
     try {
       await fn();
     } catch (err) {
-      alert(err.message || 'AI request failed. Is the backend running?');
+      if (typeof window.showToast === 'function') {
+        window.showToast(err.message || 'AI request failed. Is the backend running?', 'error');
+      }
     } finally {
       btn.disabled = false;
       btn.innerHTML = original;
@@ -875,65 +941,63 @@ function loadDraftFromLocalStorage() {
     }
   }
 
+  function populateStateAndUI(targetState) {
+    state = { ...state, ...targetState };
+
+    const p = state.personal || {};
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    setVal('f_fullName', p.fullName);
+    setVal('f_headline', p.headline);
+    setVal('f_email', p.email);
+    setVal('f_phone', p.phone);
+    setVal('f_location', p.location);
+    setVal('f_link', p.link);
+    setVal('f_github', p.github);
+    setVal('f_summary', state.summary);
+    setVal('f_skills', state.skills);
+    setVal('f_certs', state.certifications);
+
+    if (state.styling) {
+      setVal('selTemplate', state.styling.template || 'modern');
+      setVal('selFont', state.styling.font || 'sans');
+      setVal('rngSpacing', state.styling.spacing || 1.4);
+      
+      document.querySelectorAll('.accent-dot').forEach(dot => {
+        if (dot.dataset.color === state.styling.accent) {
+          document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+          dot.classList.add('active');
+        }
+      });
+    }
+
+    const clearAndPopulate = (containerId, items, addFn) => {
+      const el = document.getElementById(containerId);
+      if (el) el.innerHTML = '';
+      const copy = [...(items || [])];
+      items.length = 0;
+      copy.forEach(item => addFn(item));
+    };
+
+    clearAndPopulate('experienceBlocks', state.experience, addExperienceBlock);
+    clearAndPopulate('educationBlocks', state.education, addEducationBlock);
+    clearAndPopulate('projectBlocks', state.projects, addProjectBlock);
+    clearAndPopulate('languageBlocks', state.languages, addLanguageBlock);
+    clearAndPopulate('volunteerBlocks', state.volunteer, addVolunteerBlock);
+    clearAndPopulate('awardBlocks', state.awards, addAwardBlock);
+    clearAndPopulate('publicationBlocks', state.publications, addPublicationBlock);
+
+    renderPreview();
+    renderSectionRail();
+    updateExperienceTierUI();
+  }
+
   async function loadExistingResume(id) {
     try {
       const resume = await ApiService.resumes.get(id);
-      document.getElementById('resumeTitle').value = resume.title;
-      state = { ...state, ...resume.content };
+      const titleEl = document.getElementById('resumeTitle');
+      if (titleEl) titleEl.value = resume.title || 'Untitled Resume';
       currentResumeId = id;
-
-      // Repopulate fields
-      document.getElementById('f_fullName').value = state.personal.fullName || '';
-      document.getElementById('f_headline').value = state.personal.headline || '';
-      document.getElementById('f_email').value = state.personal.email || '';
-      document.getElementById('f_phone').value = state.personal.phone || '';
-      document.getElementById('f_location').value = state.personal.location || '';
-      document.getElementById('f_link').value = state.personal.link || '';
-      const ghLoadEl = document.getElementById('f_github');
-      if (ghLoadEl) ghLoadEl.value = state.personal.github || '';
-      document.getElementById('f_summary').value = state.summary || '';
-      document.getElementById('f_skills').value = state.skills || '';
-      document.getElementById('f_certs').value = state.certifications || '';
-
-      // Repopulate style selections
-      if (state.styling) {
-        document.getElementById('selTemplate').value = state.styling.template || 'modern';
-        document.getElementById('selFont').value = state.styling.font || 'sans';
-        document.getElementById('rngSpacing').value = state.styling.spacing || 1.4;
-        
-        document.querySelectorAll('.accent-dot').forEach(dot => {
-          if (dot.dataset.color === state.styling.accent) {
-            document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
-            dot.classList.add('active');
-          }
-        });
-      }
-
-      document.getElementById('experienceBlocks').innerHTML = '';
-      document.getElementById('educationBlocks').innerHTML = '';
-      document.getElementById('projectBlocks').innerHTML = '';
-      document.getElementById('languageBlocks').innerHTML = '';
-      document.getElementById('volunteerBlocks').innerHTML = '';
-      document.getElementById('awardBlocks').innerHTML = '';
-      document.getElementById('publicationBlocks').innerHTML = '';
-      const exp = [...state.experience]; state.experience = [];
-      exp.forEach((e) => addExperienceBlock(e));
-      const edu = [...state.education]; state.education = [];
-      edu.forEach((e) => addEducationBlock(e));
-      const proj = [...state.projects]; state.projects = [];
-      proj.forEach((e) => addProjectBlock(e));
-      const lang = [...(state.languages||[])]; state.languages = [];
-      lang.forEach((e) => addLanguageBlock(e));
-      const vol = [...(state.volunteer||[])]; state.volunteer = [];
-      vol.forEach((e) => addVolunteerBlock(e));
-      const awd = [...(state.awards||[])]; state.awards = [];
-      awd.forEach((e) => addAwardBlock(e));
-      const pub = [...(state.publications||[])]; state.publications = [];
-      pub.forEach((e) => addPublicationBlock(e));
-
-      renderPreview();
-      renderSectionRail();
-      updateExperienceTierUI();
+      populateStateAndUI(resume.content || {});
     } catch (err) {
       console.warn('Could not load resume:', err.message);
       addExperienceBlock();
@@ -943,7 +1007,7 @@ function loadDraftFromLocalStorage() {
   }
 
   /* ---------------------------------------------------------------------
-     Toolbar: title rename, download
+     Toolbar: title rename, download, version history
   --------------------------------------------------------------------- */
   function bindToolbar() {
     const undoBtn = document.getElementById('btnUndo');
@@ -953,57 +1017,54 @@ function loadDraftFromLocalStorage() {
     const titleInput = document.getElementById('resumeTitle');
     titleInput && titleInput.addEventListener('input', () => {
       pushState();
-      // No auto‑save
     });
 
-    document.getElementById('btnDownload').addEventListener('click', async () => {
+    document.getElementById('btnDownload')?.addEventListener('click', async () => {
       if (!currentResumeId) {
         await saveResume();
       }
-      if (!currentResumeId) return alert('Save your resume first.');
+      if (!currentResumeId) {
+        if (typeof window.showToast === 'function') window.showToast('Please save your resume first before downloading.', 'warning');
+        return;
+      }
       try {
-        const download = await ApiService.downloads.pdf(currentResumeId);
-        const downloadUrl = download.downloadUrl || download.url || 'Not available yet';
-        alert('PDF ready: ' + downloadUrl + '\n(Wire this to the actual file host in production.)');
+        if (typeof window.showToast === 'function') window.showToast('Generating PDF — this may take a moment...', 'info');
+        await ApiService.downloads.pdf(currentResumeId);
+        if (typeof window.showToast === 'function') window.showToast('PDF downloaded successfully!', 'success');
       } catch (err) {
-        alert(err.message);
+        if (typeof window.showToast === 'function') window.showToast(err.message || 'PDF generation failed.', 'error');
       }
     });
 
-    document.getElementById('btnHistory').addEventListener('click', async () => {
+    document.getElementById('btnHistory')?.addEventListener('click', async () => {
       if (!currentResumeId) {
-        return alert('Save your resume first.');
+        if (typeof window.showToast === 'function') window.showToast('Please save your resume first to view version checkpoints.', 'warning');
+        return;
       }
       try {
         const versions = await ApiService.resumes.getVersions(currentResumeId);
-        if (versions.length === 0) {
-          alert('No saved versions found for this resume. Version checkpoints are generated automatically upon restoring.');
+        if (!versions || versions.length === 0) {
+          if (typeof window.showToast === 'function') window.showToast('No saved versions found. Version checkpoints are created automatically upon restoring.', 'info');
           return;
         }
-        
-        const listStr = versions.map(v => 
-          `Version ${v.version_number} - Saved on ${new Date(v.created_at).toLocaleString()}`
-        ).join('\n');
-        
-        const choice = prompt(
-          `Versions found for this resume:\n\n${listStr}\n\nEnter a Version Number to restore (e.g. 1):`
-        );
-        
-        if (choice) {
-          const verNo = parseInt(choice);
-          const targetVersion = versions.find(v => v.version_number === verNo);
-          if (!targetVersion) {
-            alert('Invalid version number selected.');
-            return;
-          }
-          if (confirm(`Are you sure you want to restore Version ${verNo}? Your current resume state will be safely saved as a new version checkpoint.`)) {
-            await ApiService.resumes.restoreVersion(currentResumeId, targetVersion.id);
-            alert('Resume restored successfully.');
+
+        const latestVersion = versions[0];
+        if (typeof window.confirmModal === 'function') {
+          const restore = await window.confirmModal({
+            title: `Restore Version ${latestVersion.version_number}?`,
+            message: `Would you like to restore Version ${latestVersion.version_number} (saved on ${new Date(latestVersion.created_at).toLocaleString()})? Your current state will be archived as a new version checkpoint.`,
+            confirmText: 'Restore Version',
+            cancelText: 'Cancel'
+          });
+
+          if (restore) {
+            await ApiService.resumes.restoreVersion(currentResumeId, latestVersion.id);
+            if (typeof window.showToast === 'function') window.showToast('Resume restored successfully.', 'success');
             window.location.reload();
           }
         }
       } catch (err) {
-        alert('Failed to load version history: ' + err.message);
+        if (typeof window.showToast === 'function') window.showToast('Failed to load version history: ' + err.message, 'error');
       }
     });
   }
@@ -1298,7 +1359,9 @@ function loadDraftFromLocalStorage() {
             card.style.background = 'var(--score-high-bg)';
           }
         } else {
-          alert('Could not find the original bullet point text in your resume Experience section to replace.');
+          if (typeof window.showToast === 'function') {
+            window.showToast('Could not find the original bullet point text in your resume Experience section to replace.', 'warning');
+          }
         }
       });
     });
