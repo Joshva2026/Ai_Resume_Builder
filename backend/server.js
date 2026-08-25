@@ -2211,51 +2211,81 @@ app.get('/api/linkedin/history', authenticateToken, async (req, res) => {
 // JOB MATCH ROUTES
 // ==========================================
 
-app.post('/api/job-match', authenticateToken, async (req, res) => {
-  const { resumeId, jobDescription, jobTitle = 'Unknown Role', company = 'Unknown Company' } = req.body;
-  if (!resumeId || !jobDescription || !jobDescription.trim()) {
-    return res.status(400).json({ error: 'Resume ID and Job Description are required' });
+app.post('/api/job-match', authenticateToken, upload.single('resume'), async (req, res) => {
+  const { resumeId, jobDescription, jobTitle = 'Unknown Role', company = 'Unknown Company', resumeSource } = req.body;
+  let tempPath = req.file ? req.file.path : null;
+
+  if (!jobDescription || !jobDescription.trim()) {
+    if (tempPath) try { require('fs').unlinkSync(tempPath); } catch (_) {}
+    return res.status(400).json({ error: 'Job Description is required' });
   }
+
   try {
+    let resumeText = '';
     const connection = await pool.getConnection();
-    const [resumes] = await connection.query(
-      'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
-      [resumeId, req.user.id]
-    );
-    if (resumes.length === 0) {
-      connection.release();
-      return res.status(404).json({ error: 'Resume not found' });
+
+    if (resumeSource === 'upload' || req.file) {
+      if (!req.file) {
+        connection.release();
+        return res.status(400).json({ error: 'Resume file is required for upload mode' });
+      }
+      resumeText = await atsEngine.extractText(tempPath, req.file.mimetype, req.file.originalname);
+    } else {
+      if (!resumeId) {
+        connection.release();
+        return res.status(400).json({ error: 'Please select a created resume to match.' });
+      }
+      
+      const [resumes] = await connection.query(
+        'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
+        [resumeId, req.user.id]
+      );
+      if (resumes.length === 0) {
+        connection.release();
+        return res.status(404).json({ error: 'Selected resume could not be found.' });
+      }
+      const resume = resumes[0];
+      resumeText = resume.raw_text;
+      if (!resumeText && resume.content) {
+        resumeText = aiService.getResumeContext(resume.content);
+      }
     }
-    const resume = resumes[0];
-    let resumeText = resume.raw_text;
-    if (!resumeText && resume.content) {
-      resumeText = aiService.getResumeContext(resume.content);
-    }
-    if (!resumeText) {
+
+    if (!resumeText || !resumeText.trim()) {
       connection.release();
-      return res.status(400).json({ error: 'Resume has no content' });
+      return res.status(400).json({ error: 'Resume has no extractable content' });
     }
     
     const match = await aiService.generateJobMatch(resumeText, jobDescription);
     
-    await connection.query(
-      'INSERT INTO job_matches (user_id, resume_id, job_title, company, match_percentage, strong_matches, missing_matches, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        req.user.id,
-        resumeId,
-        jobTitle,
-        company,
-        match.match_percentage,
-        JSON.stringify(match.strong_matches),
-        JSON.stringify(match.missing_matches),
-        JSON.stringify(match.recommendations)
-      ]
-    );
+    if (resumeId && resumeSource !== 'upload') {
+      await connection.query(
+        'INSERT INTO job_matches (user_id, resume_id, job_title, company, match_percentage, strong_matches, missing_matches, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          req.user.id,
+          resumeId,
+          jobTitle,
+          company,
+          match.match_percentage,
+          JSON.stringify(match.strong_matches),
+          JSON.stringify(match.missing_matches),
+          JSON.stringify(match.recommendations)
+        ]
+      );
+    }
+    
     connection.release();
     res.json(match);
   } catch (error) {
     console.error('Job Match API Error:', error);
     res.status(500).json({ error: error.message || 'Failed to match job description' });
+  } finally {
+    if (tempPath) {
+      try {
+        const fs = require('fs');
+        if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      } catch (_) {}
+    }
   }
 });
 

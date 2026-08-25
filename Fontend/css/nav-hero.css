@@ -35,7 +35,7 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: var(--fs-md);
-  color: #FFFFFF;
+  color: var(--ink-950);
   flex-shrink: 0;
   letter-spacing: -0.03em;
 }
@@ -65,7 +65,7 @@
   transition: color var(--dur-fast) var(--ease-out);
   position: relative;
 }
-.nav-links a:hover { color: #FFFFFF; }
+.nav-links a:hover { color: var(--ink-950); }
 .nav-links a.active {
   color: var(--primary);
   font-weight: 600;
@@ -255,9 +255,9 @@
 .hero-stat-num {
   font-size: var(--fs-xl);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--ink-950);
   line-height: 1.1;
-  background: linear-gradient(135deg, #FFFFFF 40%, var(--ink-600) 100%);
+  background: linear-gradient(135deg, var(--ink-950) 40%, var(--ink-600) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -305,7 +305,7 @@
 .hero-feature-chip-content h4 {
   font-size: var(--fs-xs);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--ink-950);
   margin-bottom: 2px;
 }
 .hero-feature-chip-content p {

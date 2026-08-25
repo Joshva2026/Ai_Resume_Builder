@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade Plan — ResumeForge</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/app-shell.css" />
+  <style>
+    .upgrade-container {
+      max-width: 1000px;
+      margin: var(--sp-5) auto;
+      text-align: center;
+      padding: var(--sp-4);
+      color: var(--ink-950);
+    }
+    .upgrade-header h2 {
+      font-size: var(--fs-2xl);
+      margin-bottom: var(--sp-2);
+      font-weight: 800;
+    }
+    .upgrade-header p {
+      font-size: var(--fs-sm);
+      color: var(--ink-700);
+      margin-bottom: var(--sp-6);
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--sp-6);
+    }
+    .pricing-card {
+      background: var(--paper-0);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .pricing-card.premium {
+      border-color: var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    .pricing-card.premium::before {
+      content: 'POPULAR';
+      position: absolute;
+      top: 15px;
+      right: -30px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 4px 30px;
+      transform: rotate(45deg);
+    }
+    .pricing-card h3 {
+      font-size: var(--fs-md);
+      margin-bottom: var(--sp-1);
+      color: var(--ink-950);
+    }
+    .pricing-card .price-amount {
+      font-size: var(--fs-3xl);
+      font-weight: 800;
+      color: var(--ink-950);
+      margin: var(--sp-3) 0 var(--sp-4);
+    }
+    .pricing-card .price-sub {
+      font-size: var(--fs-xs);
+      color: var(--ink-600);
+    }
+    .pricing-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--sp-6) 0;
+      display: grid;
+      gap: var(--sp-2);
+      flex-grow: 1;
+    }
+    .pricing-card ul li {
+      font-size: var(--fs-sm);
+      color: var(--ink-700);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+    .pricing-card ul li i {
+      color: var(--score-high);
+    }
+    .pricing-card .btn {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="appShellRoot"></div>
+
+  <template id="upgradeTemplate">
+    <div class="upgrade-container">
+      <div class="upgrade-header">
+        <h2>Upgrade to Pro</h2>
+        <p>Unlock AI analysis, unlimited templates, and advanced ATS optimization to accelerate your career.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Basic Plan -->
+        <div class="pricing-card">
+          <h3>Basic</h3>
+          <p class="price-sub">Essential tools for starters.</p>
+          <div class="price-amount">₹199<span class="price-sub">/month</span></div>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> 1 Resume Templates</li>
+            <li><i class="fa-solid fa-check"></i> Basic PDF Export</li>
+            <li><i class="fa-solid fa-check"></i> 5 ATS Scans/month</li>
+          </ul>
+          <button class="btn btn-outline" onclick="window.showToast('Select a payment method to proceed (Integration pending)', 'info')">Select Basic</button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="pricing-card premium">
+          <h3>Professional</h3>
+          <p class="price-sub">Everything you need to get hired.</p>
+          <div class="price-amount">₹499<span class="price-sub">/month</span></div>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> All Premium Templates</li>
+            <li><i class="fa-solid fa-check"></i> AI Resume Improvements</li>
+            <li><i class="fa-solid fa-check"></i> Unlimited ATS Scans</li>
+            <li><i class="fa-solid fa-check"></i> Job Match Analyzer</li>
+          </ul>
+          <button class="btn btn-primary" onclick="window.showToast('Select a payment method to proceed (Integration pending)', 'info')">Upgrade to Pro</button>
+        </div>
+
+        <!-- Lifetime Plan -->
+        <div class="pricing-card">
+          <h3>Lifetime</h3>
+          <p class="price-sub">Pay once, use forever.</p>
+          <div class="price-amount">₹999<span class="price-sub">/one-time</span></div>
+          <ul>
+            <li><i class="fa-solid fa-check"></i> Lifetime Access to All Features</li>
+            <li><i class="fa-solid fa-check"></i> Priority AI Processing</li>
+            <li><i class="fa-solid fa-check"></i> Early Access to New Features</li>
+          </ul>
+          <button class="btn btn-outline" onclick="window.showToast('Select a payment method to proceed (Integration pending)', 'info')">Get Lifetime</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+
+  <script src="../js/services/api-service.js"></script>
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/components/app-shell.js"></script>
+  <script>
+    AppShell.render({ active: 'upgrade', title: 'Upgrade Plan' });
+    const content = document.getElementById('appContent');
+    content.appendChild(document.getElementById('upgradeTemplate').content.cloneNode(true));
+  </script>
+</body>
+</html>

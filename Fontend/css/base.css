@@ -351,12 +351,12 @@ p {
 .field select {
   width: 100%;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
   font-family: var(--font-body);
   font-size: var(--fs-sm);
-  color: #FFFFFF;
-  background: rgba(13, 12, 22, 0.5);
+  color: var(--ink-950);
+  background: var(--paper-0);
   transition: border-color var(--dur-fast) var(--ease-out),
               box-shadow var(--dur-fast) var(--ease-out),
               background var(--dur-fast) var(--ease-out);
@@ -373,7 +373,7 @@ p {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
-  background: rgba(13, 12, 22, 0.7);
+  background: var(--paper-50);
 }
 
 .field select {
@@ -387,8 +387,8 @@ p {
 }
 
 .field select option {
-  background: #0d0c16;
-  color: #FFFFFF;
+  background: var(--paper-0);
+  color: var(--ink-950);
 }
 
 .field .hint {

@@ -251,7 +251,28 @@ const ApiService = (() => {
 
   // ── JOB MATCH ────────────────────────────────────────────────────────
   const jobMatch = {
-    analyze: (resumeId, jobDescription, jobTitle, company) => request('/job-match', { method: 'POST', body: { resumeId, jobDescription, jobTitle, company } }),
+    analyze: (resumeId, jobDescription, jobTitle, company) => request('/job-match', { method: 'POST', body: { resumeSource: 'created', resumeId, jobDescription, jobTitle, company } }),
+    analyzeUpload: async (formData) => {
+      const token = getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      let res;
+      try {
+        res = await fetch(`${BASE_URL}/job-match`, {
+          method: 'POST',
+          headers,
+          body: formData
+        });
+      } catch (err) {
+        throw new ApiError('Unable to connect to the server. Please try again.', 0);
+      }
+
+      let data;
+      try { data = await res.json(); } catch (_) { data = { error: 'Unknown server error' }; }
+      if (!res.ok) throw new ApiError(data.error || 'Job matching failed', res.status, data);
+      return data;
+    },
     history: () => request('/job-match/history'),
   };
 

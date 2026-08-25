@@ -70,10 +70,16 @@
     }
 
     let resumeId = null;
+    let fileToUpload = null;
+    
     if (activeMode === 'upload') {
-      errorBox.textContent = 'To perform a Job Match analysis, please select a resume from the "Select Created Resume" tab. (You can import document files in the Resume Builder page).';
-      errorBox.style.display = 'block';
-      return;
+      const fileInput = document.getElementById('resumeFileInput');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        errorBox.textContent = 'Please upload a resume first.';
+        errorBox.style.display = 'block';
+        return;
+      }
+      fileToUpload = fileInput.files[0];
     } else {
       resumeId = document.getElementById('resumeSelect').value;
       if (!resumeId) {
@@ -89,7 +95,18 @@
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing Job Match…';
 
     try {
-      const match = await ApiService.jobMatch.analyze(resumeId, jobDescription, jobTitle, company);
+      let match;
+      if (activeMode === 'upload') {
+        const formData = new FormData();
+        formData.append('resume', fileToUpload);
+        formData.append('resumeSource', 'upload');
+        formData.append('jobDescription', jobDescription);
+        formData.append('jobTitle', jobTitle);
+        formData.append('company', company);
+        match = await ApiService.jobMatch.analyzeUpload(formData);
+      } else {
+        match = await ApiService.jobMatch.analyze(resumeId, jobDescription, jobTitle, company);
+      }
       
       const pct = match.match_percentage || 0;
       const verdict = pct >= 85 ? { label: 'Excellent Match', color: 'var(--score-high)' }

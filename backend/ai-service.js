@@ -350,9 +350,12 @@ async function generateLinkedInReview(profileText) {
       }
     });
 
-    return JSON.parse(response.text);
+    let resultText = response.text || '';
+    resultText = resultText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    
+    return JSON.parse(resultText);
   } catch (error) {
-    console.error('Gemini LinkedIn API Error:', error.message);
+    console.error('Gemini LinkedIn API Error:', error.message || error);
     throw new Error('Failed to analyze LinkedIn profile with AI');
   }
 }

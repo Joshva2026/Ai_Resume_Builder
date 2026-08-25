@@ -58,7 +58,7 @@ const AppShell = (() => {
             <div class="sidebar-upgrade">
               <h4>Upgrade to Pro</h4>
               <p>Get unlimited templates, AI tools & more.</p>
-              <a href="settings.html" class="btn btn-primary btn-sm btn-block">Upgrade Now</a>
+              <a href="upgrade.html" class="btn btn-primary btn-sm btn-block">Upgrade Now</a>
             </div>
           </nav>
         </aside>

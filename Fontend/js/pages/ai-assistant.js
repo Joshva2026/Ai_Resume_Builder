@@ -9,6 +9,8 @@
 
   let initialized = false;
   let currentAnalysisData = null;
+  let currentAnalysisMode = null;
+  let currentAnalysisResumeId = null;
   let workingResumeState = null;
   let appliedModifications = {
     summary: false,
@@ -91,78 +93,49 @@
       });
     });
 
+    let activeInputMode = null; // 'upload' or 'saved'
+
     dropzone.addEventListener('drop', (e) => {
       const files = e.dataTransfer.files;
       if (files && files.length > 0) {
-        processUploadedFile(files[0]);
+        handleFileSelection(files[0]);
       }
     });
 
     fileInput.addEventListener('change', () => {
       if (fileInput.files && fileInput.files.length > 0) {
-        processUploadedFile(fileInput.files[0]);
+        handleFileSelection(fileInput.files[0]);
       }
     });
-  }
 
-  async function processUploadedFile(file) {
-    const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
-    const ext = (file.name.split('.').pop() || '').toLowerCase();
-    if (!validExtensions.includes(ext)) {
-      if (typeof window.showToast === 'function') {
-        window.showToast('Please upload a valid PDF, DOC, DOCX, or TXT file.', 'error');
+    function handleFileSelection(file) {
+      const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!validExtensions.includes(ext)) {
+        if (typeof window.showToast === 'function') window.showToast('Please upload a supported PDF, DOCX, or TXT resume.', 'error');
+        return;
       }
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      if (typeof window.showToast === 'function') {
-        window.showToast('File size limit exceeded (maximum 5MB allowed).', 'error');
+      if (file.size > 5 * 1024 * 1024) {
+        if (typeof window.showToast === 'function') window.showToast('File size limit exceeded (maximum 5MB allowed).', 'error');
+        return;
       }
-      return;
-    }
-
-    const jobDescription = document.getElementById('targetJobDesc')?.value.trim() || '';
-    const formData = new FormData();
-    formData.append('resume', file);
-    if (jobDescription) formData.append('jobDescription', jobDescription);
-
-    showLoading(true, 'Extracting & Analyzing Resume...', 'Extracting structured sections and generating targeted AI improvements.');
-
-    try {
-      const response = await fetch(`${ApiService.BASE_URL}/ai/analyze-resume`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${ApiService.getToken()}`
-        },
-        body: formData
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze uploaded resume.');
+      
+      activeInputMode = 'upload';
+      
+      // Reset select dropdown if it exists
+      const sel = document.getElementById('selExistingResume');
+      if (sel) sel.value = '';
+      
+      const btn = document.getElementById('btnAnalyzeResume');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Analyze ${escapeHtml(file.name)}`;
       }
-
-      renderAnalysisResults(data);
-      if (typeof window.showToast === 'function') {
-        window.showToast('Resume analyzed successfully!', 'success');
-      }
-    } catch (err) {
-      console.error('Analyze upload error:', err);
-      if (typeof window.showToast === 'function') {
-        window.showToast(err.message || 'Unable to analyze this resume. Please try again.', 'error');
-      }
-    } finally {
-      showLoading(false);
     }
   }
 
-  /* ---------------------------------------------------------------------
-     Saved Resume Selector Handling
-  --------------------------------------------------------------------- */
   async function loadSavedResumesList() {
     const sel = document.getElementById('selExistingResume');
-    const btnAnalyzeSaved = document.getElementById('btnAnalyzeSaved');
     if (!sel) return;
 
     try {
@@ -179,41 +152,121 @@
     } catch (_) {}
 
     sel.addEventListener('change', () => {
-      if (btnAnalyzeSaved) btnAnalyzeSaved.disabled = !sel.value;
-    });
-
-    btnAnalyzeSaved?.addEventListener('click', async () => {
-      const resumeId = sel.value;
-      if (!resumeId) return;
-
-      const jobDescription = document.getElementById('targetJobDesc')?.value.trim() || '';
-      showLoading(true, 'Analyzing Saved Resume...', 'Evaluating ATS match and generating structured recommendations.');
-
-      try {
-        const response = await fetch(`${ApiService.BASE_URL}/ai/analyze-resume`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${ApiService.getToken()}`
-          },
-          body: JSON.stringify({ resumeId, jobDescription })
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Analysis failed');
-
-        renderAnalysisResults(data);
-        if (typeof window.showToast === 'function') {
-          window.showToast('Analysis complete!', 'success');
+      activeInputMode = sel.value ? 'saved' : null;
+      
+      if (activeInputMode === 'saved') {
+        const fileInput = document.getElementById('resumeFileInput');
+        if (fileInput) fileInput.value = '';
+        
+        const btn = document.getElementById('btnAnalyzeResume');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Selected Resume`;
         }
-      } catch (err) {
-        if (typeof window.showToast === 'function') {
-          window.showToast(err.message || 'Unable to analyze selected resume.', 'error');
+      } else {
+        const btn = document.getElementById('btnAnalyzeResume');
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Resume`;
         }
-      } finally {
-        showLoading(false);
       }
     });
+
+    const btnAnalyzeResume = document.getElementById('btnAnalyzeResume');
+    btnAnalyzeResume?.addEventListener('click', async () => {
+      if (btnAnalyzeResume.disabled) return;
+      
+      const jobDescription = document.getElementById('targetJobDesc')?.value.trim() || '';
+      
+      if (activeInputMode === 'upload') {
+        const fileInput = document.getElementById('resumeFileInput');
+        const file = (fileInput.files && fileInput.files.length > 0) ? fileInput.files[0] : null;
+        if (!file) {
+          if (typeof window.showToast === 'function') window.showToast('Please upload a resume first.', 'error');
+          return;
+        }
+        await processUploadedFile(file, jobDescription);
+      } else if (activeInputMode === 'saved') {
+        const resumeId = sel.value;
+        if (!resumeId) {
+          if (typeof window.showToast === 'function') window.showToast('Please select a created resume.', 'error');
+          return;
+        }
+        await processSavedResume(resumeId, jobDescription);
+      }
+    });
+  }
+
+  async function processUploadedFile(file, jobDescription) {
+    const formData = new FormData();
+    formData.append('resume', file);
+    if (jobDescription) formData.append('jobDescription', jobDescription);
+
+    showLoading(true, 'Extracting & Analyzing Resume...', 'Extracting structured sections and generating targeted AI improvements.');
+    const btn = document.getElementById('btnAnalyzeResume');
+    const originalBtnHtml = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...'; }
+
+    try {
+      const response = await fetch(`${ApiService.BASE_URL}/ai/analyze-resume`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${ApiService.getToken()}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to analyze uploaded resume.');
+      }
+
+      renderAnalysisResults(data, 'upload', null);
+      if (typeof window.showToast === 'function') {
+        window.showToast('Resume analyzed successfully!', 'success');
+      }
+    } catch (err) {
+      console.error('Analyze upload error:', err);
+      if (typeof window.showToast === 'function') {
+        window.showToast(`Resume analysis failed: ${err.message || 'Unable to analyze this resume. Please try again.'}`, 'error');
+      }
+    } finally {
+      showLoading(false);
+      if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHtml; }
+    }
+  }
+
+  async function processSavedResume(resumeId, jobDescription) {
+    showLoading(true, 'Analyzing Saved Resume...', 'Evaluating ATS match and generating structured recommendations.');
+    const btn = document.getElementById('btnAnalyzeResume');
+    const originalBtnHtml = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...'; }
+
+    try {
+      const response = await fetch(`${ApiService.BASE_URL}/ai/analyze-resume`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ApiService.getToken()}`
+        },
+        body: JSON.stringify({ resumeId, jobDescription })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Analysis failed');
+
+      renderAnalysisResults(data, 'saved', resumeId);
+      if (typeof window.showToast === 'function') {
+        window.showToast('Analysis complete!', 'success');
+      }
+    } catch (err) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(`Resume analysis failed: ${err.message || 'Unable to analyze selected resume.'}`, 'error');
+      }
+    } finally {
+      showLoading(false);
+      if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHtml; }
+    }
   }
 
   function showLoading(show, title, sub) {
@@ -234,8 +287,10 @@
   /* ---------------------------------------------------------------------
      Render Analysis Dashboard & Structured Improvements
   --------------------------------------------------------------------- */
-  function renderAnalysisResults(data) {
+  function renderAnalysisResults(data, mode, resumeId) {
     currentAnalysisData = data;
+    currentAnalysisMode = mode;
+    currentAnalysisResumeId = resumeId;
     workingResumeState = JSON.parse(JSON.stringify(data.structuredResume || {}));
     appliedModifications = { summary: false, skills: false, experience: {}, projects: {}, template: false };
 
@@ -419,7 +474,15 @@
 
     // Bind Apply All & Edit Resume buttons
     document.getElementById('btnApplyAll')?.addEventListener('click', applyAllImprovements);
-    document.getElementById('btnEditResume')?.addEventListener('click', navigateToResumeBuilder);
+    const btnEditResume = document.getElementById('btnEditResume');
+    if (btnEditResume) {
+      if (currentAnalysisMode === 'upload') {
+        btnEditResume.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Create / Edit Resume';
+      } else {
+        btnEditResume.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit in Resume Builder';
+      }
+      btnEditResume.onclick = navigateToResumeBuilder;
+    }
   }
 
   /* ---------------------------------------------------------------------
@@ -612,7 +675,11 @@
       }));
     } catch (_) {}
 
-    window.location.href = `resume-builder.html?from=ai_improve&section=${firstSection}`;
+    if (currentAnalysisMode === 'saved' && currentAnalysisResumeId) {
+      window.location.href = `resume-builder.html?id=${currentAnalysisResumeId}&from=ai_improve&section=${firstSection}`;
+    } else {
+      window.location.href = `resume-builder.html?from=ai_improve&section=${firstSection}`;
+    }
   }
 
   /* ---------------------------------------------------------------------

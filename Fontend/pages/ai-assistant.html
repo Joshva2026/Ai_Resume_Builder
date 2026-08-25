@@ -482,9 +482,6 @@
               <option value="">Select a saved resume...</option>
             </select>
           </div>
-          <button type="button" class="btn btn-secondary btn-sm" id="btnAnalyzeSaved" disabled>
-            <i class="fa-solid fa-chart-simple"></i> Analyze Selected
-          </button>
         </div>
 
         <!-- Optional Job Description for Targeted Match -->
@@ -493,6 +490,12 @@
             <summary style="cursor:pointer; font-weight:600; color:var(--primary);"><i class="fa-solid fa-bullseye"></i> Target a specific job description (Optional)</summary>
             <textarea id="targetJobDesc" placeholder="Paste the target job description to get role-specific keywords and customized bullet points..." rows="3" style="width:100%; margin-top:8px; padding:8px 12px; border:1px solid var(--line); border-radius:var(--radius-sm); font-family:inherit; font-size:var(--fs-2xs); background:var(--paper-0); color:var(--ink-950);"></textarea>
           </details>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <button type="button" class="btn btn-primary" id="btnAnalyzeResume" style="width:100%; max-width:400px; padding:12px; font-size:var(--fs-sm);" disabled>
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Resume
+          </button>
         </div>
       </div>
 
