@@ -327,21 +327,90 @@ async function generateLinkedInReview(profileText) {
     Your analysis MUST be based entirely on what is actually written in this specific profile.
     Do NOT use generic or template responses — every field in your response must reference specific details from THIS profile.
     
+    If the profile is for a student/fresher (no formal employment history), evaluate their projects, internships, education, and certifications as experience evidence. Do not heavily penalize them for the lack of formal employment history. If they are experienced, carry more weight on measurable achievements.
+    
+    Check for consistency between sections (e.g. if the headline says "Java Developer" but they list only Python in experience/skills, flag this as an inconsistency/weakness/improvement).
+    
     Profile Text to Analyze:
     ---
     ${trimmedText}
     ---
     
-    Based on the above specific profile text, return ONLY a JSON object with no markdown:
+    Based on the above specific profile text, evaluate these predefined scoring categories:
+    A. Headline Quality (max_score: 15): Clear target role, relevant tech/skills, recruiter keywords, professional positioning.
+    B. About Section (max_score: 15): Clarity, career direction, achievements, evidence, keywords.
+    C. Experience (max_score: 20): Responsibilities, action verbs, measurable achievements, tools. For freshers/students, evaluate projects, internships, or academic projects.
+    D. Skills (max_score: 15): Breadth, specificity, alignment with experience/headline.
+    E. Profile Completeness (max_score: 15): Presence/quality of name, headline, about, experience, education, skills, certifications, projects, contact.
+    F. Education & Certifications (max_score: 10): Specialization, technical credentials, consistency.
+    G. Recruiter/Keyword Optimization (max_score: 10): Search discoverability, terminology, consistency without keyword stuffing.
+    
+    For each category, you must return: name, score, max_score, reason (specific explanation), evidence (array of strings extracted EXACTLY from the profile supporting the score), and improvement (actionable recommendation). DO NOT invent or hallucinate strengths or evidence that do not exist.
+    
+    Return ONLY a JSON object with no markdown:
     {
-      "overall_score": <integer 0-100 based on this specific profile>,
-      "headline_review": "<specific feedback on THIS profile's headline or lack of one>",
-      "about_review": "<specific feedback on THIS profile's about/summary section>",
-      "experience_review": "<specific feedback on THIS profile's experience descriptions>",
-      "suggestions": ["<specific actionable suggestion for this profile>", "<another specific suggestion>"],
-      "keyword_density": [
-        { "keyword": "<actual keyword found in this profile>", "count": <actual count>, "density": "Low|Medium|High" }
-      ]
+      "categories": [
+        {
+          "name": "Headline Quality",
+          "score": <integer 0-15>,
+          "max_score": 15,
+          "reason": "<specific feedback>",
+          "evidence": ["<verbatim string from profile>", "<another verbatim string>"],
+          "improvement": "<actionable recommendation>"
+        },
+        {
+          "name": "About Section",
+          "score": <integer 0-15>,
+          "max_score": 15,
+          "reason": "<specific feedback>",
+          "evidence": [],
+          "improvement": "<actionable recommendation>"
+        },
+        {
+          "name": "Experience",
+          "score": <integer 0-20>,
+          "max_score": 20,
+          "reason": "<specific feedback>",
+          "evidence": [],
+          "improvement": "<actionable recommendation>"
+        },
+        {
+          "name": "Skills",
+          "score": <integer 0-15>,
+          "max_score": 15,
+          "reason": "<specific feedback>",
+          "evidence": [],
+          "improvement": "<actionable recommendation>"
+        },
+        {
+          "name": "Profile Completeness",
+          "score": <integer 0-15>,
+          "max_score": 15,
+          "reason": "<specific feedback>",
+          "evidence": [],
+          "improvement": "<actionable recommendation>"
+        },
+        {
+          "name": "Education & Certifications",
+          "score": <integer 0-10>,
+          "max_score": 10,
+          "reason": "<specific feedback>",
+          "evidence": [],
+          "improvement": "<actionable recommendation>"
+        },
+        {
+          "name": "Recruiter/Keyword Optimization",
+          "score": <integer 0-10>,
+          "max_score": 10,
+          "reason": "<specific feedback>",
+          "evidence": [],
+          "improvement": "<actionable recommendation>"
+        }
+      ],
+      "strengths": ["<strength 1 based on evidence>", "<strength 2>"],
+      "weaknesses": ["<weakness/gap 1>", "<weakness 2>"],
+      "priority_improvements": ["<critical action item 1>", "<critical action item 2>"],
+      "overall_summary": "<professional evaluation and career-stage summary of the profile quality>"
     }`;
 
     console.log('[LINKEDIN AI] Calling Gemini 3.6 (using configured gemini-3.6-flash)');

@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resume Builder — ResumeForge</title>
-<!-- Fonts -->
+<!-- Fonts dynamically injected based on selection, Inter as default -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link id="dynamicGoogleFont" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <!-- Styles -->
@@ -40,256 +40,297 @@
     <div class="progress-bar" id="wizardProgress" style="width: 8%;"></div>
   </div>
 
-  <div class="builder-steps-nav">
-    <div class="step-nav-item active" data-step="personal">
-      <div class="step-icon"><i class="fa-solid fa-user"></i></div>
-      <span>Personal</span>
-    </div>
-    <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="education">
-      <div class="step-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-      <span>Education</span>
-    </div>
-    <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="experience">
-      <div class="step-icon"><i class="fa-solid fa-briefcase"></i></div>
-      <span>Experience</span>
-    </div>
-    <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="skills">
-      <div class="step-icon"><i class="fa-solid fa-sliders"></i></div>
-      <span>Skills</span>
-    </div>
-    <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="projects">
-      <div class="step-icon"><i class="fa-solid fa-diagram-project"></i></div>
-      <span>Projects</span>
-    </div>
-    <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="summary">
-      <div class="step-icon"><i class="fa-solid fa-file-invoice"></i></div>
-      <span>Summary</span>
-    </div>
-  </div>
-
   <div class="builder-layout">
-    <!-- Section rail -->
-    <aside class="section-rail" id="sectionRail">
-      <h4>Resume Sections</h4>
-      <div class="rail-item active" draggable="true" data-section="type"><i class="fa-solid fa-grip-vertical grip"></i> Resume Type</div>
-      <div class="rail-item" draggable="true" data-section="personal"><i class="fa-solid fa-grip-vertical grip"></i> Personal Info <i class="fa-solid fa-check rail-check" style="display:none"></i></div>
-      <div class="rail-item" draggable="true" data-section="summary"><i class="fa-solid fa-grip-vertical grip"></i> Summary</div>
-      <div class="rail-item" draggable="true" data-section="experience"><i class="fa-solid fa-grip-vertical grip"></i> Experience</div>
-      <div class="rail-item" draggable="true" data-section="education"><i class="fa-solid fa-grip-vertical grip"></i> Education</div>
-      <div class="rail-item" draggable="true" data-section="projects"><i class="fa-solid fa-grip-vertical grip"></i> Projects</div>
-      <div class="rail-item" draggable="true" data-section="skills"><i class="fa-solid fa-grip-vertical grip"></i> Skills</div>
-      <div class="rail-item" draggable="true" data-section="certifications"><i class="fa-solid fa-grip-vertical grip"></i> Certifications</div>
-      <div class="rail-item" draggable="true" data-section="languages"><i class="fa-solid fa-grip-vertical grip"></i> Languages</div>
-      <div class="rail-item" draggable="true" data-section="volunteer"><i class="fa-solid fa-grip-vertical grip"></i> Volunteer Work</div>
-      <div class="rail-item" draggable="true" data-section="awards"><i class="fa-solid fa-grip-vertical grip"></i> Awards</div>
-      <div class="rail-item" draggable="true" data-section="publications"><i class="fa-solid fa-grip-vertical grip"></i> Publications</div>
 
-      <div class="rail-completion-box">
-        <div class="circle-progress">
-          <svg class="progress-ring" width="80" height="80">
-            <circle class="progress-ring__background" stroke="var(--line)" stroke-width="6" fill="transparent" r="34" cx="40" cy="40"/>
-            <circle class="progress-ring__circle" stroke="var(--primary)" stroke-width="6" fill="transparent" r="34" cx="40" cy="40" stroke-dasharray="213.6" stroke-dashoffset="213.6" id="completionCircle"/>
-          </svg>
-          <div class="circle-val" id="completionCircleVal">0%</div>
-        </div>
-        <div style="font-size:11px;font-weight:700;margin-top:8px;color:var(--ink-950);">Complete Profile</div>
-      </div>
-    </aside>
-
-    <!-- Editor -->
+    <!-- Editor Pane (Accordion layout) -->
     <section class="editor-pane">
-      <!-- Resume Type Section -->
-      <div class="editor-section active" data-section="type">
-        <h3>Resume Experience Tier</h3>
-        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Select your experience level to structure section order.</p>
-        <div style="display:flex; gap:var(--sp-3)">
-          <button class="btn btn-primary" id="btnFresher" style="flex:1; padding:var(--sp-4)">Entry Level (Fresher)</button>
-          <button class="btn btn-ghost" id="btnExperienced" style="flex:1; padding:var(--sp-4)">Experienced Professional</button>
+      
+      <!-- Resume Tier -->
+      <div class="editor-section-card active" data-section="type">
+        <div class="editor-section-header" onclick="toggleAccordion('type')">
+          <div class="icon-group"><i class="fa-solid fa-layer-group"></i> Resume Tier</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
         </div>
-      </div>
-
-      <!-- Personal Info Section -->
-      <div class="editor-section" data-section="personal">
-        <h3>Personal Information</h3>
-        <div class="field-row">
-          <div class="field"><label>Full name</label><input type="text" id="f_fullName" placeholder="Jane Doe"></div>
-          <div class="field"><label>Professional title</label><input type="text" id="f_headline" placeholder="Web Developer"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="jane@email.com"></div>
-          <div class="field"><label>Phone</label><input type="tel" id="f_phone" placeholder="+1 555 000 0000"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Location</label><input type="text" id="f_location" placeholder="New York, NY"></div>
-          <div class="field"><label>LinkedIn URL</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>GitHub URL</label><input type="text" id="f_github" placeholder="github.com/janedoe"></div>
-          <div class="field"><label>&nbsp;</label><span style="font-size:var(--fs-2xs);color:var(--ink-500);display:block;padding-top:8px;"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> LinkedIn &amp; GitHub appear as clickable icons in supported templates.</span></div>
-        </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Career Summary Section -->
-      <div class="editor-section" data-section="summary">
-        <h3>Professional Summary</h3>
-        <div class="field">
-          <label>Summary</label>
-          <textarea id="f_summary" rows="5" placeholder="Goal-oriented developer with a strong foundation in modern web development..."></textarea>
-          <button class="ai-inline-btn" data-ai="summary"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI</button>
-        </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Work Experience Section -->
-      <div class="editor-section" data-section="experience">
-        <h3>Work Experience</h3>
-        <div id="experienceBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addExperience" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Position</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Education Section -->
-      <div class="editor-section" data-section="education">
-        <h3>Education</h3>
-        <div id="educationBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addEducation" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Education</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Projects Section -->
-      <div class="editor-section" data-section="projects">
-        <h3>Featured Projects</h3>
-        <div id="projectBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addProject" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Project</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Skills Section -->
-      <div class="editor-section" data-section="skills">
-        <h3>Skills Inventory</h3>
-        <div class="field">
-          <label>Skills (comma separated)</label>
-          <textarea id="f_skills" rows="3" placeholder="JavaScript, CSS variables, REST APIs, Git, Responsive layouts"></textarea>
-          <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimize Keywords</button>
-        </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Certifications Section -->
-      <div class="editor-section" data-section="certifications">
-        <h3>Professional Certifications</h3>
-        <div class="field">
-          <label>Certifications (one per line)</label>
-          <textarea id="f_certs" rows="3" placeholder="AWS Cloud Practitioner (2024)"></textarea>
-        </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Languages Section -->
-      <div class="editor-section" data-section="languages">
-        <h3>Languages</h3>
-        <div id="languageBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addLanguage" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Language</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Volunteer Work Section -->
-      <div class="editor-section" data-section="volunteer">
-        <h3>Volunteer Work</h3>
-        <div id="volunteerBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addVolunteer" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Volunteer Role</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Awards Section -->
-      <div class="editor-section" data-section="awards">
-        <h3>Awards & Honors</h3>
-        <div id="awardBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addAward" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Award</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
-        </div>
-      </div>
-
-      <!-- Publications Section -->
-      <div class="editor-section" data-section="publications">
-        <h3>Publications</h3>
-        <div id="publicationBlocks"></div>
-        <button class="btn btn-ghost btn-sm" id="addPublication" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Publication</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Done</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Live preview panel with styling bar -->
-    <aside class="preview-pane">
-      <div class="preview-style-bar">
-        <div class="style-group">
-          <label><i class="fa-solid fa-file-invoice"></i> Template</label>
-          <select id="selTemplate" aria-label="Select Template">
-            <option value="modern" selected>Modern (SaaS style)</option>
-            <option value="executive">Executive (Classic style)</option>
-            <option value="minimal">Minimalist (Space-saving)</option>
-            <option value="academic">Academic (Formal)</option>
-            <option value="classic-academic">Classic Academic (ATS Pro)</option>
-          </select>
-        </div>
-
-        <div class="style-group">
-          <label><i class="fa-solid fa-font"></i> Font Style</label>
-          <select id="selFont" aria-label="Select Font">
-            <option value="sans" selected>Sans-Serif (Inter)</option>
-            <option value="serif">Serif (Georgia)</option>
-            <option value="mono">Monospace (IBM Plex)</option>
-          </select>
-        </div>
-
-        <div class="style-group">
-          <label><i class="fa-solid fa-arrows-up-down"></i> Line Spacing</label>
-          <input type="range" id="rngSpacing" min="1.1" max="1.8" step="0.1" value="1.4" aria-label="Line spacing slider">
-        </div>
-
-        <div class="style-group">
-          <label><i class="fa-solid fa-palette"></i> Theme Accent</label>
-          <div class="accent-pickers">
-            <button type="button" class="accent-dot active" data-color="#2563EB" style="background:#2563EB" title="Blue" aria-label="Blue accent"></button>
-            <button type="button" class="accent-dot" data-color="#0ea5e9" style="background:#0ea5e9" title="Sky" aria-label="Sky accent"></button>
-            <button type="button" class="accent-dot" data-color="#10b981" style="background:#10b981" title="Green" aria-label="Green accent"></button>
-            <button type="button" class="accent-dot" data-color="#e11d48" style="background:#e11d48" title="Crimson" aria-label="Crimson accent"></button>
-            <button type="button" class="accent-dot" data-color="#475569" style="background:#475569" title="Charcoal" aria-label="Charcoal accent"></button>
+        <div class="editor-section-content">
+          <p class="sub">Select your experience level to structure section order.</p>
+          <div style="display:flex; gap:var(--sp-3)">
+            <button class="btn btn-primary" id="btnFresher" style="flex:1; padding:var(--sp-4)">Entry Level (Fresher)</button>
+            <button class="btn btn-ghost" id="btnExperienced" style="flex:1; padding:var(--sp-4)">Experienced Professional</button>
           </div>
         </div>
       </div>
 
-      <div class="paper-container">
+      <!-- Personal Info Section -->
+      <div class="editor-section-card" data-section="personal">
+        <div class="editor-section-header" onclick="toggleAccordion('personal')">
+          <div class="icon-group"><i class="fa-solid fa-user"></i> Personal Information</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div class="field-row">
+            <div class="field"><label>Full name</label><input type="text" id="f_fullName" placeholder="Jane Doe"></div>
+            <div class="field"><label>Professional title</label><input type="text" id="f_headline" placeholder="Web Developer"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="jane@email.com"></div>
+            <div class="field"><label>Phone</label><input type="tel" id="f_phone" placeholder="+1 555 000 0000"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Location</label><input type="text" id="f_location" placeholder="New York, NY"></div>
+            <div class="field"><label>LinkedIn URL</label><input type="text" id="f_link" placeholder="linkedin.com/in/janedoe"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>GitHub / Portfolio</label><input type="text" id="f_github" placeholder="github.com/janedoe"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Career Summary Section -->
+      <div class="editor-section-card" data-section="summary">
+        <div class="editor-section-header" onclick="toggleAccordion('summary')">
+          <div class="icon-group"><i class="fa-solid fa-file-invoice"></i> Professional Summary</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div class="field">
+            <label>Summary</label>
+            <textarea id="f_summary" rows="5" placeholder="Goal-oriented professional with a strong foundation..."></textarea>
+            <button class="ai-inline-btn" data-ai="summary"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Experience Section -->
+      <div class="editor-section-card" data-section="experience">
+        <div class="editor-section-header" onclick="toggleAccordion('experience')">
+          <div class="icon-group"><i class="fa-solid fa-briefcase"></i> Work Experience</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="experienceBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addExperience" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Position</button>
+        </div>
+      </div>
+
+      <!-- Education Section -->
+      <div class="editor-section-card" data-section="education">
+        <div class="editor-section-header" onclick="toggleAccordion('education')">
+          <div class="icon-group"><i class="fa-solid fa-graduation-cap"></i> Education</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="educationBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addEducation" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Education</button>
+        </div>
+      </div>
+
+      <!-- Projects Section -->
+      <div class="editor-section-card" data-section="projects">
+        <div class="editor-section-header" onclick="toggleAccordion('projects')">
+          <div class="icon-group"><i class="fa-solid fa-diagram-project"></i> Featured Projects</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="projectBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addProject" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Project</button>
+        </div>
+      </div>
+
+      <!-- Skills Section -->
+      <div class="editor-section-card" data-section="skills">
+        <div class="editor-section-header" onclick="toggleAccordion('skills')">
+          <div class="icon-group"><i class="fa-solid fa-sliders"></i> Skills Inventory</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div class="field">
+            <label>Skills (comma separated)</label>
+            <textarea id="f_skills" rows="3" placeholder="JavaScript, CSS, REST APIs, Agile, Problem Solving"></textarea>
+            <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimize Keywords</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certifications Section -->
+      <div class="editor-section-card" data-section="certifications">
+        <div class="editor-section-header" onclick="toggleAccordion('certifications')">
+          <div class="icon-group"><i class="fa-solid fa-certificate"></i> Certifications</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div class="field">
+            <label>Certifications (one per line)</label>
+            <textarea id="f_certs" rows="3" placeholder="AWS Cloud Practitioner (2024)"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Languages Section -->
+      <div class="editor-section-card" data-section="languages">
+        <div class="editor-section-header" onclick="toggleAccordion('languages')">
+          <div class="icon-group"><i class="fa-solid fa-language"></i> Languages</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="languageBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addLanguage" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Language</button>
+        </div>
+      </div>
+
+      <!-- Volunteer Work Section -->
+      <div class="editor-section-card" data-section="volunteer">
+        <div class="editor-section-header" onclick="toggleAccordion('volunteer')">
+          <div class="icon-group"><i class="fa-solid fa-hand-holding-heart"></i> Volunteer Work</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="volunteerBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addVolunteer" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Volunteer Role</button>
+        </div>
+      </div>
+
+      <!-- Awards Section -->
+      <div class="editor-section-card" data-section="awards">
+        <div class="editor-section-header" onclick="toggleAccordion('awards')">
+          <div class="icon-group"><i class="fa-solid fa-trophy"></i> Awards & Honors</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="awardBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addAward" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Award</button>
+        </div>
+      </div>
+
+      <!-- Publications Section -->
+      <div class="editor-section-card" data-section="publications">
+        <div class="editor-section-header" onclick="toggleAccordion('publications')">
+          <div class="icon-group"><i class="fa-solid fa-book"></i> Publications</div>
+          <i class="fa-solid fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="editor-section-content">
+          <div id="publicationBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addPublication" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Publication</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Live preview panel (Center) -->
+    <aside class="preview-pane">
+      <div class="paper-scaler" id="paperScaler">
         <div class="paper" id="livePreview"></div>
       </div>
     </aside>
+
+    <!-- Typography & Template Settings (Right Side) -->
+    <aside class="preview-style-bar">
+      <h3>Design Settings</h3>
+      
+      <div class="style-group">
+        <label>Template Layout</label>
+        <select id="selTemplate" aria-label="Select Template">
+          <!-- 20 Templates added here -->
+          <optgroup label="ATS-Friendly">
+            <option value="classic-ats" selected>Classic ATS</option>
+            <option value="minimal-ats">Minimal ATS</option>
+            <option value="corporate-ats">Corporate ATS</option>
+            <option value="clean-ats">Clean ATS</option>
+            <option value="professional-ats">Professional ATS</option>
+          </optgroup>
+          <optgroup label="Modern">
+            <option value="modern-professional">Modern Professional</option>
+            <option value="modern-minimal">Modern Minimal</option>
+            <option value="contemporary">Contemporary</option>
+            <option value="clean-modern">Clean Modern</option>
+          </optgroup>
+          <optgroup label="Technical">
+            <option value="technical">Technical</option>
+            <option value="software-engineer">Software Engineer</option>
+            <option value="developer">Developer</option>
+            <option value="data-analytics">Data/Analytics</option>
+            <option value="engineering">Engineering</option>
+          </optgroup>
+          <optgroup label="Fresher / Student">
+            <option value="fresher">Fresher</option>
+            <option value="graduate">Graduate</option>
+            <option value="student-professional">Student Professional</option>
+          </optgroup>
+          <optgroup label="Executive">
+            <option value="executive">Executive</option>
+            <option value="senior-professional">Senior Professional</option>
+            <option value="leadership">Leadership</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="style-group" style="margin-top:var(--sp-2);">
+        <label>Typography Font</label>
+        <select id="selFontFamily" aria-label="Select Font Family">
+          <optgroup label="Sans-Serif">
+            <option value="'Inter', sans-serif">Inter</option>
+            <option value="'Arial', sans-serif">Arial</option>
+            <option value="'Helvetica', sans-serif">Helvetica</option>
+            <option value="'Roboto', sans-serif">Roboto</option>
+            <option value="'Open Sans', sans-serif">Open Sans</option>
+            <option value="'Lato', sans-serif">Lato</option>
+            <option value="'Source Sans 3', sans-serif">Source Sans 3</option>
+            <option value="'Nunito Sans', sans-serif">Nunito Sans</option>
+            <option value="'IBM Plex Sans', sans-serif">IBM Plex Sans</option>
+            <option value="'Work Sans', sans-serif">Work Sans</option>
+            <option value="'DM Sans', sans-serif">DM Sans</option>
+            <option value="'Manrope', sans-serif">Manrope</option>
+          </optgroup>
+          <optgroup label="Serif">
+            <option value="'Times New Roman', serif">Times New Roman</option>
+            <option value="'Georgia', serif">Georgia</option>
+            <option value="'Merriweather', serif">Merriweather</option>
+            <option value="'Libre Baskerville', serif">Libre Baskerville</option>
+            <option value="'Source Serif 4', serif">Source Serif 4</option>
+          </optgroup>
+          <optgroup label="Monospace">
+            <option value="'IBM Plex Mono', monospace">IBM Plex Mono</option>
+            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="style-group" style="margin-top:var(--sp-2);">
+        <label>Body Font Size <span id="lblFontSize" style="font-weight:normal;color:var(--ink-600)">10pt</span></label>
+        <input type="range" id="rngFontSize" min="8" max="14" step="0.5" value="10">
+      </div>
+
+      <div class="style-group">
+        <label>Heading Size <span id="lblHeadingSize" style="font-weight:normal;color:var(--ink-600)">14pt</span></label>
+        <input type="range" id="rngHeadingSize" min="12" max="24" step="1" value="14">
+      </div>
+      
+      <div class="style-group">
+        <label>Subheading Size <span id="lblSubheadingSize" style="font-weight:normal;color:var(--ink-600)">11pt</span></label>
+        <input type="range" id="rngSubheadingSize" min="10" max="16" step="0.5" value="11">
+      </div>
+
+      <div class="style-group" style="margin-top:var(--sp-2);">
+        <label>Line Height <span id="lblLineHeight" style="font-weight:normal;color:var(--ink-600)">1.5</span></label>
+        <input type="range" id="rngLineHeight" min="1.1" max="2.0" step="0.05" value="1.5">
+      </div>
+
+      <div class="style-group">
+        <label>Section Spacing <span id="lblSectionSpacing" style="font-weight:normal;color:var(--ink-600)">12pt</span></label>
+        <input type="range" id="rngSectionSpacing" min="4" max="24" step="1" value="12">
+      </div>
+
+      <div class="style-group">
+        <label>Paragraph Spacing <span id="lblParagraphSpacing" style="font-weight:normal;color:var(--ink-600)">6pt</span></label>
+        <input type="range" id="rngParagraphSpacing" min="0" max="16" step="1" value="6">
+      </div>
+
+      <div class="style-group" style="margin-top:var(--sp-2);">
+        <label>Page Margins <span id="lblMargins" style="font-weight:normal;color:var(--ink-600)">20mm</span></label>
+        <input type="range" id="rngMargins" min="10" max="35" step="1" value="20">
+      </div>
+
+    </aside>
+
   </div>
 
   <!-- Wizard Controls (Hidden navigation aids triggered from JS) -->
@@ -322,6 +363,18 @@
 AppShell.render({ active: 'resume-builder', title: 'Resume Builder' });
 const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('builderTemplate').content.cloneNode(true));
+
+// Inline UI helper for accordion toggle
+window.toggleAccordion = function(section) {
+  const cards = document.querySelectorAll('.editor-section-card');
+  cards.forEach(c => {
+    if(c.dataset.section === section) {
+      c.classList.add('active');
+    } else {
+      c.classList.remove('active');
+    }
+  });
+};
 </script>
 <script src="../js/pages/resume-builder.js"></script>
 <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>

@@ -3,7 +3,7 @@
   setTimeout(init, 0);
 
   let initialized = false;
-  let activeMode = 'saved'; // Default to database selection for direct database support
+  let activeMode = 'upload'; // Default to upload as it matches the default HTML active tab
 
   function init() {
     if (initialized) return;
@@ -49,7 +49,7 @@
         select.innerHTML = '<option value="">No created resumes found. Build one first!</option>';
         return;
       }
-      select.innerHTML = list.map(r => `<option value="${r.id}">${escapeHtml(r.title || 'Untitled Resume')}</option>`).join('');
+      select.innerHTML = '<option value="">Select a saved resume...</option>' + list.map(r => `<option value="${r.id}">${escapeHtml(r.title || 'Untitled Resume')}</option>`).join('');
     } catch (err) {
       select.innerHTML = '<option value="">Could not load saved resumes.</option>';
     }
@@ -83,7 +83,7 @@
     } else {
       resumeId = document.getElementById('resumeSelect').value;
       if (!resumeId) {
-        errorBox.textContent = 'Please select a created resume to match.';
+        errorBox.textContent = 'Please select a created resume first.';
         errorBox.style.display = 'block';
         return;
       }

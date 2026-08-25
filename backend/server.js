@@ -2226,10 +2226,18 @@ app.post('/api/linkedin/review', authenticateToken, async (req, res) => {
   try {
     const review = await aiService.generateLinkedInReview(profileText);
     
+    // Calculate overall score mathematically from category scores
+    let overallScore = 0;
+    if (review.categories && Array.isArray(review.categories)) {
+      overallScore = review.categories.reduce((acc, cat) => acc + (cat.score || 0), 0);
+    }
+    review.overall_score = overallScore;
+    review.suggestions = review.priority_improvements || [];
+
     const connection = await pool.getConnection();
     await connection.query(
       'INSERT INTO linkedin_reviews (user_id, score, suggestions, details) VALUES (?, ?, ?, ?)',
-      [req.user.id, review.overall_score, JSON.stringify(review.suggestions), JSON.stringify(review)]
+      [req.user.id, overallScore, JSON.stringify(review.suggestions), JSON.stringify(review)]
     );
     connection.release();
     
