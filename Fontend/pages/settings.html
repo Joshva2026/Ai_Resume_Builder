@@ -100,10 +100,14 @@
           firstName: document.getElementById('setFirstName').value,
           lastName: document.getElementById('setLastName').value
         });
-        alert('Settings saved successfully!');
-        window.location.reload();
+        if (typeof window.showToast === 'function') {
+          window.showToast('Settings saved successfully!', 'success');
+        }
+        setTimeout(() => window.location.reload(), 600);
       } catch (err) {
-        alert(err.message || 'Failed to save settings.');
+        if (typeof window.showToast === 'function') {
+          window.showToast(err.message || 'Failed to save settings.', 'error');
+        }
       } finally {
         btn.textContent = 'Save Changes';
         btn.disabled = false;

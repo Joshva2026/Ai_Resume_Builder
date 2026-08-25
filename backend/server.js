@@ -612,24 +612,6 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    // Create saved_jobs table
-    await connection.query(`
-      CREATE TABLE IF NOT EXISTS saved_jobs (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        company VARCHAR(255) NOT NULL,
-        location VARCHAR(255),
-        type VARCHAR(100),
-        url VARCHAR(500),
-        posted_date VARCHAR(100),
-        match_pct INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        INDEX idx_user_id (user_id)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    `);
-
     // Create applications table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS applications (
@@ -2329,101 +2311,6 @@ app.post('/api/ai/optimize', authenticateToken, async (req, res) => {
   }
 });
 
-// ==========================================
-// JOB SEARCH & SAVED JOBS ROUTES
-// ==========================================
-
-app.get('/api/jobs/search', authenticateToken, async (req, res) => {
-  const { q, l } = req.query;
-  const appId = process.env.ADZUNA_APP_ID;
-  const appKey = process.env.ADZUNA_APP_KEY;
-  
-  if (!appId || !appKey) {
-    return res.json({
-      jobs: [],
-      providerConfigured: false,
-      message: 'External Job Search Provider (Adzuna) is not configured. Please set ADZUNA_APP_ID and ADZUNA_APP_KEY in your .env file to enable real-time job searching.'
-    });
-  }
-  
-  try {
-    const axios = require('axios');
-    const response = await axios.get(`https://api.adzuna.com/v1/api/jobs/gb/search/1`, {
-      params: {
-        app_id: appId,
-        app_key: appKey,
-        what: q || 'software engineer',
-        where: l || '',
-        results_per_page: 20
-      }
-    });
-    
-    const jobs = (response.data.results || []).map(job => ({
-      id: job.id,
-      title: job.title,
-      company: job.company.display_name,
-      location: job.location.display_name,
-      type: job.contract_type || 'Full Time',
-      url: job.redirect_url,
-      posted_date: new Date(job.created).toLocaleDateString(),
-      match_pct: 75
-    }));
-    
-    res.json({
-      jobs,
-      providerConfigured: true
-    });
-  } catch (error) {
-    console.error('Job Search API Error:', error.message);
-    res.status(500).json({ error: 'Failed to fetch jobs from provider' });
-  }
-});
-
-app.get('/api/jobs/saved', authenticateToken, async (req, res) => {
-  try {
-    const connection = await pool.getConnection();
-    const [saved] = await connection.query(
-      'SELECT * FROM saved_jobs WHERE user_id = ? ORDER BY created_at DESC',
-      [req.user.id]
-    );
-    connection.release();
-    res.json(saved);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch saved jobs' });
-  }
-});
-
-app.post('/api/jobs/saved', authenticateToken, async (req, res) => {
-  const { title, company, location, type, url, posted_date, match_pct } = req.body;
-  if (!title || !company) {
-    return res.status(400).json({ error: 'Job title and company are required' });
-  }
-  try {
-    const connection = await pool.getConnection();
-    await connection.query(
-      'INSERT INTO saved_jobs (user_id, title, company, location, type, url, posted_date, match_pct) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [req.user.id, title, company, location, type, url, posted_date, match_pct || 0]
-    );
-    connection.release();
-    res.status(201).json({ message: 'Job bookmarked successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to save job' });
-  }
-});
-
-app.delete('/api/jobs/saved/:id', authenticateToken, async (req, res) => {
-  try {
-    const connection = await pool.getConnection();
-    await connection.query(
-      'DELETE FROM saved_jobs WHERE id = ? AND user_id = ?',
-      [req.params.id, req.user.id]
-    );
-    connection.release();
-    res.json({ message: 'Job bookmark removed' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to remove bookmarked job' });
-  }
-});
 
 // ==========================================
 // APPLICATION TRACKER ROUTES

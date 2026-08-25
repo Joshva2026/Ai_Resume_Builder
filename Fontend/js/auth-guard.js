@@ -12,7 +12,7 @@
     'dashboard', 'profile', 'resume-builder', 'resume-preview',
     'ats-checker', 'ai-assistant', 'cover-letter', 'my-resumes',
     'download-center', 'settings', 'linkedin-review',
-    'job-match', 'job-search', 'applications',
+    'job-match', 'applications',
   ];
   const AUTH_PAGES = ['login', 'register'];
 

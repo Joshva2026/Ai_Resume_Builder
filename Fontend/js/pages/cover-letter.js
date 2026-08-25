@@ -271,9 +271,9 @@
     try {
       await ApiService.coverLetters.update(activeLetterId, { title, content });
       loadLetters();
-      alert('Cover letter saved successfully.');
+      if (typeof window.showToast === 'function') window.showToast('Cover letter saved successfully.', 'success');
     } catch (err) {
-      alert('Failed to save changes: ' + err.message);
+      if (typeof window.showToast === 'function') window.showToast('Failed to save changes: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
       btn.innerHTML = originalText;
@@ -281,35 +281,50 @@
   }
 
   window.deleteLetter = async function (id, event) {
-    event.stopPropagation();
-    if (confirm('Delete this saved cover letter?')) {
-      try {
-        await ApiService.coverLetters.remove(id);
-        if (activeLetterId === id) {
-          activeLetterId = null;
-          document.getElementById('clContent').value = '';
-          document.getElementById('btnSave').style.display = 'none';
-        }
-        loadLetters();
-      } catch (err) {
-        alert('Failed to delete letter: ' + err.message);
+    if (event) event.stopPropagation();
+    if (typeof window.confirmModal === 'function') {
+      const ok = await window.confirmModal({
+        title: 'Delete Cover Letter?',
+        message: 'Are you sure you want to delete this saved cover letter?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        isDanger: true
+      });
+      if (!ok) return;
+    }
+    try {
+      await ApiService.coverLetters.remove(id);
+      if (activeLetterId === id) {
+        activeLetterId = null;
+        document.getElementById('clContent').value = '';
+        document.getElementById('btnSave').style.display = 'none';
       }
+      loadLetters();
+      if (typeof window.showToast === 'function') window.showToast('Cover letter deleted.', 'success');
+    } catch (err) {
+      if (typeof window.showToast === 'function') window.showToast('Failed to delete letter: ' + err.message, 'error');
     }
   };
 
   function copyLetter() {
     const content = document.getElementById('clContent').value;
-    if (!content) return alert('No cover letter content to copy.');
+    if (!content) {
+      if (typeof window.showToast === 'function') window.showToast('No cover letter content to copy.', 'warning');
+      return;
+    }
     navigator.clipboard.writeText(content).then(() => {
-      alert('Cover letter copied to clipboard!');
+      if (typeof window.showToast === 'function') window.showToast('Cover letter copied to clipboard!', 'success');
     }).catch(err => {
-      alert('Failed to copy text: ' + err.message);
+      if (typeof window.showToast === 'function') window.showToast('Failed to copy text: ' + err.message, 'error');
     });
   }
 
   function printLetter() {
     const content = document.getElementById('clContent').value;
-    if (!content) return alert('No cover letter content to print.');
+    if (!content) {
+      if (typeof window.showToast === 'function') window.showToast('No cover letter content to print.', 'warning');
+      return;
+    }
 
     const printWin = window.open('', '', 'width=800,height=600');
     printWin.document.write(`

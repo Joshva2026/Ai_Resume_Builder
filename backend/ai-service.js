@@ -392,10 +392,13 @@ async function generateJobMatch(resumeText, jobDescription) {
       }
     });
 
-    return JSON.parse(response.text);
+    let resultText = response.text || '';
+    resultText = resultText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    
+    return JSON.parse(resultText);
   } catch (error) {
-    console.error('Gemini Job Match API Error:', error.message);
-    throw new Error('Failed to analyze job match with AI');
+    console.error('Gemini Job Match API Error:', error.message || error);
+    throw new Error('Job Match AI Error: ' + (error.message || 'Failed to analyze'));
   }
 }
 

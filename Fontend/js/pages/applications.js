@@ -53,7 +53,7 @@
             await ApiService.applications.updateStatus(id, newStatus);
             loadApplications();
           } catch (err) {
-            alert('Failed to update status: ' + err.message);
+            if (typeof window.showToast === 'function') window.showToast('Failed to update status: ' + err.message, 'error');
           }
         }
       });
@@ -117,13 +117,19 @@
     const id = document.getElementById('appId').value;
     
     const company = document.getElementById('f_company').value.trim();
-    const title = document.getElementById('f_title').value.trim();
-    const url = document.getElementById('f_url').value.trim();
-    const status = document.getElementById('f_status').value;
-    const appliedDate = document.getElementById('f_applied_date').value;
-    const notes = document.getElementById('f_notes').value.trim();
+    const payload = {
+      company: document.getElementById('f_company').value,
+      title: document.getElementById('f_title').value,
+      url: document.getElementById('f_url').value,
+      status: document.getElementById('f_status').value,
+      applied_date: document.getElementById('f_applied_date').value || null,
+      notes: document.getElementById('f_notes').value
+    };
 
-    const payload = { company, title, url, status, applied_date: appliedDate || null, notes };
+    if (!payload.company || !payload.title) {
+      if (typeof window.showToast === 'function') window.showToast('Please provide Company and Job Title.', 'warning');
+      return;
+    }
 
     try {
       if (id) {
@@ -133,8 +139,9 @@
       }
       modal.style.display = 'none';
       loadApplications();
+      if (typeof window.showToast === 'function') window.showToast('Application saved successfully!', 'success');
     } catch (err) {
-      alert('Save failed: ' + err.message);
+      if (typeof window.showToast === 'function') window.showToast('Save failed: ' + err.message, 'error');
     }
   }
 
@@ -144,7 +151,7 @@
       await ApiService.applications.updateStatus(id, newStatus);
       loadApplications();
     } catch (err) {
-      alert('Failed to update status: ' + err.message);
+      if (typeof window.showToast === 'function') window.showToast('Failed to update status: ' + err.message, 'error');
     }
   };
 
@@ -172,13 +179,22 @@
   };
 
   window.deleteApp = async function (id) {
-    if (confirm('Are you sure you want to delete this job application?')) {
-      try {
-        await ApiService.applications.remove(id);
-        loadApplications();
-      } catch (err) {
-        alert('Delete failed: ' + err.message);
-      }
+    if (typeof window.confirmModal === 'function') {
+      const ok = await window.confirmModal({
+        title: 'Delete Job Application?',
+        message: 'Are you sure you want to delete this job application?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        isDanger: true
+      });
+      if (!ok) return;
+    }
+    try {
+      await ApiService.applications.remove(id);
+      loadApplications();
+      if (typeof window.showToast === 'function') window.showToast('Application deleted.', 'success');
+    } catch (err) {
+      if (typeof window.showToast === 'function') window.showToast('Delete failed: ' + err.message, 'error');
     }
   };
 

@@ -19,7 +19,6 @@ const AppShell = (() => {
     { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant.html' },
     
     { group: 'System' },
-    { key: 'job-search', icon: 'fa-briefcase', label: 'Find Jobs', href: 'job-search.html' },
     { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile.html' },
     { key: 'settings', icon: 'fa-gear', label: 'Settings', href: 'settings.html' }
   ];

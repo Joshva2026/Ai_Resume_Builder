@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resumeId = params.get('id');
 
   if (!resumeId) {
-    alert('No resume specified for preview.');
+    if (typeof window.showToast === 'function') window.showToast('No resume specified for preview.', 'warning');
     window.location.href = 'dashboard.html';
     return;
   }

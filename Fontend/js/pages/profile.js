@@ -85,7 +85,9 @@
         if (e.target.files && e.target.files[0]) {
           const file = e.target.files[0];
           if (file.size > 5 * 1024 * 1024) {
-            alert('Image file size exceeds 5MB limit.');
+            if (typeof window.showToast === 'function') {
+              window.showToast('Image file size exceeds 5MB limit.', 'warning');
+            }
             return;
           }
           const reader = new FileReader();

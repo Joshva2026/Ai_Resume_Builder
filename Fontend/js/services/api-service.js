@@ -255,16 +255,6 @@ const ApiService = (() => {
     history: () => request('/job-match/history'),
   };
 
-  // ── JOBS ─────────────────────────────────────────────────────────────
-  const jobs = {
-    search: (q, l) => request(`/jobs/search?q=${encodeURIComponent(q || '')}&l=${encodeURIComponent(l || '')}`),
-    saved: {
-      list: () => request('/jobs/saved'),
-      save: (job) => request('/jobs/saved', { method: 'POST', body: job }),
-      remove: (id) => request(`/jobs/saved/${id}`, { method: 'DELETE' }),
-    }
-  };
-
   // ── APPLICATIONS ─────────────────────────────────────────────────────
   const applications = {
     list: () => request('/applications'),
@@ -373,7 +363,6 @@ const ApiService = (() => {
     ai,
     linkedin,
     jobMatch,
-    jobs,
     applications,
     coverLetters,
     templates,
