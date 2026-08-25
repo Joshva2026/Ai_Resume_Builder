@@ -71,6 +71,15 @@
       <div class="step-icon"><i class="fa-solid fa-file-invoice"></i></div>
       <span>Summary</span>
     </div>
+    <div class="step-nav-item" data-step="template">
+      <div class="step-icon"><i class="fa-solid fa-cubes"></i></div>
+      <span>Template</span>
+    </div>
+    <div class="step-nav-line"></div>
+    <div class="step-nav-item" data-step="font">
+      <div class="step-icon"><i class="fa-solid fa-font"></i></div>
+      <span>Font</span>
+    </div>
     <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="review">
       <div class="step-icon"><i class="fa-solid fa-list-check"></i></div>
@@ -94,7 +103,9 @@
       <div class="rail-item" draggable="true" data-section="volunteer"><i class="fa-solid fa-grip-vertical grip"></i> Volunteer Work</div>
       <div class="rail-item" draggable="true" data-section="awards"><i class="fa-solid fa-grip-vertical grip"></i> Awards</div>
       <div class="rail-item" draggable="true" data-section="publications"><i class="fa-solid fa-grip-vertical grip"></i> Publications</div>
-      <div class="rail-item" data-section="review" style="margin-top:var(--sp-4); border-top:1px solid var(--line); padding-top:var(--sp-3);"><i class="fa-solid fa-list-check" style="margin-right:8px; color:var(--primary);"></i> Review & Finalize</div>
+      <div class="rail-item" data-section="template" style="margin-top:var(--sp-4); border-top:1px solid var(--line); padding-top:var(--sp-3);"><i class="fa-solid fa-cubes" style="margin-right:8px; color:var(--primary);"></i> Select Template</div>
+      <div class="rail-item" data-section="font"><i class="fa-solid fa-font" style="margin-right:8px; color:var(--primary);"></i> Typography</div>
+      <div class="rail-item" data-section="review"><i class="fa-solid fa-list-check" style="margin-right:8px; color:var(--primary);"></i> Review & Finalize</div>
 
       <div class="rail-completion-box">
         <div class="circle-progress">
@@ -139,7 +150,8 @@
           <div class="field"><label>GitHub URL</label><input type="text" id="f_github" placeholder="github.com/janedoe"></div>
           <div class="field"><label>&nbsp;</label><span style="font-size:var(--fs-2xs);color:var(--ink-500);display:block;padding-top:8px;"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> LinkedIn &amp; GitHub appear as clickable icons in supported templates.</span></div>
         </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -152,7 +164,8 @@
           <textarea id="f_summary" rows="5" placeholder="Goal-oriented developer with a strong foundation in modern web development..."></textarea>
           <button class="ai-inline-btn" data-ai="summary"><i class="fa-solid fa-wand-magic-sparkles"></i> Improve with AI</button>
         </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -162,7 +175,8 @@
         <h3>Work Experience</h3>
         <div id="experienceBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addExperience" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Position</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -172,7 +186,8 @@
         <h3>Education</h3>
         <div id="educationBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addEducation" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Education</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -182,7 +197,8 @@
         <h3>Featured Projects</h3>
         <div id="projectBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addProject" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Project</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -195,7 +211,8 @@
           <textarea id="f_skills" rows="3" placeholder="JavaScript, CSS variables, REST APIs, Git, Responsive layouts"></textarea>
           <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimize Keywords</button>
         </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -207,7 +224,8 @@
           <label>Certifications (one per line)</label>
           <textarea id="f_certs" rows="3" placeholder="AWS Cloud Practitioner (2024)"></textarea>
         </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -217,7 +235,8 @@
         <h3>Languages</h3>
         <div id="languageBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addLanguage" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Language</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -227,7 +246,8 @@
         <h3>Volunteer Work</h3>
         <div id="volunteerBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addVolunteer" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Volunteer Role</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -237,7 +257,8 @@
         <h3>Awards & Honors</h3>
         <div id="awardBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addAward" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Award</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
@@ -247,8 +268,58 @@
         <h3>Publications</h3>
         <div id="publicationBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addPublication" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Publication</button>
-        <div style="display:flex; justify-content:flex-end; margin-top:var(--sp-4)">
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Done</button>
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Template Section -->
+      <div class="editor-section" data-section="template">
+        <h3>Select Template</h3>
+        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Choose a professional template. Your data will instantly adapt.</p>
+        
+        <div id="templateGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px;">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Font Section -->
+      <div class="editor-section" data-section="font">
+        <h3>Typography</h3>
+        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Select a font combination to refine your resume's look.</p>
+        
+        <div id="fontGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="font-card active" data-font="sans" style="border:2px solid var(--primary); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-family:'Inter', sans-serif; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
+            <div style="font-size:14px; font-weight:600;">Inter (Sans-Serif)</div>
+            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Clean, readable, modern</div>
+          </div>
+          <div class="font-card" data-font="serif" style="border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-family:Georgia, serif; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
+            <div style="font-size:14px; font-weight:600;">Georgia (Serif)</div>
+            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Classic, elegant, professional</div>
+          </div>
+          <div class="font-card" data-font="mono" style="border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
+            <div style="font-size:14px; font-weight:600;">IBM Plex Mono</div>
+            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Technical, distinct, developer</div>
+          </div>
+          <div class="font-card" data-font="roboto" style="border:1px solid var(--line); border-radius:8px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-family:Roboto, sans-serif; font-size:24px; font-weight:700; margin-bottom:8px;">Aa</div>
+            <div style="font-size:14px; font-weight:600;">Roboto (Sans-Serif)</div>
+            <div style="font-size:12px; color:var(--ink-600); text-align:center; margin-top:4px;">Standard, reliable, ATS friendly</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
         </div>
       </div>
 
@@ -261,9 +332,12 @@
           <!-- Populated by JS -->
         </div>
 
-        <div style="display:flex; gap:var(--sp-3); margin-top:var(--sp-4)">
-          <button class="btn btn-primary" onclick="document.getElementById('btnSave').click()" style="flex:1;"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
-          <a href="ats-checker.html" class="btn btn-ghost" style="flex:1; text-align:center;"><i class="fa-solid fa-gauge-high"></i> ATS Score</a>
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
+          <button class="btn btn-primary" onclick="document.getElementById('btnSave').click()" style="flex:1; margin-left:var(--sp-3)"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
+        </div>
+        <div style="margin-top:var(--sp-3)">
+          <a href="ats-checker.html" class="btn btn-ghost" style="width:100%; text-align:center;"><i class="fa-solid fa-gauge-high"></i> Verify ATS Score</a>
         </div>
       </div>
       
@@ -302,6 +376,7 @@
   </div>
 
   <!-- Wizard Controls (Hidden navigation aids triggered from JS) -->
+  <button id="btnBack" style="display:none"></button>
   <button id="btnNext" style="display:none"></button>
 
   <!-- Floating AI Suggestions Panel Toggle Button -->

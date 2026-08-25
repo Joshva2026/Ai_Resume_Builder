@@ -287,23 +287,84 @@ function bindUndo() {
         pushState();
         state.styling.template = selTemplate.value;
         renderPreview();
+        updateTemplateGridSelection();
       });
     }
     
+    // Setup Template Grid
+    const templateGrid = document.getElementById('templateGrid');
+    if (templateGrid && typeof TemplateRenderer !== 'undefined') {
+      templateGrid.innerHTML = TemplateRenderer.templatesList.map(t => `
+        <div class="template-card" data-template="${t.id}" style="border:1px solid var(--line); border-radius:8px; padding:12px; cursor:pointer; background:var(--paper-0);">
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px; color:var(--ink-950);">${t.name}</div>
+          <div style="font-size:11px; color:var(--ink-600);">${t.category} &bull; ${t.description}</div>
+        </div>
+      `).join('');
+
+      templateGrid.querySelectorAll('.template-card').forEach(card => {
+        card.addEventListener('click', () => {
+          pushState();
+          state.styling.template = card.dataset.template;
+          if (selTemplate) selTemplate.value = card.dataset.template;
+          renderPreview();
+          updateTemplateGridSelection();
+        });
+      });
+      updateTemplateGridSelection();
+    }
+
     if (selFont) {
       selFont.addEventListener('change', () => {
         pushState();
         state.styling.font = selFont.value;
         renderPreview();
+        updateFontGridSelection();
       });
     }
+
+    // Setup Font Grid
+    const fontCards = document.querySelectorAll('.font-card');
+    fontCards.forEach(card => {
+      card.addEventListener('click', () => {
+        pushState();
+        state.styling.font = card.dataset.font;
+        if (selFont) selFont.value = card.dataset.font;
+        renderPreview();
+        updateFontGridSelection();
+      });
+    });
+    updateFontGridSelection();
+
     if (rngSpacing) {
       rngSpacing.addEventListener('input', () => {
-        pushState();
-        state.styling.spacing = parseFloat(rngSpacing.value);
+        state.styling.spacing = rngSpacing.value;
         renderPreview();
       });
     }
+  }
+
+  function updateTemplateGridSelection() {
+    document.querySelectorAll('.template-card').forEach(c => {
+      if (c.dataset.template === state.styling.template) {
+        c.style.borderColor = 'var(--primary)';
+        c.style.backgroundColor = 'var(--primary-50)';
+      } else {
+        c.style.borderColor = 'var(--line)';
+        c.style.backgroundColor = 'var(--paper-0)';
+      }
+    });
+  }
+
+  function updateFontGridSelection() {
+    document.querySelectorAll('.font-card').forEach(c => {
+      if (c.dataset.font === state.styling.font) {
+        c.style.borderColor = 'var(--primary)';
+        c.style.borderWidth = '2px';
+      } else {
+        c.style.borderColor = 'var(--line)';
+        c.style.borderWidth = '1px';
+      }
+    });
   }
 
   /* ---------------------------------------------------------------------
@@ -753,6 +814,30 @@ function loadDraftFromLocalStorage() {
   let currentResumeId = resumeId || null;
 
   async function saveResume() {
+    const p = state.personal || {};
+    const hasName = p.fullName && p.fullName.trim().length > 0;
+    const hasEmail = p.email && p.email.trim().length > 0;
+    const hasSummary = state.summary && state.summary.trim().length > 0;
+    const hasEducation = state.education && state.education.length > 0;
+    const hasSkills = state.skills && state.skills.trim().length > 0;
+    const hasExperience = state.experience && state.experience.length > 0;
+
+    const tier = state.experienceLevel || 'fresher';
+
+    if (!hasName || !hasEmail || !hasSummary || !hasEducation || !hasSkills) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Please complete Name, Email, Summary, Education, and Skills before saving.', 'error');
+      }
+      return;
+    }
+
+    if (tier === 'experienced' && !hasExperience) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Professional resumes require at least one Work Experience entry.', 'error');
+      }
+      return;
+    }
+
     const indicator = document.getElementById('saveIndicator');
     const titleEl = document.getElementById('resumeTitle');
     const title = (titleEl && titleEl.value.trim()) || 'Untitled Resume';
@@ -815,6 +900,9 @@ function loadDraftFromLocalStorage() {
       setVal('selFont', state.styling.font || 'sans');
       setVal('rngSpacing', state.styling.spacing || 1.4);
       
+      updateTemplateGridSelection();
+      updateFontGridSelection();
+
       document.querySelectorAll('.accent-dot').forEach(dot => {
         if (dot.dataset.color === state.styling.accent) {
           document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
@@ -921,16 +1009,28 @@ function loadDraftFromLocalStorage() {
       }
     });
   }
-  function bindNextButton() {
+  function bindNavigationButtons() {
     const nextBtn = document.getElementById('btnNext');
-    if (!nextBtn) return;
-    nextBtn.addEventListener('click', () => {
-      const items = Array.from(document.querySelectorAll('.rail-item'));
-      const activeIdx = items.findIndex(i => i.classList.contains('active'));
-      if (activeIdx >= 0 && activeIdx < items.length - 1) {
-        items[activeIdx + 1].click();
-      }
-    });
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        const items = Array.from(document.querySelectorAll('.rail-item'));
+        const activeIdx = items.findIndex(i => i.classList.contains('active'));
+        if (activeIdx >= 0 && activeIdx < items.length - 1) {
+          items[activeIdx + 1].click();
+        }
+      });
+    }
+
+    const backBtn = document.getElementById('btnBack');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        const items = Array.from(document.querySelectorAll('.rail-item'));
+        const activeIdx = items.findIndex(i => i.classList.contains('active'));
+        if (activeIdx > 0) {
+          items[activeIdx - 1].click();
+        }
+      });
+    }
   }
   function goBack() {
     const items = Array.from(document.querySelectorAll('.rail-item'));
@@ -1250,5 +1350,5 @@ function loadDraftFromLocalStorage() {
   bindEditAndBack();
 
   // after existing bindToolbar call
-  bindNextButton();
+  bindNavigationButtons();
 })();
