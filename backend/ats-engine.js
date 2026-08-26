@@ -4,10 +4,21 @@ const mammoth = require('mammoth');
 
 // Helper to extract text from a file (PDF, DOCX, DOC, TXT)
 async function extractText(filePath, mimetype, originalName = '') {
+  if (!filePath) throw new Error('No file path provided.');
+  try {
+    const stats = fs.statSync(filePath);
+    if (stats.size === 0) {
+      throw new Error('The uploaded file is empty.');
+    }
+  } catch (err) {
+    if (err.message === 'The uploaded file is empty.') throw err;
+    throw new Error('Failed to read file from disk.');
+  }
+
   const ext = (originalName.split('.').pop() || '').toLowerCase();
 
   // 1. PDF
-  if (mimetype === 'application/pdf' || ext === 'pdf') {
+  if (ext === 'pdf' || (!ext && mimetype === 'application/pdf')) {
     try {
       const dataBuffer = fs.readFileSync(filePath);
       const data = await pdf(dataBuffer);
@@ -24,10 +35,9 @@ async function extractText(filePath, mimetype, originalName = '') {
   
   // 2. DOCX & DOC
   if (
-    mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-    mimetype === 'application/msword' ||
     ext === 'docx' ||
-    ext === 'doc'
+    ext === 'doc' ||
+    (!ext && (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimetype === 'application/msword'))
   ) {
     try {
       const result = await mammoth.extractRawText({ path: filePath });
@@ -43,7 +53,7 @@ async function extractText(filePath, mimetype, originalName = '') {
   }
 
   // 3. TXT
-  if (mimetype === 'text/plain' || ext === 'txt') {
+  if (ext === 'txt' || (!ext && mimetype === 'text/plain')) {
     return fs.readFileSync(filePath, 'utf8');
   }
 
