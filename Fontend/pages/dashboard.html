@@ -78,7 +78,7 @@
 }
 .health-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(168, 85, 247, 0.3);
+  border-color: rgba(37, 99, 235, 0.3);
   box-shadow: var(--shadow-glow);
 }
 .health-card h4 {
@@ -104,7 +104,7 @@
 .health-card .score-val {
   font-size: var(--fs-xl);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 .health-card .score-pct {
   font-size: var(--fs-2xs);
@@ -164,7 +164,7 @@
 .panel-head h3 {
   font-size: var(--fs-md);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 
 /* Recent Resumes list styles */
@@ -183,9 +183,20 @@
   border: 1px solid rgba(255, 255, 255, 0.04);
   transition: all 0.2s ease;
 }
+@media (max-width: 640px) {
+  .resume-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+  }
+  .resume-item-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
 .resume-list-item:hover {
-  background: rgba(168, 85, 247, 0.04);
-  border-color: rgba(168, 85, 247, 0.15);
+  background: rgba(37, 99, 235, 0.04);
+  border-color: rgba(37, 99, 235, 0.15);
 }
 .resume-item-info {
   display: flex;
@@ -195,7 +206,7 @@
 .resume-item-icon {
   font-size: 18px;
   color: var(--primary);
-  background: rgba(168, 85, 247, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -206,7 +217,7 @@
 .resume-item-details h4 {
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: #FFFFFF;
+  color: var(--ink-950);
   margin-bottom: 2px;
 }
 .resume-item-details p {
@@ -279,7 +290,7 @@
 }
 .dropdown-content button:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 .dropdown-content i {
   margin-right: 8px;
@@ -308,14 +319,14 @@
   color: var(--primary);
   font-size: 14px;
   margin-top: 2px;
-  background: rgba(168, 85, 247, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   padding: 6px;
   border-radius: 6px;
 }
 .suggestion-item-text h4 {
   font-size: var(--fs-xs);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--ink-950);
   margin-bottom: 2px;
 }
 .suggestion-item-text p {
@@ -404,7 +415,7 @@
         <div class="resume-list-item" style="border-style: dashed; background: transparent; cursor: pointer; justify-content: center; opacity: 0.75;" onclick="window.location.href='resume-builder.html'">
           <div style="display:flex; align-items:center; gap:8px;">
             <i class="fa-solid fa-circle-plus" style="color: var(--primary);"></i>
-            <span style="font-size: var(--fs-xs); font-weight:600; color:#FFFFFF;">Create New Resume</span>
+            <span style="font-size: var(--fs-xs); font-weight:600; color:var(--ink-950);">Create New Resume</span>
           </div>
         </div>
       </div>
@@ -564,7 +575,7 @@ async function loadDashboard() {
       <div class="resume-list-item" style="border-style: dashed; background: transparent; cursor: pointer; justify-content: center; opacity: 0.75;" onclick="window.location.href='resume-builder.html'">
         <div style="display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-circle-plus" style="color: var(--primary);"></i>
-          <span style="font-size: var(--fs-xs); font-weight:600; color:#FFFFFF;">Create New Resume</span>
+          <span style="font-size: var(--fs-xs); font-weight:600; color:var(--ink-950);">Create New Resume</span>
         </div>
       </div>
     `;

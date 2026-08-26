@@ -1,5 +1,5 @@
 const fs = require('fs');
-const pdf = require('pdf-parse');
+const pdf = require('pdf-parse-new');
 const mammoth = require('mammoth');
 
 // Helper to extract text from a file (PDF, DOCX, DOC, TXT)
@@ -28,8 +28,9 @@ async function extractText(filePath, mimetype, originalName = '') {
       }
       return extractedText;
     } catch (err) {
-      if (err.message.includes('scanned image')) throw err;
-      throw new Error('Failed to read PDF file. It may be password-protected, encrypted, or corrupted.');
+      console.error('[ATS PDF PARSER ERROR]', err.message, err.stack);
+      if (err.message && err.message.includes('scanned image')) throw err;
+      throw new Error(`Failed to read PDF file. It may be password-protected, encrypted, or corrupted. (Internal: ${err.message})`);
     }
   }
   

@@ -13,7 +13,7 @@
 /* Sidebar navigation panel */
 .app-sidebar {
   background: rgba(10, 9, 16, 0.95);
-  color: #FFFFFF;
+  color: var(--ink-950);
   padding: var(--sp-5) var(--sp-4);
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@
   font-family: var(--font-display);
   font-size: var(--fs-md);
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--ink-950);
   padding: var(--sp-2) var(--sp-1);
   margin-bottom: var(--sp-5);
   letter-spacing: -0.03em;
@@ -45,7 +45,7 @@
   height: 28px;
   border-radius: var(--radius-sm);
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: #FFFFFF;
+  color: var(--ink-950);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,14 +171,14 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  color: #FFFFFF;
+  color: var(--ink-950);
   height: 64px;
 }
 
 .app-topbar h1 {
   font-size: var(--fs-md);
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 
 .topbar-actions {
@@ -209,7 +209,7 @@
   height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: #FFFFFF;
+  color: var(--ink-950);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -222,7 +222,7 @@
 .user-menu .name {
   font-size: var(--fs-2xs);
   font-weight: 600;
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 
 .user-menu .role {
@@ -245,7 +245,7 @@
 }
 .icon-btn:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #FFFFFF;
+  color: var(--ink-950);
   border-color: rgba(216, 222, 233, 0.3);
 }
 .icon-btn .badge {
@@ -290,7 +290,7 @@
     z-index: 1000;
     transform: translateX(-100%);
     box-shadow: 15px 0 40px rgba(0, 0, 0, 0.8);
-    background: #0a0910;
+    background: var(--paper-0);
   }
 
   .app-sidebar.is-open {
@@ -578,7 +578,7 @@
 
 .rf-modal-btn.confirm-primary {
   background: var(--primary, #2563eb);
-  color: #ffffff;
+  color: var(--ink-950);
 }
 
 .rf-modal-btn.confirm-primary:hover {
@@ -587,7 +587,7 @@
 
 .rf-modal-btn.confirm-danger {
   background: var(--score-low, #ef4444);
-  color: #ffffff;
+  color: var(--ink-950);
 }
 
 .rf-modal-btn.confirm-danger:hover {
