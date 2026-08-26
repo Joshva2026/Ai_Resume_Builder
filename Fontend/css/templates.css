@@ -198,3 +198,122 @@ ul.cv-list li {
 .template-leadership .cv-section-title { background: #333; color: #fff !important; padding: 4px 8px; }
 .template-leadership .cv-section-title * { color: #fff !important; }
 .template-leadership .cv-skill-tag { border-bottom: 1px solid #333; }
+
+/* ==========================================================================
+   PROFESSIONAL ATS COMPACT (Single Page Layout)
+   ========================================================================== */
+.template-professional-ats-compact {
+  padding: var(--cv-margin);
+}
+.template-professional-ats-compact .pac-header {
+  text-align: center;
+  margin-bottom: var(--cv-section-spacing);
+}
+.template-professional-ats-compact .pac-name {
+  font-size: var(--cv-h1-size);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--cv-p-spacing);
+  line-height: 1.2;
+}
+.template-professional-ats-compact .pac-contact {
+  font-size: var(--cv-font-size);
+  color: #333;
+}
+.template-professional-ats-compact .pac-contact a {
+  color: #333;
+  text-decoration: none;
+}
+.template-professional-ats-compact .pac-sep {
+  margin: 0 4px;
+  color: #999;
+}
+.template-professional-ats-compact .pac-section {
+  margin-bottom: var(--cv-section-spacing);
+}
+.template-professional-ats-compact .pac-section-title {
+  font-size: var(--cv-h3-size);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+.template-professional-ats-compact .pac-section-divider {
+  border-bottom: 1px solid #000;
+  margin-bottom: var(--cv-p-spacing);
+}
+.template-professional-ats-compact .pac-summary {
+  margin: 0;
+  text-align: justify;
+}
+.template-professional-ats-compact .pac-coursework {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+.template-professional-ats-compact .pac-course::after {
+  content: "·";
+  margin-left: 8px;
+  font-weight: bold;
+}
+.template-professional-ats-compact .pac-course:last-child::after {
+  content: "";
+  margin-left: 0;
+}
+.template-professional-ats-compact .pac-item {
+  margin-bottom: var(--cv-p-spacing);
+}
+.template-professional-ats-compact .pac-item:last-child {
+  margin-bottom: 0;
+}
+.template-professional-ats-compact .pac-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.template-professional-ats-compact .pac-item-title {
+  font-weight: 700;
+}
+.template-professional-ats-compact .pac-item-meta {
+  font-style: italic;
+  font-size: 0.95em;
+}
+.template-professional-ats-compact .pac-tech {
+  font-style: italic;
+}
+.template-professional-ats-compact .pac-link {
+  color: #000;
+  text-decoration: none;
+  font-style: italic;
+}
+.template-professional-ats-compact .pac-item-date {
+  font-size: 0.95em;
+  white-space: nowrap;
+}
+.template-professional-ats-compact .pac-skills-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.template-professional-ats-compact .pac-skill-row {
+  line-height: var(--cv-line-height);
+}
+.template-professional-ats-compact .pac-skill-cat {
+  font-weight: 700;
+}
+.template-professional-ats-compact .pac-cert-list {
+  margin: 0;
+  padding-left: 20px;
+}
+.template-professional-ats-compact .pac-cert-list li {
+  margin-bottom: 2px;
+}
+.template-professional-ats-compact .cv-list {
+  margin: 0;
+  padding-left: 16px;
+}
+.template-professional-ats-compact .cv-list li {
+  margin-bottom: 2px;
+}

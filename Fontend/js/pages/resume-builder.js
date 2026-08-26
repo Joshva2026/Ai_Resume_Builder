@@ -1141,112 +1141,19 @@ function loadDraftFromLocalStorage() {
     });
 
     document.getElementById('btnDownload')?.addEventListener('click', async () => {
-      // ── CLIENT-SIDE PDF FROM LIVE A4 PREVIEW ─────────────────────────────
-      // This is completely independent from Save Resume.
-      // It reads the current A4 preview DOM directly — no database save required.
-
-      const downloadBtn = document.getElementById('btnDownload');
-      if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating…'; }
-
+      if (!currentResumeId) {
+        await saveResume();
+      }
+      if (!currentResumeId) {
+        if (typeof window.showToast === 'function') window.showToast('Please save your resume first before downloading.', 'warning');
+        return;
+      }
       try {
-        // Check html2pdf is loaded
-        if (typeof html2pdf === 'undefined') {
-          throw new Error('PDF library not loaded. Please refresh the page and try again.');
-        }
-
-        // Get the live A4 preview element
-        const previewEl = document.getElementById('livePreview');
-        if (!previewEl) {
-          throw new Error('Resume preview not found. Please make sure the builder is open.');
-        }
-
-        if (typeof window.showToast === 'function') {
-          window.showToast('Generating PDF — this may take a moment…', 'info');
-        }
-
-        // Build filename from current state
-        const fullName = (state.personal?.fullName || '').trim();
-        const safeFirstName = fullName.split(' ')[0] || 'Resume';
-        const safeName = fullName.replace(/\s+/g, '_') || 'ResumeForge_Resume';
-        const fileName = `${safeName}_Resume.pdf`;
-
-        // Clone the preview to avoid mutating the live DOM
-        const clone = previewEl.cloneNode(true);
-
-        // Copy CSS className and ALL inline style properties (including --cv-* custom props)
-        clone.className = previewEl.className;
-        const inlineStyle = previewEl.getAttribute('style') || '';
-        clone.setAttribute('style', inlineStyle);
-
-        // Also copy computed CSS variables explicitly (set via el.style.setProperty)
-        const cvVars = ['--cv-font','--cv-font-size','--cv-h1-size','--cv-h2-size','--cv-h3-size',
-                        '--cv-line-height','--cv-margin','--cv-section-spacing','--cv-p-spacing'];
-        cvVars.forEach(v => {
-          const val = previewEl.style.getPropertyValue(v);
-          if (val) clone.style.setProperty(v, val);
-        });
-
-        // Force A4 dimensions and remove visual chrome
-        clone.style.width = '210mm';
-        clone.style.minHeight = 'auto';
-        clone.style.margin = '0';
-        clone.style.boxSizing = 'border-box';
-        clone.style.overflow = 'visible';
-        clone.style.boxShadow = 'none';
-        clone.style.outline = 'none';
-        clone.style.transform = 'none';
-
-        // Attach off-screen so html2pdf can measure/render it
-        clone.style.position = 'fixed';
-        clone.style.top = '-99999px';
-        clone.style.left = '0';
-        clone.style.zIndex = '-1';
-        document.body.appendChild(clone);
-
-        const opt = {
-          margin:       [0, 0, 0, 0],
-          filename:     fileName,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  {
-            scale: 2,
-            useCORS: true,
-            letterRendering: true,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 794, // 210mm at 96dpi
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait',
-            compress: true
-          },
-          pagebreak: {
-            mode: ['avoid-all', 'css', 'legacy'],
-            before: '.page-break-before',
-            after:  '.page-break-after',
-            avoid:  '.page-break-avoid'
-          }
-        };
-
-        try {
-          await html2pdf().set(opt).from(clone).save();
-        } finally {
-          // Always remove clone even if pdf generation throws
-          if (clone.parentNode) document.body.removeChild(clone);
-        }
-
-        if (typeof window.showToast === 'function') {
-          window.showToast('PDF downloaded successfully!', 'success');
-        }
-
+        if (typeof window.showToast === 'function') window.showToast('Generating PDF — this may take a moment...', 'info');
+        await ApiService.downloads.pdf(currentResumeId);
+        if (typeof window.showToast === 'function') window.showToast('PDF downloaded successfully!', 'success');
       } catch (err) {
-        console.error('PDF generation error:', err);
-        if (typeof window.showToast === 'function') {
-          window.showToast('Unable to generate PDF. Please try again.', 'error');
-        }
-      } finally {
-        if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.innerHTML = '<i class="fa-solid fa-download"></i> PDF'; }
+        if (typeof window.showToast === 'function') window.showToast(err.message || 'PDF generation failed.', 'error');
       }
     });
 
