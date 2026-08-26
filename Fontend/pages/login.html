@@ -198,19 +198,21 @@ requestAnimationFrame(() => {
   document.body.style.opacity = '1';
 });
 
-// Show dev mode banner on localhost
-const isLocalhost = ['localhost','127.0.0.1'].includes(window.location.hostname);
-if (isLocalhost) {
+// Show dev mode banner ONLY on local development environment
+const isLocalhostMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+if (isLocalhostMode) {
   // Ping backend to check if it's up; show banner if it's not
   fetch(ApiService.BASE_URL + '/auth/me', { method: 'GET' })
     .then(r => { if (!r.ok && r.status !== 401) throw new Error(); }) // 401 = backend alive, just not authed
     .catch(() => {
-      document.getElementById('devModeBanner').style.display = 'block';
+      const banner = document.getElementById('devModeBanner');
+      if (banner) banner.style.display = 'block';
     });
 }
 
-// Fill demo credentials
+// Fill demo credentials (only works if banner is shown)
 document.getElementById('fillDemoBtn')?.addEventListener('click', () => {
+  if (!isLocalhostMode) return;
   document.getElementById('email').value = 'demo@resumeforge.dev';
   document.getElementById('password').value = 'Demo1234!';
   document.getElementById('email').dispatchEvent(new Event('input'));
