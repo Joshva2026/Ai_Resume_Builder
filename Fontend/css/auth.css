@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.12) 0%, #030303 80%);
+  background: radial-gradient(circle at 50% 50%, rgba(216, 222, 233, 0.12) 0%, var(--bg-ocean) 80%);
   position: relative;
   padding: var(--sp-6) var(--sp-4);
   overflow: hidden;
@@ -25,10 +25,10 @@
   background: rgba(13, 12, 22, 0.65);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(168, 85, 247, 0.25);
+  border: 1px solid rgba(216, 222, 233, 0.25);
   border-radius: var(--radius-lg);
   padding: 40px 32px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 85, 247, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(216, 222, 233, 0.15);
   position: relative;
   z-index: 10;
 }
@@ -78,7 +78,7 @@
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 0 15px rgba(216, 222, 233, 0.3);
 }
 
 .divider {
@@ -181,7 +181,7 @@
   width: 250px;
   height: 250px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(216, 222, 233, 0.15) 0%, transparent 70%);
   filter: blur(40px);
   pointer-events: none;
 }

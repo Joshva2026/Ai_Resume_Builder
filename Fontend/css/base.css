@@ -66,7 +66,7 @@ p {
   border-radius: var(--radius-pill);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.35);
+  background: rgba(216, 222, 233, 0.35);
   border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -219,7 +219,7 @@ p {
   transform: translateY(-1px);
 }
 .btn-primary:focus-visible {
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 0 3px rgba(216, 222, 233, 0.4);
 }
 
 .btn-accent {
@@ -241,7 +241,7 @@ p {
 .btn-ghost:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #FFFFFF;
-  border-color: rgba(168, 85, 247, 0.3);
+  border-color: rgba(216, 222, 233, 0.3);
   transform: translateY(-1px);
 }
 
@@ -372,7 +372,7 @@ p {
 .field select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 14px rgba(216, 222, 233, 0.25);
   background: var(--paper-50);
 }
 
@@ -459,7 +459,7 @@ p {
 .global-back-btn:hover {
   transform: translateY(-2px);
   background: rgba(20, 18, 33, 0.98);
-  border-color: rgba(168, 85, 247, 0.4);
+  border-color: rgba(216, 222, 233, 0.4);
   color: var(--primary);
   box-shadow: var(--shadow-glow);
 }

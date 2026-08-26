@@ -529,7 +529,7 @@
 }
 .builder-toolbar .title-input:focus {
   border-color: var(--primary) !important;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2) !important;
+  box-shadow: 0 0 10px rgba(216, 222, 233, 0.2) !important;
 }
 
 /* Editor fields glass override */

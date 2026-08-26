@@ -96,11 +96,11 @@
 }
 
 .side-nav a.active {
-  background: rgba(168, 85, 247, 0.12);
+  background: rgba(216, 222, 233, 0.12);
   color: var(--primary);
   font-weight: 600;
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  box-shadow: inset 0 0 10px rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(216, 222, 233, 0.25);
+  box-shadow: inset 0 0 10px rgba(216, 222, 233, 0.1);
 }
 
 .side-nav a.active i {
@@ -133,7 +133,7 @@
   position: absolute;
   top: -20px; right: -20px;
   width: 60px; height: 60px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(216, 222, 233, 0.2) 0%, transparent 70%);
   filter: blur(10px);
 }
 .sidebar-upgrade h4 {
@@ -155,7 +155,7 @@
   flex-direction: column;
   min-width: 0;
   position: relative;
-  background: radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.05) 0%, #030303 70%);
+  background: radial-gradient(circle at 80% 20%, rgba(216, 222, 233, 0.05) 0%, var(--bg-ocean) 70%);
 }
 
 /* Header Topbar components */
@@ -170,7 +170,7 @@
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 90;
+  z-index: 1000;
   color: #FFFFFF;
   height: 64px;
 }
@@ -201,7 +201,7 @@
 }
 .user-menu:hover {
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(168, 85, 247, 0.3);
+  border-color: rgba(216, 222, 233, 0.3);
 }
 
 .user-menu .avatar {
@@ -246,7 +246,7 @@
 .icon-btn:hover {
   background: rgba(255, 255, 255, 0.06);
   color: #FFFFFF;
-  border-color: rgba(168, 85, 247, 0.3);
+  border-color: rgba(216, 222, 233, 0.3);
 }
 .icon-btn .badge {
   position: absolute;
@@ -257,7 +257,7 @@
   padding: 0;
   border-radius: 50%;
   background: var(--accent);
-  border: 2px solid #030303;
+  border: 2px solid var(--bg-ocean);
 }
 
 .app-content {

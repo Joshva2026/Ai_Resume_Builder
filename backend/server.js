@@ -2188,10 +2188,12 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     );
 
     if (resumes.length === 0) {
+      console.error(`[PDF DIAGNOSTICS] Resume not found for id: ${resumeId} and user_id: ${req.user.id}`);
       connection.release();
       connection = null;
       return res.status(404).json({ error: 'Resume not found' });
     }
+    console.log(`[PDF DIAGNOSTICS] Resume found. Parsing content.`);
 
     const rawContent = resumes[0].content;
     const resumeTitle = (resumes[0].title || 'Resume').replace(/[^a-z0-9_\-\s]/gi, '').trim() || 'Resume';
@@ -2199,21 +2201,72 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
 
     const templateGenerator = require('./resume-pdf-template');
     const theme = resumeContent.styling?.template || 'modern';
-    const htmlContent = templateGenerator.generateResumeHtml(resumeContent, theme);
+    console.log(`[PDF DIAGNOSTICS] Generating HTML for template: ${theme}`);
+    
+    // generateResumeHtml returns { html, styling }
+    const generated = templateGenerator.generateResumeHtml(resumeContent, theme);
+    const innerHtml = generated.html;
+    const finalStyling = generated.styling;
+    
+    console.log(`[PDF DIAGNOSTICS] HTML generated. Length: ${innerHtml.length} chars.`);
 
-    // Log download record before generating PDF
+    // Build the complete HTML shell with embedded CSS
+    const fs = require('fs');
+    const path = require('path');
+    
+    let baseCss = '';
+    let templatesCss = '';
+    
+    try {
+      baseCss = fs.readFileSync(path.join(__dirname, '../Fontend/css/base.css'), 'utf8');
+      templatesCss = fs.readFileSync(path.join(__dirname, '../Fontend/css/templates.css'), 'utf8');
+      console.log(`[PDF DIAGNOSTICS] CSS loaded successfully.`);
+    } catch (cssErr) {
+      console.error(`[PDF DIAGNOSTICS] Failed to load CSS files:`, cssErr);
+      // fallback if CSS fails to load, though we should log the error
+    }
+
+    const fullHtmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    ${baseCss}
+    ${templatesCss}
+    body { 
+      background: #fff !important; 
+      margin: 0; 
+      padding: 0; 
+    }
+    .paper { 
+      margin: 0 !important; 
+      box-shadow: none !important; 
+      width: 210mm;
+      min-height: 297mm;
+    }
+  </style>
+</head>
+<body class="theme-${finalStyling.template}">
+  <div class="paper">
+    ${innerHtml}
+  </div>
+</body>
+</html>`;
     await connection.query(
       'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',
       [resumeId, 'pdf', `inline-stream-${Date.now()}`]
     );
     connection.release();
     connection = null;
+    console.log(`[PDF DIAGNOSTICS] Download logged to DB.`);
 
     // Stream the PDF directly to the response — no disk I/O needed
     let pdfBuffer;
+    console.log(`[PDF DIAGNOSTICS] Enqueueing PDF task...`);
     await runPdfTask(async () => {
       let browser;
       try {
+        console.log(`[PDF DIAGNOSTICS] Launching Puppeteer...`);
         browser = await puppeteer.launch({
           headless: 'new',
           args: [
@@ -2223,14 +2276,22 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
             '--disable-gpu'
           ]
         });
+        console.log(`[PDF DIAGNOSTICS] Puppeteer launched. Creating page...`);
         const page = await browser.newPage();
-        await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
+        console.log(`[PDF DIAGNOSTICS] Page created. Setting content...`);
+        // pass the string fullHtmlContent instead of the object
+        await page.setContent(fullHtmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
+        console.log(`[PDF DIAGNOSTICS] Content set. Generating PDF...`);
         pdfBuffer = await page.pdf({
           format: 'A4',
           printBackground: true,
           margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
         });
+        console.log(`[PDF DIAGNOSTICS] PDF generated successfully. Buffer length: ${pdfBuffer.length}`);
         await page.close();
+      } catch (puppeteerErr) {
+        console.error(`[PDF DIAGNOSTICS] Puppeteer exception:`, puppeteerErr);
+        throw puppeteerErr;
       } finally {
         if (browser) {
           try { await browser.close(); } catch (_) {}
@@ -2238,6 +2299,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       }
     });
 
+    console.log(`[PDF DIAGNOSTICS] Preparing response headers...`);
     const safeFileName = `${resumeTitle.replace(/\s+/g, '_')}.pdf`;
     res.set({
       'Content-Type': 'application/pdf',
@@ -2246,11 +2308,12 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       'Cache-Control': 'no-cache'
     });
     res.end(pdfBuffer);
+    console.log(`[PDF DIAGNOSTICS] Response sent successfully.`);
   } catch (error) {
     if (connection) {
       try { connection.release(); } catch (_) {}
     }
-    console.error('PDF download error:', error);
+    console.error('[PDF DIAGNOSTICS] PDF download error caught in main block:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'PDF generation failed. Please try again.' });
     }
