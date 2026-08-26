@@ -2328,7 +2328,12 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     if (connection) {
       try { connection.release(); } catch (_) {}
     }
-    console.error('[RESUME PDF] PDF download error caught in main block:', error);
+    console.log('[RESUME PDF ERROR]');
+    console.log(`message: ${error.message}`);
+    console.log(`name: ${error.name}`);
+    console.log(`stack: ${error.stack}`);
+    console.log(`cause: ${error.cause}`);
+    
     if (!res.headersSent) {
       res.status(500).json({ error: 'PDF generation failed. Please try again.' });
     }
