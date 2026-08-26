@@ -149,7 +149,10 @@
         </div>
         <div class="field-row">
           <div class="field"><label>GitHub URL</label><input type="text" id="f_github" placeholder="github.com/janedoe"></div>
-          <div class="field"><label>&nbsp;</label><span style="font-size:var(--fs-2xs);color:var(--ink-500);display:block;padding-top:8px;"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> LinkedIn &amp; GitHub appear as clickable icons in supported templates.</span></div>
+          <div class="field"><label>Portfolio URL</label><input type="text" id="f_portfolio" placeholder="yourportfolio.com"></div>
+        </div>
+        <div class="field">
+          <span style="font-size:var(--fs-2xs);color:var(--ink-500);display:block;padding:4px 0 8px;"><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> LinkedIn, GitHub &amp; Portfolio appear in contact info on all templates.</span>
         </div>
         <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
@@ -208,9 +211,20 @@
       <div class="editor-section" data-section="skills">
         <h3>Skills Inventory</h3>
         <div class="field">
-          <label>Skills (comma separated)</label>
+          <label>General Skills (comma separated)</label>
           <textarea id="f_skills" rows="3" placeholder="JavaScript, CSS variables, REST APIs, Git, Responsive layouts"></textarea>
           <button class="ai-inline-btn" data-ai="keywords"><i class="fa-solid fa-wand-magic-sparkles"></i> Optimize Keywords</button>
+        </div>
+        <!-- Skill Categories (for Professional ATS Compact and similar templates) -->
+        <div class="field" style="margin-top:var(--sp-3)">
+          <label>Skill Categories <span style="font-size:var(--fs-2xs);color:var(--ink-500);font-weight:400">— optional, for categorized layouts</span></label>
+          <div id="skillCategoryBlocks"></div>
+          <button class="btn btn-ghost btn-sm" id="addSkillCategory" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Skill Category</button>
+        </div>
+        <!-- Relevant Coursework (for Professional ATS Compact and fresher templates) -->
+        <div class="field" style="margin-top:var(--sp-3)">
+          <label>Relevant Coursework <span style="font-size:var(--fs-2xs);color:var(--ink-500);font-weight:400">— comma or newline separated</span></label>
+          <textarea id="f_coursework" rows="3" placeholder="Data Structures, Algorithms, Machine Learning, Database Systems"></textarea>
         </div>
         <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
@@ -301,7 +315,7 @@
 
         <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
-          <button class="btn btn-primary" onclick="document.getElementById('btnSave').click()" style="flex:1; margin-left:var(--sp-3)"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
+          <button class="btn btn-primary" id="btnSaveBottom" style="flex:1; margin-left:var(--sp-3)"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
         </div>
         <div style="margin-top:var(--sp-3)">
           <a href="ats-checker.html" class="btn btn-ghost" style="width:100%; text-align:center;"><i class="fa-solid fa-gauge-high"></i> Verify ATS Score</a>
@@ -399,6 +413,7 @@ AppShell.render({ active: 'resume-builder', title: 'Resume Builder' });
 const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('builderTemplate').content.cloneNode(true));
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="../js/pages/resume-builder.js"></script>
 <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
 </body>

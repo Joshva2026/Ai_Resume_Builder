@@ -9,12 +9,14 @@
   const resumeId = urlParams.get('id');
 
   let state = {
-    personal: { fullName: '', headline: '', email: '', phone: '', location: '', link: '', github: '' },
+    personal: { fullName: '', headline: '', email: '', phone: '', location: '', link: '', github: '', portfolio: '' },
     summary: '',
     experience: [],
     education: [],
     projects: [],
     skills: '',
+    coursework: '',
+    skillCategories: [],
     certifications: '',
     languages: [],
     volunteer: [],
@@ -225,15 +227,17 @@ function bindUndo() {
   --------------------------------------------------------------------- */
   function bindPersonalFields() {
     const map = {
-      f_fullName: (v) => (state.personal.fullName = v),
-      f_headline: (v) => (state.personal.headline = v),
-      f_email: (v) => (state.personal.email = v),
-      f_phone: (v) => (state.personal.phone = v),
-      f_location: (v) => (state.personal.location = v),
-      f_link: (v) => (state.personal.link = v),
-      f_summary: (v) => (state.summary = v),
-      f_skills: (v) => (state.skills = v),
-      f_certs: (v) => (state.certifications = v),
+      f_fullName:  (v) => (state.personal.fullName  = v),
+      f_headline:  (v) => (state.personal.headline  = v),
+      f_email:     (v) => (state.personal.email     = v),
+      f_phone:     (v) => (state.personal.phone     = v),
+      f_location:  (v) => (state.personal.location  = v),
+      f_link:      (v) => (state.personal.link      = v),
+      f_portfolio: (v) => (state.personal.portfolio = v),
+      f_summary:   (v) => (state.summary            = v),
+      f_skills:    (v) => (state.skills             = v),
+      f_coursework:(v) => (state.coursework         = v),
+      f_certs:     (v) => (state.certifications     = v),
     };
     Object.keys(map).forEach((id) => {
       const el = document.getElementById(id);
@@ -322,6 +326,8 @@ function bindUndo() {
     document.getElementById('addVolunteer').addEventListener('click', addVolunteerBlock);
     document.getElementById('addAward').addEventListener('click', addAwardBlock);
     document.getElementById('addPublication').addEventListener('click', addPublicationBlock);
+    const addSkillCatBtn = document.getElementById('addSkillCategory');
+    if (addSkillCatBtn) addSkillCatBtn.addEventListener('click', () => addSkillCategoryBlock());
   }
 
   function addExperienceBlock(data = {}) {
@@ -349,6 +355,11 @@ function bindUndo() {
       </div>
     `;
     document.getElementById('experienceBlocks').appendChild(wrap);
+    if (entry.company) wrap.querySelector('.i-company').value = entry.company;
+    if (entry.role) wrap.querySelector('.i-role').value = entry.role;
+    if (entry.start) wrap.querySelector('.i-start').value = entry.start;
+    if (entry.end) wrap.querySelector('.i-end').value = entry.end;
+    if (entry.bullets) wrap.querySelector('.i-bullets').value = entry.bullets;
     bindRepeatBlockEvents(wrap, entry, ['company', 'role', 'start', 'end', 'bullets'], state.experience);
   }
 
@@ -372,12 +383,16 @@ function bindUndo() {
       </div>
     `;
     document.getElementById('educationBlocks').appendChild(wrap);
+    if (entry.school) wrap.querySelector('.i-school').value = entry.school;
+    if (entry.degree) wrap.querySelector('.i-degree').value = entry.degree;
+    if (entry.start) wrap.querySelector('.i-start').value = entry.start;
+    if (entry.end) wrap.querySelector('.i-end').value = entry.end;
     bindRepeatBlockEvents(wrap, entry, ['school', 'degree', 'start', 'end'], state.education);
   }
 
   function addProjectBlock(data = {}) {
     const id = 'proj_' + Math.random().toString(36).slice(2, 8);
-    const entry = { id, name: '', description: '', ...data };
+    const entry = { id, name: '', tech: '', date: '', link: '', description: '', ...data };
     state.projects.push(entry);
 
     const wrap = document.createElement('div');
@@ -386,6 +401,11 @@ function bindUndo() {
     wrap.innerHTML = `
       <button class="remove-block" aria-label="Remove"><i class="fa-solid fa-xmark"></i></button>
       <div class="field"><label>Project name</label><input type="text" class="i-name" placeholder="Internal Analytics Dashboard"></div>
+      <div class="field-row">
+        <div class="field"><label>Technologies</label><input type="text" class="i-tech" placeholder="Python, Tableau, SQL"></div>
+        <div class="field"><label>Date</label><input type="text" class="i-date" placeholder="Jan 2024"></div>
+      </div>
+      <div class="field"><label>Project link (optional)</label><input type="text" class="i-link" placeholder="github.com/you/project"></div>
       <div class="field">
         <label>Description</label>
         <textarea class="i-description" rows="3" placeholder="What you built and the impact it had"></textarea>
@@ -393,7 +413,34 @@ function bindUndo() {
       </div>
     `;
     document.getElementById('projectBlocks').appendChild(wrap);
-    bindRepeatBlockEvents(wrap, entry, ['name', 'description'], state.projects);
+    if (entry.name)        wrap.querySelector('.i-name').value        = entry.name;
+    if (entry.tech)        wrap.querySelector('.i-tech').value        = entry.tech;
+    if (entry.date)        wrap.querySelector('.i-date').value        = entry.date;
+    if (entry.link)        wrap.querySelector('.i-link').value        = entry.link;
+    if (entry.description) wrap.querySelector('.i-description').value = entry.description;
+    bindRepeatBlockEvents(wrap, entry, ['name', 'tech', 'date', 'link', 'description'], state.projects);
+  }
+
+  function addSkillCategoryBlock(data = {}) {
+    const id = 'skillcat_' + Math.random().toString(36).slice(2, 8);
+    const entry = { id, label: '', items: '', ...data };
+    state.skillCategories.push(entry);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'repeat-block';
+    wrap.dataset.id = id;
+    wrap.innerHTML = `
+      <button class="remove-block" aria-label="Remove"><i class="fa-solid fa-xmark"></i></button>
+      <div class="field-row">
+        <div class="field"><label>Category label</label><input type="text" class="i-label" placeholder="Analytical Tools"></div>
+        <div class="field"><label>Skills (comma separated)</label><input type="text" class="i-items" placeholder="Tableau, Power BI, Excel"></div>
+      </div>
+    `;
+    const container = document.getElementById('skillCategoryBlocks');
+    if (container) container.appendChild(wrap);
+    if (entry.label) wrap.querySelector('.i-label').value = entry.label;
+    if (entry.items) wrap.querySelector('.i-items').value = entry.items;
+    bindRepeatBlockEvents(wrap, entry, ['label', 'items'], state.skillCategories);
   }
 
   function addLanguageBlock(data = {}) {
@@ -440,6 +487,10 @@ function bindUndo() {
       </div>
       <div class="field"><label>Description</label><textarea class="i-description" rows="3" placeholder="What you did and the impact it had"></textarea></div>`;
     document.getElementById('volunteerBlocks').appendChild(wrap);
+    if (entry.organization) wrap.querySelector('.i-organization').value = entry.organization;
+    if (entry.role) wrap.querySelector('.i-role').value = entry.role;
+    if (entry.period) wrap.querySelector('.i-period').value = entry.period;
+    if (entry.description) wrap.querySelector('.i-description').value = entry.description;
     bindRepeatBlockEvents(wrap, entry, ['organization', 'role', 'period', 'description'], state.volunteer);
   }
 
@@ -458,6 +509,9 @@ function bindUndo() {
       </div>
       <div class="field"><label>Year</label><input type="text" class="i-year" placeholder="2024"></div>`;
     document.getElementById('awardBlocks').appendChild(wrap);
+    if (entry.title) wrap.querySelector('.i-title').value = entry.title;
+    if (entry.issuer) wrap.querySelector('.i-issuer').value = entry.issuer;
+    if (entry.year) wrap.querySelector('.i-year').value = entry.year;
     bindRepeatBlockEvents(wrap, entry, ['title', 'issuer', 'year'], state.awards);
   }
 
@@ -477,6 +531,10 @@ function bindUndo() {
       </div>
       <div class="field"><label>URL (optional)</label><input type="url" class="i-url" placeholder="https://doi.org/..."></div>`;
     document.getElementById('publicationBlocks').appendChild(wrap);
+    if (entry.title) wrap.querySelector('.i-title').value = entry.title;
+    if (entry.journal) wrap.querySelector('.i-journal').value = entry.journal;
+    if (entry.year) wrap.querySelector('.i-year').value = entry.year;
+    if (entry.url) wrap.querySelector('.i-url').value = entry.url;
     bindRepeatBlockEvents(wrap, entry, ['title', 'journal', 'year', 'url'], state.publications);
   }
 
@@ -792,24 +850,51 @@ function bindUndo() {
     renderPreview();
   };
 
+  function getNavigationOrder() {
+    const railItems = Array.from(document.querySelectorAll('.rail-item'));
+    const order = railItems.map(item => item.dataset.section).filter(Boolean);
+    if (!order.includes('template')) order.push('template');
+    if (!order.includes('review')) order.push('review');
+    return order;
+  }
+
+  function navigateToSection(key) {
+    if (!key) return;
+    
+    // 1. Update active rail item
+    document.querySelectorAll('.rail-item').forEach((i) => {
+      if (i.dataset.section === key) {
+        i.classList.add('active');
+      } else {
+        i.classList.remove('active');
+      }
+    });
+
+    // 2. Update active editor section
+    document.querySelectorAll('.editor-section').forEach((s) => {
+      if (s.dataset.section === key) {
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active');
+      }
+    });
+
+    // 3. Trigger special page rendering
+    if (key === 'template') {
+      renderEditorTemplates();
+    }
+    if (key === 'review') {
+      renderCompletenessChecklist();
+    }
+
+    // 4. Update progress bar
+    updateProgressBar();
+  }
+
   function bindSectionNav() {
     document.querySelectorAll('.rail-item').forEach((item) => {
       item.addEventListener('click', () => {
-        const key = item.dataset.section;
-        document.querySelectorAll('.rail-item').forEach((i) => i.classList.remove('active'));
-        document.querySelectorAll('.editor-section').forEach((s) => s.classList.remove('active'));
-        item.classList.add('active');
-        const targetSec = document.querySelector(`.editor-section[data-section="${key}"]`);
-        if (targetSec) targetSec.classList.add('active');
-        
-        if (key === 'template') {
-          renderEditorTemplates();
-        }
-        if (key === 'review') {
-          renderCompletenessChecklist();
-        }
-        
-        updateProgressBar();
+        navigateToSection(item.dataset.section);
       });
     });
   }
@@ -817,11 +902,7 @@ function bindUndo() {
   function bindStepsNav() {
     document.querySelectorAll('.step-nav-item').forEach((step) => {
       step.addEventListener('click', () => {
-        const key = step.dataset.step;
-        const matchingRailItem = document.querySelector(`.rail-item[data-section="${key}"]`);
-        if (matchingRailItem) {
-          matchingRailItem.click();
-        }
+        navigateToSection(step.dataset.step);
       });
     });
   }
@@ -879,8 +960,11 @@ function loadDraftFromLocalStorage() {
 }
 
   let currentResumeId = resumeId || null;
+  let isSaving = false;
 
   async function saveResume() {
+    if (isSaving) return;
+
     const p = state.personal || {};
     const hasName = p.fullName && p.fullName.trim().length > 0;
     const hasEmail = p.email && p.email.trim().length > 0;
@@ -910,17 +994,28 @@ function loadDraftFromLocalStorage() {
     const title = (titleEl && titleEl.value.trim()) || 'Untitled Resume';
     const payload = { title, content: state };
 
+    // Disable both save buttons to prevent double-click
+    const saveBtn = document.getElementById('btnSave');
+    const saveBtnBottom = document.getElementById('btnSaveBottom');
+    const retryBtn = document.getElementById('btnRetry');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+    if (saveBtnBottom) { saveBtnBottom.disabled = true; }
+
+    isSaving = true;
     try {
       if (indicator) {
         indicator.innerHTML = '<span class="dot" style="background:var(--primary-400, #3b82f6)"></span> Saving...';
       }
 
       if (currentResumeId) {
-        await ApiService.resumes.update(currentResumeId, payload);
+        const response = await ApiService.resumes.update(currentResumeId, payload);
+        const resumeObj = response.resume || response;
+        currentResumeId = resumeObj.id || currentResumeId;
       } else {
-        const resume = await ApiService.resumes.create(payload);
-        currentResumeId = resume.id;
-        window.history.replaceState({}, '', `resume-builder?id=${resume.id}`);
+        const response = await ApiService.resumes.create(payload);
+        const resumeObj = response.resume || response;
+        currentResumeId = resumeObj.id;
+        window.history.replaceState({}, '', `resume-builder?id=${currentResumeId}`);
       }
 
       if (indicator) {
@@ -933,8 +1028,9 @@ function loadDraftFromLocalStorage() {
       try { localStorage.removeItem(draftKey); } catch(e) {}
 
       if (typeof window.showToast === 'function') {
-        window.showToast('Resume saved successfully', 'success');
+        window.showToast('Resume saved successfully.', 'success');
       }
+      if (retryBtn) retryBtn.style.display = 'none';
     } catch (err) {
       console.error('Save resume error:', err);
       if (indicator) {
@@ -943,6 +1039,11 @@ function loadDraftFromLocalStorage() {
       if (typeof window.showToast === 'function') {
         window.showToast(err.message || 'Failed to save resume. Please try again.', 'error');
       }
+      if (retryBtn) retryBtn.style.display = '';
+    } finally {
+      isSaving = false;
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+      if (saveBtnBottom) { saveBtnBottom.disabled = false; }
     }
   }
 
@@ -960,16 +1061,18 @@ function loadDraftFromLocalStorage() {
 
     const p = state.personal || {};
     const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-    setVal('f_fullName', p.fullName);
-    setVal('f_headline', p.headline);
-    setVal('f_email', p.email);
-    setVal('f_phone', p.phone);
-    setVal('f_location', p.location);
-    setVal('f_link', p.link);
-    setVal('f_github', p.github);
-    setVal('f_summary', state.summary);
-    setVal('f_skills', state.skills);
-    setVal('f_certs', state.certifications);
+    setVal('f_fullName',  p.fullName);
+    setVal('f_headline',  p.headline);
+    setVal('f_email',     p.email);
+    setVal('f_phone',     p.phone);
+    setVal('f_location',  p.location);
+    setVal('f_link',      p.link);
+    setVal('f_github',    p.github);
+    setVal('f_portfolio', p.portfolio);
+    setVal('f_summary',   state.summary);
+    setVal('f_skills',    state.skills);
+    setVal('f_coursework',state.coursework);
+    setVal('f_certs',     state.certifications);
 
     if (state.styling) {
       setVal('selTemplate', state.styling.template || 'modern');
@@ -995,13 +1098,14 @@ function loadDraftFromLocalStorage() {
       copy.forEach(item => addFn(item));
     };
 
-    clearAndPopulate('experienceBlocks', state.experience, addExperienceBlock);
-    clearAndPopulate('educationBlocks', state.education, addEducationBlock);
-    clearAndPopulate('projectBlocks', state.projects, addProjectBlock);
-    clearAndPopulate('languageBlocks', state.languages, addLanguageBlock);
-    clearAndPopulate('volunteerBlocks', state.volunteer, addVolunteerBlock);
-    clearAndPopulate('awardBlocks', state.awards, addAwardBlock);
-    clearAndPopulate('publicationBlocks', state.publications, addPublicationBlock);
+    clearAndPopulate('experienceBlocks',    state.experience,      addExperienceBlock);
+    clearAndPopulate('educationBlocks',     state.education,       addEducationBlock);
+    clearAndPopulate('projectBlocks',       state.projects,        addProjectBlock);
+    clearAndPopulate('languageBlocks',      state.languages,       addLanguageBlock);
+    clearAndPopulate('volunteerBlocks',     state.volunteer,       addVolunteerBlock);
+    clearAndPopulate('awardBlocks',         state.awards,          addAwardBlock);
+    clearAndPopulate('publicationBlocks',   state.publications,    addPublicationBlock);
+    clearAndPopulate('skillCategoryBlocks', state.skillCategories, addSkillCategoryBlock);
 
     renderPreview();
     renderSectionRail();
@@ -1037,19 +1141,112 @@ function loadDraftFromLocalStorage() {
     });
 
     document.getElementById('btnDownload')?.addEventListener('click', async () => {
-      if (!currentResumeId) {
-        await saveResume();
-      }
-      if (!currentResumeId) {
-        if (typeof window.showToast === 'function') window.showToast('Please save your resume first before downloading.', 'warning');
-        return;
-      }
+      // ── CLIENT-SIDE PDF FROM LIVE A4 PREVIEW ─────────────────────────────
+      // This is completely independent from Save Resume.
+      // It reads the current A4 preview DOM directly — no database save required.
+
+      const downloadBtn = document.getElementById('btnDownload');
+      if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating…'; }
+
       try {
-        if (typeof window.showToast === 'function') window.showToast('Generating PDF — this may take a moment...', 'info');
-        await ApiService.downloads.pdf(currentResumeId);
-        if (typeof window.showToast === 'function') window.showToast('PDF downloaded successfully!', 'success');
+        // Check html2pdf is loaded
+        if (typeof html2pdf === 'undefined') {
+          throw new Error('PDF library not loaded. Please refresh the page and try again.');
+        }
+
+        // Get the live A4 preview element
+        const previewEl = document.getElementById('livePreview');
+        if (!previewEl) {
+          throw new Error('Resume preview not found. Please make sure the builder is open.');
+        }
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('Generating PDF — this may take a moment…', 'info');
+        }
+
+        // Build filename from current state
+        const fullName = (state.personal?.fullName || '').trim();
+        const safeFirstName = fullName.split(' ')[0] || 'Resume';
+        const safeName = fullName.replace(/\s+/g, '_') || 'ResumeForge_Resume';
+        const fileName = `${safeName}_Resume.pdf`;
+
+        // Clone the preview to avoid mutating the live DOM
+        const clone = previewEl.cloneNode(true);
+
+        // Copy CSS className and ALL inline style properties (including --cv-* custom props)
+        clone.className = previewEl.className;
+        const inlineStyle = previewEl.getAttribute('style') || '';
+        clone.setAttribute('style', inlineStyle);
+
+        // Also copy computed CSS variables explicitly (set via el.style.setProperty)
+        const cvVars = ['--cv-font','--cv-font-size','--cv-h1-size','--cv-h2-size','--cv-h3-size',
+                        '--cv-line-height','--cv-margin','--cv-section-spacing','--cv-p-spacing'];
+        cvVars.forEach(v => {
+          const val = previewEl.style.getPropertyValue(v);
+          if (val) clone.style.setProperty(v, val);
+        });
+
+        // Force A4 dimensions and remove visual chrome
+        clone.style.width = '210mm';
+        clone.style.minHeight = 'auto';
+        clone.style.margin = '0';
+        clone.style.boxSizing = 'border-box';
+        clone.style.overflow = 'visible';
+        clone.style.boxShadow = 'none';
+        clone.style.outline = 'none';
+        clone.style.transform = 'none';
+
+        // Attach off-screen so html2pdf can measure/render it
+        clone.style.position = 'fixed';
+        clone.style.top = '-99999px';
+        clone.style.left = '0';
+        clone.style.zIndex = '-1';
+        document.body.appendChild(clone);
+
+        const opt = {
+          margin:       [0, 0, 0, 0],
+          filename:     fileName,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: 794, // 210mm at 96dpi
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait',
+            compress: true
+          },
+          pagebreak: {
+            mode: ['avoid-all', 'css', 'legacy'],
+            before: '.page-break-before',
+            after:  '.page-break-after',
+            avoid:  '.page-break-avoid'
+          }
+        };
+
+        try {
+          await html2pdf().set(opt).from(clone).save();
+        } finally {
+          // Always remove clone even if pdf generation throws
+          if (clone.parentNode) document.body.removeChild(clone);
+        }
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('PDF downloaded successfully!', 'success');
+        }
+
       } catch (err) {
-        if (typeof window.showToast === 'function') window.showToast(err.message || 'PDF generation failed.', 'error');
+        console.error('PDF generation error:', err);
+        if (typeof window.showToast === 'function') {
+          window.showToast('Unable to generate PDF. Please try again.', 'error');
+        }
+      } finally {
+        if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.innerHTML = '<i class="fa-solid fa-download"></i> PDF'; }
       }
     });
 
@@ -1089,10 +1286,12 @@ function loadDraftFromLocalStorage() {
     const nextBtn = document.getElementById('btnNext');
     if (nextBtn) {
       nextBtn.addEventListener('click', () => {
-        const items = Array.from(document.querySelectorAll('.rail-item'));
-        const activeIdx = items.findIndex(i => i.classList.contains('active'));
-        if (activeIdx >= 0 && activeIdx < items.length - 1) {
-          items[activeIdx + 1].click();
+        const order = getNavigationOrder();
+        const activeSection = document.querySelector('.editor-section.active');
+        const activeKey = activeSection ? (activeSection.dataset.section || 'personal') : 'personal';
+        const activeIdx = order.indexOf(activeKey);
+        if (activeIdx >= 0 && activeIdx < order.length - 1) {
+          navigateToSection(order[activeIdx + 1]);
         }
       });
     }
@@ -1100,19 +1299,23 @@ function loadDraftFromLocalStorage() {
     const backBtn = document.getElementById('btnBack');
     if (backBtn) {
       backBtn.addEventListener('click', () => {
-        const items = Array.from(document.querySelectorAll('.rail-item'));
-        const activeIdx = items.findIndex(i => i.classList.contains('active'));
+        const order = getNavigationOrder();
+        const activeSection = document.querySelector('.editor-section.active');
+        const activeKey = activeSection ? (activeSection.dataset.section || 'personal') : 'personal';
+        const activeIdx = order.indexOf(activeKey);
         if (activeIdx > 0) {
-          items[activeIdx - 1].click();
+          navigateToSection(order[activeIdx - 1]);
         }
       });
     }
   }
   function goBack() {
-    const items = Array.from(document.querySelectorAll('.rail-item'));
-    const activeIdx = items.findIndex(i => i.classList.contains('active'));
+    const order = getNavigationOrder();
+    const activeSection = document.querySelector('.editor-section.active');
+    const activeKey = activeSection ? (activeSection.dataset.section || 'personal') : 'personal';
+    const activeIdx = order.indexOf(activeKey);
     if (activeIdx > 0) {
-      items[activeIdx - 1].click();
+      navigateToSection(order[activeIdx - 1]);
     } else {
       window.location.href = 'dashboard.html';
     }
@@ -1120,8 +1323,6 @@ function loadDraftFromLocalStorage() {
   function bindTopNav() {
     const backBtn = document.getElementById('btnBackTop');
     backBtn && backBtn.addEventListener('click', goBack);
-    // Undo already bound in bindUndo
-    // Next already bound via bindNextButton
   }
 
   function bindBottomNav() {
@@ -1129,18 +1330,22 @@ function loadDraftFromLocalStorage() {
     const nextBottom = document.getElementById('btnNextBottom');
     undoBottom && undoBottom.addEventListener('click', undo);
     nextBottom && nextBottom.addEventListener('click', () => {
-      const items = Array.from(document.querySelectorAll('.rail-item'));
-      const activeIdx = items.findIndex(i => i.classList.contains('active'));
-      if (activeIdx >= 0 && activeIdx < items.length - 1) {
-        items[activeIdx + 1].click();
+      const order = getNavigationOrder();
+      const activeSection = document.querySelector('.editor-section.active');
+      const activeKey = activeSection ? (activeSection.dataset.section || 'personal') : 'personal';
+      const activeIdx = order.indexOf(activeKey);
+      if (activeIdx >= 0 && activeIdx < order.length - 1) {
+        navigateToSection(order[activeIdx + 1]);
       }
     });
   }
 
   function bindSaveButtons() {
     const saveBtn = document.getElementById('btnSave');
+    const saveBtnBottom = document.getElementById('btnSaveBottom');
     const retryBtn = document.getElementById('btnRetry');
     saveBtn && saveBtn.addEventListener('click', saveResume);
+    saveBtnBottom && saveBtnBottom.addEventListener('click', saveResume);
     retryBtn && retryBtn.addEventListener('click', saveResume);
   }
 
