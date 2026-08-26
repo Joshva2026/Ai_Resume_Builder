@@ -2175,7 +2175,11 @@ function runPdfTask(task) {
 app.post('/api/download/pdf', authenticateToken, async (req, res) => {
   let connection;
   try {
+    console.log('[RESUME PDF] request received');
     const { resumeId } = req.body;
+    console.log(`[RESUME PDF] resumeId: ${resumeId}`);
+    console.log(`[RESUME PDF] user: ${req.user?.id}`);
+    
     if (!resumeId) {
       return res.status(400).json({ error: 'Resume ID is required' });
     }
@@ -2188,27 +2192,33 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     );
 
     if (resumes.length === 0) {
-      console.error(`[PDF DIAGNOSTICS] Resume not found for id: ${resumeId} and user_id: ${req.user.id}`);
+      console.error(`[RESUME PDF] Resume not found for id: ${resumeId}`);
       connection.release();
       connection = null;
       return res.status(404).json({ error: 'Resume not found' });
     }
-    console.log(`[PDF DIAGNOSTICS] Resume found. Parsing content.`);
+    console.log(`[RESUME PDF] resume found: true`);
 
     const rawContent = resumes[0].content;
     const resumeTitle = (resumes[0].title || 'Resume').replace(/[^a-z0-9_\-\s]/gi, '').trim() || 'Resume';
     const resumeContent = safeJsonParse(rawContent, typeof rawContent === 'object' ? rawContent : {});
+    console.log(`[RESUME PDF] content parsed: true`);
 
     const templateGenerator = require('./resume-pdf-template');
     const theme = resumeContent.styling?.template || 'modern';
-    console.log(`[PDF DIAGNOSTICS] Generating HTML for template: ${theme}`);
+    console.log(`[RESUME PDF] template: ${theme}`);
     
+    console.log(`[RESUME PDF] generator started: true`);
     // generateResumeHtml returns { html, styling }
     const generated = templateGenerator.generateResumeHtml(resumeContent, theme);
+    console.log(`[RESUME PDF] generator completed: true`);
+    console.log(`[RESUME PDF] generated type: ${typeof generated}`);
+    
     const innerHtml = generated.html;
     const finalStyling = generated.styling;
     
-    console.log(`[PDF DIAGNOSTICS] HTML generated. Length: ${innerHtml.length} chars.`);
+    console.log(`[RESUME PDF] generated.html type: ${typeof innerHtml}`);
+    console.log(`[RESUME PDF] generated.html length: ${innerHtml ? innerHtml.length : 0}`);
 
     // Build the complete HTML shell with embedded CSS
     const fs = require('fs');
@@ -2217,13 +2227,16 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     let baseCss = '';
     let templatesCss = '';
     
+    const baseCssPath = path.join(__dirname, '../Fontend/css/base.css');
+    const templatesCssPath = path.join(__dirname, '../Fontend/css/templates.css');
+    console.log(`[RESUME PDF] CSS path: ${baseCssPath}`);
+    
     try {
-      baseCss = fs.readFileSync(path.join(__dirname, '../Fontend/css/base.css'), 'utf8');
-      templatesCss = fs.readFileSync(path.join(__dirname, '../Fontend/css/templates.css'), 'utf8');
-      console.log(`[PDF DIAGNOSTICS] CSS loaded successfully.`);
+      console.log(`[RESUME PDF] CSS exists: ${fs.existsSync(baseCssPath)}`);
+      baseCss = fs.readFileSync(baseCssPath, 'utf8');
+      templatesCss = fs.readFileSync(templatesCssPath, 'utf8');
     } catch (cssErr) {
-      console.error(`[PDF DIAGNOSTICS] Failed to load CSS files:`, cssErr);
-      // fallback if CSS fails to load, though we should log the error
+      console.error(`[RESUME PDF] Failed to load CSS files:`, cssErr);
     }
 
     const fullHtmlContent = `<!DOCTYPE html>
@@ -2252,21 +2265,22 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
   </div>
 </body>
 </html>`;
+    console.log(`[RESUME PDF] final HTML type: ${typeof fullHtmlContent}`);
+    console.log(`[RESUME PDF] final HTML length: ${fullHtmlContent.length}`);
+
     await connection.query(
       'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',
       [resumeId, 'pdf', `inline-stream-${Date.now()}`]
     );
     connection.release();
     connection = null;
-    console.log(`[PDF DIAGNOSTICS] Download logged to DB.`);
 
     // Stream the PDF directly to the response — no disk I/O needed
     let pdfBuffer;
-    console.log(`[PDF DIAGNOSTICS] Enqueueing PDF task...`);
     await runPdfTask(async () => {
       let browser;
       try {
-        console.log(`[PDF DIAGNOSTICS] Launching Puppeteer...`);
+        console.log(`[RESUME PDF] puppeteer started: true`);
         browser = await puppeteer.launch({
           headless: 'new',
           args: [
@@ -2276,21 +2290,23 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
             '--disable-gpu'
           ]
         });
-        console.log(`[PDF DIAGNOSTICS] Puppeteer launched. Creating page...`);
         const page = await browser.newPage();
-        console.log(`[PDF DIAGNOSTICS] Page created. Setting content...`);
+        console.log(`[RESUME PDF] page created: true`);
+        
         // pass the string fullHtmlContent instead of the object
         await page.setContent(fullHtmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
-        console.log(`[PDF DIAGNOSTICS] Content set. Generating PDF...`);
+        console.log(`[RESUME PDF] setContent completed: true`);
+        
         pdfBuffer = await page.pdf({
           format: 'A4',
           printBackground: true,
           margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
         });
-        console.log(`[PDF DIAGNOSTICS] PDF generated successfully. Buffer length: ${pdfBuffer.length}`);
+        console.log(`[RESUME PDF] page.pdf completed: true`);
+        console.log(`[RESUME PDF] PDF buffer size: ${pdfBuffer ? pdfBuffer.length : 0}`);
         await page.close();
       } catch (puppeteerErr) {
-        console.error(`[PDF DIAGNOSTICS] Puppeteer exception:`, puppeteerErr);
+        console.error(`[RESUME PDF] Puppeteer exception:`, puppeteerErr);
         throw puppeteerErr;
       } finally {
         if (browser) {
@@ -2299,7 +2315,6 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       }
     });
 
-    console.log(`[PDF DIAGNOSTICS] Preparing response headers...`);
     const safeFileName = `${resumeTitle.replace(/\s+/g, '_')}.pdf`;
     res.set({
       'Content-Type': 'application/pdf',
@@ -2308,12 +2323,12 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       'Cache-Control': 'no-cache'
     });
     res.end(pdfBuffer);
-    console.log(`[PDF DIAGNOSTICS] Response sent successfully.`);
+    console.log(`[RESUME PDF] response sent: true`);
   } catch (error) {
     if (connection) {
       try { connection.release(); } catch (_) {}
     }
-    console.error('[PDF DIAGNOSTICS] PDF download error caught in main block:', error);
+    console.error('[RESUME PDF] PDF download error caught in main block:', error);
     if (!res.headersSent) {
       res.status(500).json({ error: 'PDF generation failed. Please try again.' });
     }
