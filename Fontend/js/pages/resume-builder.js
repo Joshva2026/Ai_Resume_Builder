@@ -69,15 +69,9 @@
     } else if (resumeId) {
       loadExistingResume(resumeId);
     } else {
-      const draft = loadDraftFromLocalStorage();
-      if (draft) {
-        state = draft;
-        populateStateAndUI(state);
-      } else {
-        addExperienceBlock();
-        addEducationBlock();
-        renderPreview();
-      }
+      addExperienceBlock();
+      addEducationBlock();
+      renderPreview();
     }
     
     renderSectionRail();
@@ -174,8 +168,6 @@
     const copy = JSON.parse(JSON.stringify(state));
     stateHistory.push(copy);
     if (stateHistory.length > 20) stateHistory.shift();
-    // Persist draft locally after each change
-    saveDraftToLocalStorage();
     renderCompletenessChecklist();
   }
 function undo() {
@@ -852,9 +844,11 @@ function bindUndo() {
 
   function getNavigationOrder() {
     const railItems = Array.from(document.querySelectorAll('.rail-item'));
-    const order = railItems.map(item => item.dataset.section).filter(Boolean);
-    if (!order.includes('template')) order.push('template');
-    if (!order.includes('review')) order.push('review');
+    let order = railItems.map(item => item.dataset.section).filter(Boolean);
+    // Ensure 'template' is the first step and 'review' is the last
+    order = order.filter(sec => sec !== 'template' && sec !== 'review');
+    order.unshift('template');
+    order.push('review');
     return order;
   }
 
@@ -944,20 +938,8 @@ function bindUndo() {
   }
 
   /* ---------------------------------------------------------------------
-     Local Draft Persistence (Session Safety)
+     Local Draft Persistence removed as per requirements (No Auto-Save)
   --------------------------------------------------------------------- */
-function saveDraftToLocalStorage() {
-  const key = `resume_builder_draft_${currentResumeId || 'new'}`;
-  try { localStorage.setItem(key, JSON.stringify(state)); } catch(e) { console.warn('Draft save failed', e); }
-}
-function loadDraftFromLocalStorage() {
-  const key = `resume_builder_draft_${currentResumeId || 'new'}`;
-  const data = localStorage.getItem(key);
-  if (data) {
-    try { return JSON.parse(data); } catch(e) { console.warn('Draft parse error', e); }
-  }
-  return null;
-}
 
   let currentResumeId = resumeId || null;
   let isSaving = false;
@@ -1022,10 +1004,8 @@ function loadDraftFromLocalStorage() {
         indicator.innerHTML = '<span class="dot" style="background:#10b981"></span> All changes saved';
       }
 
-      // Clear undo history and local draft after successful save
+      // Clear undo history after successful save
       stateHistory = [];
-      const draftKey = `resume_builder_draft_${currentResumeId || 'new'}`;
-      try { localStorage.removeItem(draftKey); } catch(e) {}
 
       if (typeof window.showToast === 'function') {
         window.showToast('Resume saved successfully.', 'success');
@@ -1289,8 +1269,8 @@ function loadDraftFromLocalStorage() {
       btnStartContinue.addEventListener('click', () => {
         document.getElementById('startScreen').style.display = 'none';
         document.getElementById('builderLayout').style.display = 'flex';
-        // Auto-select the first section (Personal Info)
-        const first = document.querySelector('.rail-item[data-section="personal"]');
+        // Auto-select the first section (Template Selection)
+        const first = document.querySelector('.rail-item[data-section="template"]');
         if (first) first.click();
       });
     }

@@ -186,6 +186,7 @@
       if (p.phone)     contactParts.push(e(p.phone));
       if (p.email)     contactParts.push(e(p.email));
       if (p.link)      contactParts.push(e(p.link));
+      if (p.github)    contactParts.push(e(p.github));
       if (p.portfolio) contactParts.push(e(p.portfolio));
 
       // Profile Summary

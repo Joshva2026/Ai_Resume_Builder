@@ -2220,8 +2220,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--single-process'
+            '--disable-gpu'
           ]
         });
         const page = await browser.newPage();
