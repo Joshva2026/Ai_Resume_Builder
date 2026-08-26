@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /*?*token=*
+
+Sitemap: https://ai-resume-builder-rb1m.onrender.com/sitemap.xml
