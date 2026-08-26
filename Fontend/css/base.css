@@ -209,7 +209,7 @@ p {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: #FFFFFF;
+  color: var(--ink-0);
   box-shadow: var(--shadow-glow);
   border: none;
 }
@@ -224,7 +224,7 @@ p {
 
 .btn-accent {
   background: var(--accent);
-  color: #FFFFFF;
+  color: var(--ink-0);
   box-shadow: var(--shadow-glow-accent);
 }
 .btn-accent:hover {
@@ -239,26 +239,26 @@ p {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border-color: rgba(216, 222, 233, 0.3);
+  background: var(--signal-100);
+  color: var(--primary-dark);
+  border-color: var(--signal-400);
   transform: translateY(-1px);
 }
 
 .btn-light {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--paper-50);
   color: var(--ink-900);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ink-100);
 }
 .btn-light:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--paper-100);
   box-shadow: var(--shadow-sm);
-  color: #FFFFFF;
+  color: var(--primary);
 }
 
 .btn-danger {
   background: var(--score-low);
-  color: #FFFFFF;
+  color: #FFFFFF; /* Danger buttons remain white text */
 }
 .btn-danger:hover {
   background: #DC2626;

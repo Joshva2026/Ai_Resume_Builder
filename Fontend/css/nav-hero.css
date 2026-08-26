@@ -90,7 +90,7 @@
 }
 .nav-toggle:hover {
   background: var(--signal-100);
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 
 @media (max-width: 980px) {
@@ -178,7 +178,7 @@
   line-height: 1.1;
   letter-spacing: -0.04em;
   margin-bottom: var(--sp-4);
-  color: #FFFFFF;
+  color: var(--ink-950);
 }
 
 .text-gradient {
@@ -354,7 +354,7 @@
 }
 .resume-showcase-header h3 {
   font-size: var(--fs-sm);
-  color: #FFFFFF;
+  color: var(--ink-950);
   font-weight: 800;
   letter-spacing: 0.5px;
 }
@@ -383,7 +383,7 @@
 }
 .resume-showcase-item h5 {
   font-size: 10px;
-  color: #FFFFFF;
+  color: var(--ink-950);
   font-weight: 600;
 }
 .resume-showcase-item p {
@@ -431,13 +431,13 @@
   height: 8px;
   background: var(--accent);
   border-radius: 50%;
-  box-shadow: 0 0 12px var(--accent), 0 0 4px #FFFFFF;
+  box-shadow: 0 0 12px var(--accent), 0 0 4px var(--ink-0);
   top: 50%;
   left: -4px;
 }
 .orbit-ring-1::after {
   background: var(--primary);
-  box-shadow: 0 0 12px var(--primary), 0 0 4px #FFFFFF;
+  box-shadow: 0 0 12px var(--primary), 0 0 4px var(--ink-0);
 }
 
 @keyframes rotateOrbit {

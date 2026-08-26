@@ -77,7 +77,7 @@
 
 .card-icon-wrap {
   font-size: 20px;
-  color: #FFFFFF;
+  color: var(--ink-0);
   background: linear-gradient(135deg, var(--paper-100) 0%, var(--signal-100) 100%);
   border: 1px solid var(--paper-100);
   width: 42px;
@@ -99,7 +99,7 @@
   font-family: var(--font-display);
   font-size: var(--fs-base);
   font-weight: 700;
-  color: #FFFFFF !important;
+  color: var(--ink-0) !important;
   margin-bottom: 10px;
   z-index: 1;
 }

@@ -11,13 +11,13 @@ const AppShell = (() => {
     { key: 'templates', icon: 'fa-cubes', label: 'Templates', href: 'templates.html' },
     { key: 'cover-letter', icon: 'fa-envelope-open-text', label: 'Cover Letters', href: 'cover-letter.html' },
     { key: 'applications', icon: 'fa-list-check', label: 'Application Tracker', href: 'applications.html' },
-    
+
     { group: 'AI & Career Tools' },
     { key: 'ats-checker', icon: 'fa-gauge-high', label: 'ATS Checker', href: 'ats-checker.html' },
     { key: 'job-match', icon: 'fa-shuffle', label: 'Job Match Analyzer', href: 'job-match.html' },
     { key: 'linkedin-review', icon: 'fa-brands fa-linkedin', label: 'LinkedIn Auditor', href: 'linkedin-review.html' },
     { key: 'ai-assistant', icon: 'fa-robot', label: 'AI Assistant', href: 'ai-assistant.html' },
-    
+
     { group: 'System' },
     { key: 'profile', icon: 'fa-user', label: 'Profile', href: 'profile.html' },
     { key: 'settings', icon: 'fa-gear', label: 'Settings', href: 'settings.html' }
@@ -38,13 +38,13 @@ const AppShell = (() => {
 
     // Apply saved theme immediately
     const savedTheme = localStorage.getItem('rf_theme') || 'light';
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
     } else {
-      document.body.classList.remove('light-theme');
+      document.body.classList.remove('dark-theme');
     }
 
-    const currentThemeIcon = savedTheme === 'light' ? 'fa-moon' : 'fa-sun';
+    const currentThemeIcon = savedTheme === 'dark' ? 'fa-sun' : 'fa-moon';
 
     root.innerHTML = `
       <div class="app-shell">
@@ -62,7 +62,7 @@ const AppShell = (() => {
             </div>
           </nav>
         </aside>
- 
+
         <div class="app-main">
           <header class="app-topbar">
             <div style="display:flex; align-items:center; gap:14px;">
@@ -102,7 +102,7 @@ const AppShell = (() => {
           </header>
           <main class="app-content" id="appContent"></main>
         </div>
- 
+
         <div class="mobile-bottom-dock">
           <a href="dashboard.html" class="${active === 'dashboard' ? 'active' : ''}"><i class="fa-solid fa-table-columns"></i><span>Dash</span></a>
           <a href="resume-builder.html" class="${active === 'resume-builder' ? 'active' : ''}"><i class="fa-solid fa-pen-ruler"></i><span>Builder</span></a>
@@ -119,12 +119,13 @@ const AppShell = (() => {
       document.getElementById('appSidebar').classList.toggle('is-open');
     });
 
+    // Theme Toggle Initialization
     document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
-      const isLight = document.body.classList.toggle('light-theme');
-      localStorage.setItem('rf_theme', isLight ? 'light' : 'dark');
+      const isDark = document.body.classList.toggle('dark-theme');
+      localStorage.setItem('rf_theme', isDark ? 'dark' : 'light');
       const themeBtn = document.getElementById('themeToggleBtn');
       if (themeBtn) {
-        themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+        themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
       }
     });
 

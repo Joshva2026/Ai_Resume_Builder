@@ -200,8 +200,8 @@
   transition: all var(--dur-fast) var(--ease-out);
 }
 .user-menu:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(216, 222, 233, 0.3);
+  background: var(--paper-50);
+  border-color: var(--line);
 }
 
 .user-menu .avatar {
@@ -234,8 +234,8 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--paper-100);
-  border: 1px solid var(--line);
+  background: var(--paper-0);
+  border-right: 1px solid var(--ink-100);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,9 +244,9 @@
   transition: all var(--dur-fast) var(--ease-out);
 }
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--paper-50);
   color: var(--ink-950);
-  border-color: rgba(216, 222, 233, 0.3);
+  border-color: var(--line);
 }
 .icon-btn .badge {
   position: absolute;
@@ -317,8 +317,8 @@
     left: 0;
     right: 0;
     height: 58px;
-    background: rgba(10, 9, 16, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface-subtle);
+    border-top: 1px solid var(--ink-100);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
     z-index: 900;
     justify-content: space-around;
@@ -332,8 +332,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: var(--fs-3xs);
+    color: var(--ink-400);
+    font-size: 10px;
     font-weight: 500;
     gap: 4px;
     flex: 1;
@@ -532,7 +532,7 @@
 
 .rf-modal-icon.warning {
   background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  color: var(--score-mid);
 }
 
 .rf-modal-title {
@@ -643,9 +643,9 @@
 .rf-toast.info i { color: var(--primary, #2563eb); }
 
 .rf-toast.warning {
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--score-mid);
 }
-.rf-toast.warning i { color: #f59e0b; }
+.rf-toast.warning i { color: var(--score-mid); }
 
 @keyframes toastSlideIn {
   from { opacity: 0; transform: translateX(30px); }

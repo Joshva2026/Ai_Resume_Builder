@@ -10,7 +10,7 @@
   --accent-glow: #EFF6FF;
   --bg-ocean: #F8FBFF;
   --bg-ocean-fallback: #F8FBFF;
-  
+
   --ink-950: #0F172A; /* Main Text (Navy) */
   --ink-900: #0F172A;
   --ink-800: #1E293B;
@@ -20,27 +20,28 @@
   --ink-200: #CBD5E1;
   --ink-100: #E2E8F0; /* Borders */
   --ink-50: #F1F5F9;
- 
+  --ink-0: #FFFFFF; /* Pure white text/icons for primary buttons */
+
   --paper-0: #FFFFFF;  /* Primary Card Surface */
   --paper-50: #F8FBFF; /* Secondary Surface */
   --paper-100: #EFF6FF; /* Highlight Surface */
   --paper-200: #E0E7FF;
- 
+
   --signal-600: #2563EB;
   --signal-500: #3B82F6;
   --signal-400: #60A5FA;
   --signal-100: rgba(37, 99, 235, 0.1);
- 
+
   --score-low: #EF4444;      /* Error/Low */
   --score-mid: #F59E0B;      /* Warning/Mid */
   --score-high: #10B981;     /* Success/High */
   --score-high-bg: rgba(16, 185, 129, 0.1);
   --score-low-bg: rgba(239, 68, 68, 0.1);
   --score-mid-bg: rgba(245, 158, 11, 0.1);
- 
+
   --line: #E2E8F0;
   --line-strong: #CBD5E1;
- 
+
   /* ---- Glass/SaaS Depth Tokens ---- */
   --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-bg-hover: rgba(255, 255, 255, 1);
@@ -107,35 +108,39 @@
 }
 
 /* ==========================================================================
-   DARK THEME OVERRIDES (Legacy Fallback)
+   DARK THEME OVERRIDES (Premium Blue + Deep Neutral)
    ========================================================================== */
 .dark-theme {
-  --primary: #F5F5F5;
-  --primary-dark: #A6A6A6;
-  --accent: #A6A6A6;
-  --accent-glow: #F5F5F5;
-  --bg-ocean: #090909;
-  --bg-ocean-fallback: #090909;
-  
-  --ink-950: #F5F5F5;
-  --ink-900: #F5F5F5;
-  --ink-800: #E0E0E0;
-  --ink-700: #CCCCCC;
-  --ink-600: #A6A6A6;
-  --ink-400: #737373;
-  --ink-200: #404040;
-  --ink-100: #2A2A2A;
-  --ink-50: #171717;
- 
-  --paper-0: #171717;
-  --paper-50: #111111;
-  --paper-100: #1E1E1E;
-  --paper-200: #242424;
- 
-  --glass-bg: #171717;
-  --glass-bg-hover: #242424;
-  --glass-border: #2A2A2A;
-  --glass-border-focus: #F5F5F5;
+  --primary: #3B82F6;
+  --primary-dark: #60A5FA;
+  --accent: #60A5FA;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  --bg-ocean: #0B1120;
+  --bg-ocean-fallback: #0B1120;
+
+  --ink-950: #F8FAFC; /* Main Text */
+  --ink-900: #F1F5F9;
+  --ink-800: #E2E8F0;
+  --ink-700: #CBD5E1;
+  --ink-600: #94A3B8; /* Secondary Text */
+  --ink-400: #64748B; /* Muted Text */
+  --ink-200: #334155;
+  --ink-100: #1E293B; /* Borders */
+  --ink-50: #0F172A;
+  --ink-0: #FFFFFF; /* Pure white text/icons for primary buttons */
+
+  --paper-0: #111827;  /* Primary Card Surface */
+  --paper-50: #1F2937; /* Secondary Surface */
+  --paper-100: #374151; /* Highlight Surface */
+  --paper-200: #4B5563;
+
+  --glass-bg: rgba(17, 24, 39, 0.9);
+  --glass-bg-hover: rgba(31, 41, 55, 1);
+  --glass-border: #374151;
+  --glass-border-focus: #60A5FA;
+
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.25);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
 @media (prefers-reduced-motion: reduce) {

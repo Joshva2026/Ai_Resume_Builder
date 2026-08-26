@@ -99,7 +99,7 @@
 
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(108, 92, 255, 0); }
-  50%       { box-shadow: 0 0 0 12px rgba(108, 92, 255, 0.18); }
+  50%       { box-shadow: 0 0 0 8px rgba(108, 92, 255, 0.12); }
 }
 
 @keyframes shimmer {
@@ -130,12 +130,12 @@
 
 @keyframes floatY {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-14px); }
+  50%       { transform: translateY(-6px); }
 }
 
 @keyframes floatX {
   0%, 100% { transform: translateX(0px) rotate(0deg); }
-  50%       { transform: translateX(10px) rotate(2deg); }
+  50%       { transform: translateX(4px) rotate(1deg); }
 }
 
 @keyframes spin {
@@ -384,7 +384,7 @@
   border-left: 3px solid var(--signal-500);
 }
 .toast.success { border-left-color: var(--score-high); }
-.toast.error   { border-left-color: #F5A623; }
+.toast.error   { border-left-color: var(--score-mid); }
 .toast.fade-out { animation: fadeInUp 0.3s var(--ease-out) reverse both; }
 
 /* ── LOGO STRIP SCROLL ────────────────────────────────────────────────────── */
