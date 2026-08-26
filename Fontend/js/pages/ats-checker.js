@@ -304,23 +304,6 @@
     const suggestions     = report.suggestions || [];
     const feedback        = report.detailed_feedback || report.detailedFeedback || {};
 
-    results.innerHTML = `
-      <div class="big-gauge-card">
-        <div class="big-gauge">
-          <svg width="180" height="180" viewBox="0 0 180 180">
-            <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="14"/>
-            <circle id="gaugeProgressCircle" cx="90" cy="90" r="78" fill="none" stroke="${verdict.color}" stroke-width="14" stroke-linecap="round"
-              stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}" style="transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)"/>
-          </svg>
-          <div class="num"><span class="n">${score}</span><span class="l">out of 100</span></div>
-        </div>
-        <div class="gauge-verdict">
-          <span class="verdict-tag" style="background:${verdict.bg}; color:${verdict.color}">${verdict.label}</span>
-          <h2>Your resume scored ${score}/100</h2>
-          <p>${report.fileName ? `File analyzed: <strong>${escapeHtml(report.fileName)}</strong>.` : 'Analyzed against industry ATS parsing standards.'}</p>
-        </div>
-      </div>
-
     const keywordScore = report.keywordMatch ?? report.keyword_match ?? 0;
     const completenessScore = report.sectionCompleteness ?? report.section_completeness ?? 0;
     const formattingScore = report.formattingScore ?? report.formatting_score ?? 0;

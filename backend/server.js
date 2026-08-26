@@ -32,8 +32,8 @@ const isTest = process.env.NODE_ENV === 'test';
 const isProd = process.env.NODE_ENV === 'production';
 
 // Safe secrets handling (strict in production, safe fallback in test/dev)
-const JWT_SECRET = process.env.JWT_SECRET || (isTest ? 'test_jwt_secret_key_32_characters_minimum_len' : '');
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || (isTest ? 'test_jwt_refresh_secret_key_32_chars_min' : JWT_SECRET);
+const JWT_SECRET = process.env.JWT_SECRET || (isProd ? '' : 'dev_jwt_secret_key_for_local_development_only');
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || (isProd ? '' : 'dev_jwt_refresh_secret_key_for_local_development_only');
 
 function validateEnvironmentVariables() {
   const required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
@@ -171,7 +171,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 200, // limit each IP to 200 requests per windowMs
 });
-app.use(limiter);
+app.use('/api', limiter);
 
 // Specific Rate Limiting for AI & ATS Endpoints to prevent API key abuse
 const aiLimiter = rateLimit({
@@ -231,7 +231,7 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Access token required', code: 'TOKEN_REQUIRED' });
   }
 
-  const secret = JWT_SECRET || (isTest ? 'test_jwt_secret_key_32_characters_minimum_len' : '');
+  const secret = JWT_SECRET || (isProd ? '' : 'dev_jwt_secret_key_for_local_development_only');
   if (!secret) {
     return res.status(500).json({ error: 'Server authentication secret is unconfigured', code: 'CONFIG_ERROR' });
   }
