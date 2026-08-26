@@ -2278,10 +2278,20 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     // Stream the PDF directly to the response — no disk I/O needed
     let pdfBuffer;
     await runPdfTask(async () => {
-      let browser;
-      try {
-
-        browser = await puppeteer.launch({
+        let browser;
+        try {
+          const puppeteerCacheDir = path.join(__dirname, '.cache', 'puppeteer');
+          console.log(`[RESUME PDF] PUPPETEER_CACHE_DIR = ${puppeteerCacheDir}`);
+          console.log(`[RESUME PDF] cache directory exists = ${fs.existsSync(puppeteerCacheDir)}`);
+          try {
+            const executablePath = puppeteer.executablePath();
+            console.log(`[RESUME PDF] expected Chrome path = ${executablePath}`);
+            console.log(`[RESUME PDF] Chrome executable exists = ${fs.existsSync(executablePath)}`);
+          } catch (execErr) {
+            console.log(`[RESUME PDF] expected Chrome path = Unknown (${execErr.message})`);
+          }
+          
+          browser = await puppeteer.launch({
           headless: 'new',
           args: [
             '--no-sandbox',
