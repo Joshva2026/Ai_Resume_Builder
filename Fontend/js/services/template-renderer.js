@@ -74,11 +74,12 @@ const TemplateRenderer = (() => {
 
     const sections = {
       summary: () => {
-        if (!state.summary) return '';
+        if (!state.summary || !state.summary.trim()) return '';
         return `<div class="cv-section"><div class="cv-section-title">Professional Summary</div><div class="cv-item-desc">${escapeHtml(state.summary)}</div></div>`;
       },
       experience: () => {
-        const arr = Array.isArray(state.experience) ? state.experience : [];
+        const arr = (Array.isArray(state.experience) ? state.experience : [])
+          .filter(e => (e.company && e.company.trim()) || (e.role && e.role.trim()) || (e.bullets && e.bullets.trim()) || (e.description && e.description.trim()));
         if (arr.length === 0) return '';
         const items = arr.map(e => `
           <div class="cv-item">
@@ -93,7 +94,8 @@ const TemplateRenderer = (() => {
         return `<div class="cv-section"><div class="cv-section-title">Experience</div>${items}</div>`;
       },
       education: () => {
-        const arr = Array.isArray(state.education) ? state.education : [];
+        const arr = (Array.isArray(state.education) ? state.education : [])
+          .filter(e => (e.school && e.school.trim()) || (e.degree && e.degree.trim()) || (e.institution && e.institution.trim()));
         if (arr.length === 0) return '';
         const items = arr.map(e => `
           <div class="cv-item">
@@ -107,7 +109,8 @@ const TemplateRenderer = (() => {
         return `<div class="cv-section"><div class="cv-section-title">Education</div>${items}</div>`;
       },
       projects: () => {
-        const arr = Array.isArray(state.projects) ? state.projects : [];
+        const arr = (Array.isArray(state.projects) ? state.projects : [])
+          .filter(e => (e.name && e.name.trim()) || (e.description && e.description.trim()) || (e.title && e.title.trim()));
         if (arr.length === 0) return '';
         const items = arr.map(e => `
           <div class="cv-item">
@@ -122,37 +125,41 @@ const TemplateRenderer = (() => {
         return `<div class="cv-section"><div class="cv-section-title">Projects</div>${items}</div>`;
       },
       skills: () => {
-        const skillsArr = parseList(state.skills, true);
+        const skillsArr = parseList(state.skills, true).map(s => s.trim()).filter(Boolean);
         if (skillsArr.length === 0) return '';
         const items = skillsArr.map(s => `<span class="cv-skill-tag">${escapeHtml(s)}</span>`).join('');
         return `<div class="cv-section"><div class="cv-section-title">Skills</div><div class="cv-skills-list">${items}</div></div>`;
       },
       certifications: () => {
-        const certsArr = parseList(state.certifications, true);
+        const certsArr = parseList(state.certifications, true).map(s => s.trim()).filter(Boolean);
         if (certsArr.length === 0) return '';
         const items = certsArr.map(s => `<li>${escapeHtml(s)}</li>`).join('');
         return `<div class="cv-section"><div class="cv-section-title">Certifications</div><ul class="cv-list">${items}</ul></div>`;
       },
       languages: () => {
-        const arr = Array.isArray(state.languages) ? state.languages : [];
+        const arr = (Array.isArray(state.languages) ? state.languages : [])
+          .filter(e => e.language && e.language.trim());
         if (arr.length === 0) return '';
         const items = arr.map(e => `<div class="cv-item"><div class="cv-item-header"><div class="cv-item-title">${escapeHtml(e.language)}</div><div class="cv-item-meta">${escapeHtml(e.proficiency)}</div></div></div>`).join('');
         return `<div class="cv-section"><div class="cv-section-title">Languages</div>${items}</div>`;
       },
       volunteer: () => {
-        const arr = Array.isArray(state.volunteer) ? state.volunteer : [];
+        const arr = (Array.isArray(state.volunteer) ? state.volunteer : [])
+          .filter(e => (e.organization && e.organization.trim()) || (e.role && e.role.trim()));
         if (arr.length === 0) return '';
         const items = arr.map(e => `<div class="cv-item"><div class="cv-item-header"><div class="cv-item-title">${escapeHtml(e.role)}</div><div class="cv-item-meta">${escapeHtml(e.date || e.period)}</div></div><div class="cv-item-subtitle">${escapeHtml(e.organization)}</div><div class="cv-item-desc">${renderBullets(e.description)}</div></div>`).join('');
         return `<div class="cv-section"><div class="cv-section-title">Volunteer Work</div>${items}</div>`;
       },
       awards: () => {
-        const arr = Array.isArray(state.awards) ? state.awards : [];
+        const arr = (Array.isArray(state.awards) ? state.awards : [])
+          .filter(e => (e.title && e.title.trim()) || (e.issuer && e.issuer.trim()));
         if (arr.length === 0) return '';
         const items = arr.map(e => `<div class="cv-item"><div class="cv-item-header"><div class="cv-item-title">${escapeHtml(e.title)}</div><div class="cv-item-meta">${escapeHtml(e.date || e.year)}</div></div><div class="cv-item-subtitle">${escapeHtml(e.issuer)}</div></div>`).join('');
         return `<div class="cv-section"><div class="cv-section-title">Awards & Honors</div>${items}</div>`;
       },
       publications: () => {
-        const arr = Array.isArray(state.publications) ? state.publications : [];
+        const arr = (Array.isArray(state.publications) ? state.publications : [])
+          .filter(e => e.title && e.title.trim());
         if (arr.length === 0) return '';
         const items = arr.map(e => `<div class="cv-item"><div class="cv-item-header"><div class="cv-item-title">${escapeHtml(e.title)}</div><div class="cv-item-meta">${escapeHtml(e.date || e.year)}</div></div><div class="cv-item-subtitle">${escapeHtml(e.publisher || e.journal)}${e.url || e.link ? ` | ${escapeHtml(e.url || e.link)}` : ''}</div></div>`).join('');
         return `<div class="cv-section"><div class="cv-section-title">Publications</div>${items}</div>`;

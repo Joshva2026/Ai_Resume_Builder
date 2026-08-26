@@ -81,6 +81,7 @@
     renderSectionRail();
     updateExperienceTierUI();
     setupAiSuggestionsDrawer();
+    updateProgressBar();
 
     // Auto-navigate to requested section
     const targetSec = urlParams.get('section');
@@ -92,13 +93,13 @@
     const tplParam = urlParams.get('template');
     if (tplParam) {
       const templateMap = {
-        '1': 'modern',
+        '1': 'modern-professional',
         '2': 'executive',
-        '3': 'minimal',
+        '3': 'minimal-ats',
         '4': 'academic',
-        'modern': 'modern',
+        'modern': 'modern-professional',
         'executive': 'executive',
-        'minimal': 'minimal',
+        'minimal': 'minimal-ats',
         'academic': 'academic'
       };
       const tplName = templateMap[tplParam] || tplParam;
@@ -173,6 +174,7 @@
     if (stateHistory.length > 20) stateHistory.shift();
     // Persist draft locally after each change
     saveDraftToLocalStorage();
+    renderCompletenessChecklist();
   }
 function undo() {
   if (stateHistory.length === 0) {
@@ -289,9 +291,7 @@ function bindUndo() {
         renderPreview();
       });
     }
-    
-
-
+    if (selFont) {
       selFont.addEventListener('change', () => {
         pushState();
         state.styling.font = selFont.value;
@@ -622,11 +622,11 @@ function bindUndo() {
     
     const checklist = [
       { id: 'personal', label: 'Personal Information', isComplete: !!(state.personal.fullName && state.personal.email), req: true },
-      { id: 'summary', label: 'Professional Summary', isComplete: !!state.summary.trim(), req: true },
-      { id: 'education', label: 'Education', isComplete: state.education.length > 0, req: true },
-      { id: 'skills', label: 'Skills', isComplete: !!state.skills.trim(), req: true },
-      { id: 'experience', label: 'Work Experience', isComplete: state.experience.length > 0, req: isProfessional },
-      { id: 'projects', label: 'Projects', isComplete: state.projects.length > 0, req: true }
+      { id: 'summary', label: 'Professional Summary', isComplete: !!(state.summary && state.summary.trim()), req: true },
+      { id: 'education', label: 'Education', isComplete: (state.education && state.education.length > 0 && state.education.some(e => e.school || e.degree)), req: true },
+      { id: 'skills', label: 'Skills', isComplete: !!(state.skills && state.skills.trim()), req: true },
+      { id: 'experience', label: 'Work Experience', isComplete: (state.experience && state.experience.length > 0 && state.experience.some(e => e.company || e.role)), req: isProfessional },
+      { id: 'projects', label: 'Projects', isComplete: (state.projects && state.projects.length > 0 && state.projects.some(p => p.name || p.description)), req: true }
     ];
 
     let html = '<ul style="list-style:none; padding:0; margin:0;">';
@@ -642,13 +642,12 @@ function bindUndo() {
       } else if (!item.req) {
         statusIcon = '<i class="fa-solid fa-circle-info" style="color:var(--signal-500);"></i>';
         statusText = 'Optional';
-        // Treat optional as 'completed' for percentage, or don't count towards total
         totalCount--;
       }
       
       html += `
         <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:var(--fs-sm);">
-          <span style="font-weight:600; color:var(--ink-800);">${item.label} ${!item.req ? '<span style="font-size:var(--fs-2xs); color:var(--ink-500); font-weight:normal;">(Optional for Fresher)</span>' : ''}</span>
+          <span style="font-weight:600; color:var(--ink-800);">${item.label} ${!item.req ? '<span style="font-size:var(--fs-2xs); color:var(--ink-500); font-weight:normal;">(Optional)</span>' : ''}</span>
           <span style="display:flex; align-items:center; gap:6px; font-size:var(--fs-xs);">${statusIcon} <span style="color:var(--ink-600);">${statusText}</span></span>
         </li>
       `;
@@ -656,17 +655,21 @@ function bindUndo() {
     
     html += '</ul>';
 
+    const checklistEl = document.getElementById('completenessChecklist');
+    if (checklistEl) checklistEl.innerHTML = html;
+
     const completionPercent = Math.round((completedCount / totalCount) * 100);
     const circle = document.getElementById('completionCircle');
     const val = document.getElementById('completionCircleVal');
     if (circle && val) {
-      const offset = 213.6 - (percent / 100) * 213.6;
+      const offset = 213.6 - (completionPercent / 100) * 213.6;
       circle.style.strokeDashoffset = offset;
-      val.textContent = percent + '%';
+      val.textContent = completionPercent + '%';
     }
 
     // Sync top wizard step item
-    const activeItem = railItems[activeIndex];
+    const railItems = Array.from(document.querySelectorAll('.rail-item'));
+    const activeItem = document.querySelector('.rail-item.active');
     if (activeItem) {
       const activeSectionKey = activeItem.dataset.section;
       document.querySelectorAll('.step-nav-item').forEach((step) => {
@@ -679,6 +682,116 @@ function bindUndo() {
     }
   }
 
+  function renderStepNav() {
+    const nav = document.querySelector('.builder-steps-nav');
+    if (!nav) return;
+    
+    const activeItem = document.querySelector('.rail-item.active');
+    const activeKey = activeItem ? activeItem.dataset.section : 'personal';
+
+    const order = [...(state.sectionOrder || ['personal', 'summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'languages', 'volunteer', 'awards', 'publications'])];
+    if (!order.includes('template')) order.push('template');
+    if (!order.includes('review')) order.push('review');
+
+    // Group of main wizard stages
+    const mainSteps = ['personal', 'summary', 'education', 'experience', 'skills', 'projects', 'certifications', 'awards', 'template', 'review'];
+    const visibleSteps = order.filter(s => mainSteps.includes(s));
+
+    const sectionIcons = {
+      personal: 'fa-user',
+      summary: 'fa-file-invoice',
+      experience: 'fa-briefcase',
+      education: 'fa-graduation-cap',
+      projects: 'fa-diagram-project',
+      skills: 'fa-sliders',
+      certifications: 'fa-award',
+      awards: 'fa-trophy',
+      template: 'fa-cubes',
+      review: 'fa-list-check'
+    };
+
+    const sectionLabels = {
+      personal: 'Personal',
+      summary: 'Summary',
+      education: 'Education',
+      experience: 'Experience',
+      skills: 'Skills',
+      projects: 'Projects',
+      certifications: 'Certs',
+      awards: 'Achievements',
+      template: 'Template',
+      review: 'Review'
+    };
+
+    let html = '';
+    visibleSteps.forEach((stepKey, idx) => {
+      const icon = sectionIcons[stepKey] || 'fa-circle';
+      const label = sectionLabels[stepKey] || stepKey;
+      const isActive = stepKey === activeKey ? 'active' : '';
+      
+      html += `
+        <div class="step-nav-item ${isActive}" data-step="${stepKey}">
+          <div class="step-icon"><i class="fa-solid ${icon}"></i></div>
+          <span>${label}</span>
+        </div>
+      `;
+      if (idx < visibleSteps.length - 1) {
+        html += '<div class="step-nav-line"></div>';
+      }
+    });
+
+    nav.innerHTML = html;
+    bindStepsNav();
+  }
+
+  function updateProgressBar() {
+    const railItems = Array.from(document.querySelectorAll('.rail-item'));
+    const activeItem = document.querySelector('.rail-item.active');
+    if (!activeItem) return;
+    const activeIndex = railItems.indexOf(activeItem);
+    
+    if (activeIndex >= 0) {
+      const w = ((activeIndex + 1) / railItems.length) * 100;
+      const progress = document.getElementById('wizardProgress');
+      if (progress) progress.style.width = w + '%';
+    }
+
+    renderStepNav();
+  }
+
+  function renderEditorTemplates() {
+    const grid = document.getElementById('editorTemplatesGrid');
+    if (!grid) return;
+    
+    if (typeof TemplateRenderer === 'undefined') return;
+    
+    const currentTpl = (state.styling && state.styling.template) || 'modern-professional';
+    
+    grid.innerHTML = TemplateRenderer.templatesList.map(t => {
+      const isSelected = t.id === currentTpl;
+      return `
+        <div class="tpl-card ${isSelected ? 'selected' : ''}" style="cursor:pointer; padding:12px; border:1px solid ${isSelected ? 'var(--primary)' : 'var(--line)'}; border-radius:var(--radius-md); background:var(--paper-0); transition:all var(--dur-fast); position:relative;" onclick="window.selectTemplateFromEditor('${t.id}')">
+          <div style="font-weight:800; font-size:11px; margin-bottom:4px; color:var(--ink-950);">${t.name}</div>
+          <div style="font-size:10px; color:var(--ink-600); line-height:1.3; margin-bottom:8px;">${t.description}</div>
+          <div style="font-size:9.5px; font-weight:700; color:var(--score-high);"><i class="fa-solid fa-gauge-high"></i> ${t.atsScore || 95}% ATS</div>
+          ${isSelected ? '<div style="position:absolute; top:-6px; right:-6px; background:var(--primary); color:#fff; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-size:9px;"><i class="fa-solid fa-check"></i></div>' : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.selectTemplateFromEditor = (id) => {
+    pushState();
+    state.styling = state.styling || {};
+    state.styling.template = id;
+    
+    const selTemplate = document.getElementById('selTemplate');
+    if (selTemplate) selTemplate.value = id;
+    
+    renderEditorTemplates();
+    renderPreview();
+  };
+
   function bindSectionNav() {
     document.querySelectorAll('.rail-item').forEach((item) => {
       item.addEventListener('click', () => {
@@ -688,6 +801,14 @@ function bindUndo() {
         item.classList.add('active');
         const targetSec = document.querySelector(`.editor-section[data-section="${key}"]`);
         if (targetSec) targetSec.classList.add('active');
+        
+        if (key === 'template') {
+          renderEditorTemplates();
+        }
+        if (key === 'review') {
+          renderCompletenessChecklist();
+        }
+        
         updateProgressBar();
       });
     });
@@ -704,6 +825,7 @@ function bindUndo() {
       });
     });
   }
+
   function renderPreview() {
     const el = document.getElementById('livePreview');
     if (!el) return;
@@ -714,7 +836,6 @@ function bindUndo() {
     if (typeof TemplateRenderer !== 'undefined') {
       const result = TemplateRenderer.generateResumeHtml(state, st.template);
       
-      // Map spacing to lineSpacing for backend compatibility
       if (!result.styling.lineSpacing) result.styling.lineSpacing = st.spacing || 1.4;
       
       el.innerHTML = result.html;
@@ -734,6 +855,8 @@ function bindUndo() {
       el.style.setProperty('--cv-p-spacing', (result.styling.pSpacing || 6) + 'pt');
     }
   }
+
+  function esc(str) {
     const div = document.createElement('div');
     div.textContent = str ?? '';
     return div.innerHTML;
@@ -825,6 +948,15 @@ function loadDraftFromLocalStorage() {
 
   function populateStateAndUI(targetState) {
     state = { ...state, ...targetState };
+
+    if (state.experienceLevel) {
+      const start = document.getElementById('startScreen');
+      const layout = document.getElementById('builderLayout');
+      if (start && layout) {
+        start.style.display = 'none';
+        layout.style.display = 'flex';
+      }
+    }
 
     const p = state.personal || {};
     const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
@@ -1065,6 +1197,7 @@ function loadDraftFromLocalStorage() {
 
     renderSectionRail();
     renderPreview();
+    updateProgressBar();
   }
 
   function updateExperienceTierUI() {

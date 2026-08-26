@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="../css/app-shell.css">
 <link rel="stylesheet" href="../css/builder.css">
 <link rel="stylesheet" href="../css/animations.css">
+<link rel="stylesheet" href="../css/templates.css">
 </head>
 <body>
 
@@ -114,7 +115,8 @@
       <div class="rail-item" draggable="true" data-section="volunteer"><i class="fa-solid fa-grip-vertical grip"></i> Volunteer Work</div>
       <div class="rail-item" draggable="true" data-section="awards"><i class="fa-solid fa-grip-vertical grip"></i> Awards</div>
       <div class="rail-item" draggable="true" data-section="publications"><i class="fa-solid fa-grip-vertical grip"></i> Publications</div>
-      <div class="rail-item" data-section="review" style="margin-top:var(--sp-4); border-top:1px solid var(--line); padding-top:var(--sp-3);"><i class="fa-solid fa-list-check" style="margin-right:8px; color:var(--primary);"></i> Review & Finalize</div>
+      <div class="rail-item" data-section="template" style="margin-top:var(--sp-4); border-top:1px solid var(--line); padding-top:var(--sp-3);"><i class="fa-solid fa-cubes" style="margin-right:8px; color:var(--primary);"></i> Choose Template</div>
+      <div class="rail-item" data-section="review" style="margin-top:var(--sp-2);"><i class="fa-solid fa-list-check" style="margin-right:8px; color:var(--primary);"></i> Review & Finalize</div>
 
       <div class="rail-completion-box">
         <div class="circle-progress">
@@ -267,6 +269,21 @@
         <h3>Publications</h3>
         <div id="publicationBlocks"></div>
         <button class="btn btn-ghost btn-sm" id="addPublication" style="margin-top:var(--sp-2)"><i class="fa-solid fa-plus"></i> Add Publication</button>
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Choose Template Section -->
+      <div class="editor-section" data-section="template">
+        <h3>Choose Resume Template</h3>
+        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Select a professional layout to structure your resume dynamically. Changing template will not modify or reset your resume data.</p>
+        
+        <div class="templates-grid" id="editorTemplatesGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; margin-bottom:var(--sp-4);">
+          <!-- Populated by JS -->
+        </div>
+
         <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
           <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
