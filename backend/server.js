@@ -1523,7 +1523,7 @@ app.post('/api/ats/analyze-upload', optionalAuthenticateToken, upload.single('re
 
   try {
     const { jobDescription } = req.body;
-    
+
     // File validation
     const validExtensions = ['pdf', 'doc', 'docx', 'txt'];
     const ext = (req.file.originalname.split('.').pop() || '').toLowerCase();
@@ -1817,7 +1817,7 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
         });
         throw geminiError;
       }
-      
+
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache, no-transform');
       res.setHeader('Connection', 'keep-alive');
@@ -2175,11 +2175,11 @@ function runPdfTask(task) {
 app.post('/api/download/pdf', authenticateToken, async (req, res) => {
   let connection;
   try {
-    console.log('[RESUME PDF] request received');
+
     const { resumeId } = req.body;
-    console.log(`[RESUME PDF] resumeId: ${resumeId}`);
-    console.log(`[RESUME PDF] user: ${req.user?.id}`);
-    
+
+
+
     if (!resumeId) {
       return res.status(400).json({ error: 'Resume ID is required' });
     }
@@ -2197,42 +2197,42 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       connection = null;
       return res.status(404).json({ error: 'Resume not found' });
     }
-    console.log(`[RESUME PDF] resume found: true`);
+
 
     const rawContent = resumes[0].content;
     const resumeTitle = (resumes[0].title || 'Resume').replace(/[^a-z0-9_\-\s]/gi, '').trim() || 'Resume';
     const resumeContent = safeJsonParse(rawContent, typeof rawContent === 'object' ? rawContent : {});
-    console.log(`[RESUME PDF] content parsed: true`);
+
 
     const templateGenerator = require('./resume-pdf-template');
     const theme = resumeContent.styling?.template || 'modern';
-    console.log(`[RESUME PDF] template: ${theme}`);
-    
-    console.log(`[RESUME PDF] generator started: true`);
+
+
+
     // generateResumeHtml returns { html, styling }
     const generated = templateGenerator.generateResumeHtml(resumeContent, theme);
-    console.log(`[RESUME PDF] generator completed: true`);
-    console.log(`[RESUME PDF] generated type: ${typeof generated}`);
-    
+
+
+
     const innerHtml = generated.html;
     const finalStyling = generated.styling;
-    
-    console.log(`[RESUME PDF] generated.html type: ${typeof innerHtml}`);
-    console.log(`[RESUME PDF] generated.html length: ${innerHtml ? innerHtml.length : 0}`);
+
+
+
 
     // Build the complete HTML shell with embedded CSS
     const fs = require('fs');
     const path = require('path');
-    
+
     let baseCss = '';
     let templatesCss = '';
-    
+
     const baseCssPath = path.join(__dirname, '../Fontend/css/base.css');
     const templatesCssPath = path.join(__dirname, '../Fontend/css/templates.css');
-    console.log(`[RESUME PDF] CSS path: ${baseCssPath}`);
-    
+
+
     try {
-      console.log(`[RESUME PDF] CSS exists: ${fs.existsSync(baseCssPath)}`);
+
       baseCss = fs.readFileSync(baseCssPath, 'utf8');
       templatesCss = fs.readFileSync(templatesCssPath, 'utf8');
     } catch (cssErr) {
@@ -2265,8 +2265,8 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
   </div>
 </body>
 </html>`;
-    console.log(`[RESUME PDF] final HTML type: ${typeof fullHtmlContent}`);
-    console.log(`[RESUME PDF] final HTML length: ${fullHtmlContent.length}`);
+
+
 
     await connection.query(
       'INSERT INTO downloads (resume_id, format, file_url) VALUES (?, ?, ?)',
@@ -2280,7 +2280,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     await runPdfTask(async () => {
       let browser;
       try {
-        console.log(`[RESUME PDF] puppeteer started: true`);
+
         browser = await puppeteer.launch({
           headless: 'new',
           args: [
@@ -2291,19 +2291,19 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
           ]
         });
         const page = await browser.newPage();
-        console.log(`[RESUME PDF] page created: true`);
-        
+
+
         // pass the string fullHtmlContent instead of the object
         await page.setContent(fullHtmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
-        console.log(`[RESUME PDF] setContent completed: true`);
-        
+
+
         pdfBuffer = await page.pdf({
           format: 'A4',
           printBackground: true,
           margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
         });
-        console.log(`[RESUME PDF] page.pdf completed: true`);
-        console.log(`[RESUME PDF] PDF buffer size: ${pdfBuffer ? pdfBuffer.length : 0}`);
+
+
         await page.close();
       } catch (puppeteerErr) {
         console.error(`[RESUME PDF] Puppeteer exception:`, puppeteerErr);
@@ -2323,7 +2323,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
       'Cache-Control': 'no-cache'
     });
     res.end(pdfBuffer);
-    console.log(`[RESUME PDF] response sent: true`);
+
   } catch (error) {
     if (connection) {
       try { connection.release(); } catch (_) {}
@@ -2333,7 +2333,7 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     console.log(`name: ${error.name}`);
     console.log(`stack: ${error.stack}`);
     console.log(`cause: ${error.cause}`);
-    
+
     if (!res.headersSent) {
       res.status(500).json({ error: 'PDF generation failed. Please try again.' });
     }
@@ -2377,7 +2377,7 @@ app.post('/api/linkedin/review', authenticateToken, async (req, res) => {
   }
   try {
     const review = await aiService.generateLinkedInReview(profileText);
-    
+
     // Calculate overall score mathematically from category scores
     let overallScore = 0;
     if (review.categories && Array.isArray(review.categories)) {
@@ -2392,7 +2392,7 @@ app.post('/api/linkedin/review', authenticateToken, async (req, res) => {
       [req.user.id, overallScore, JSON.stringify(review.suggestions), JSON.stringify(review)]
     );
     connection.release();
-    
+
     res.json(review);
   } catch (error) {
     console.error('LinkedIn Review API Error:', error);
@@ -2443,7 +2443,7 @@ app.post('/api/job-match', authenticateToken, upload.single('resume'), async (re
         connection.release();
         return res.status(400).json({ error: 'Please select a created resume to match.' });
       }
-      
+
       const [resumes] = await connection.query(
         'SELECT content, raw_text FROM resumes WHERE id = ? AND user_id = ?',
         [resumeId, req.user.id]
@@ -2463,9 +2463,9 @@ app.post('/api/job-match', authenticateToken, upload.single('resume'), async (re
       connection.release();
       return res.status(400).json({ error: 'Resume has no extractable content' });
     }
-    
+
     const match = await aiService.generateJobMatch(resumeText, jobDescription);
-    
+
     if (resumeId && resumeSource !== 'upload') {
       await connection.query(
         'INSERT INTO job_matches (user_id, resume_id, job_title, company, match_percentage, strong_matches, missing_matches, recommendations) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -2481,7 +2481,7 @@ app.post('/api/job-match', authenticateToken, upload.single('resume'), async (re
         ]
       );
     }
-    
+
     connection.release();
     res.json(match);
   } catch (error) {
@@ -2539,7 +2539,7 @@ app.post('/api/ai/optimize', authenticateToken, async (req, res) => {
       connection.release();
       return res.status(400).json({ error: 'Resume has no content' });
     }
-    
+
     const optimizationPlan = await aiService.generateOptimizationPlan(resumeText);
     connection.release();
     res.json(optimizationPlan);
@@ -2685,18 +2685,18 @@ app.post('/api/resumes/:id/versions', authenticateToken, async (req, res) => {
       connection.release();
       return res.status(404).json({ error: 'Resume not found' });
     }
-    
+
     const [maxVer] = await connection.query(
       'SELECT MAX(version_number) as max_v FROM resume_versions WHERE resume_id = ?',
       [req.params.id]
     );
     const nextVer = (maxVer[0].max_v || 0) + 1;
-    
+
     await connection.query(
       'INSERT INTO resume_versions (resume_id, version_number, content) VALUES (?, ?, ?)',
       [req.params.id, nextVer, JSON.stringify(resumes[0].content)]
     );
-    
+
     connection.release();
     res.status(201).json({ message: `Version ${nextVer} saved successfully`, versionNumber: nextVer });
   } catch (error) {
@@ -2715,7 +2715,7 @@ app.post('/api/resumes/:id/versions/:versionId/restore', authenticateToken, asyn
       connection.release();
       return res.status(404).json({ error: 'Resume not found' });
     }
-    
+
     const [versions] = await connection.query(
       'SELECT content FROM resume_versions WHERE id = ? AND resume_id = ?',
       [req.params.versionId, req.params.id]
@@ -2724,26 +2724,26 @@ app.post('/api/resumes/:id/versions/:versionId/restore', authenticateToken, asyn
       connection.release();
       return res.status(404).json({ error: 'Target version not found' });
     }
-    
+
     const currentContent = resumes[0].content;
     const restoredContent = versions[0].content;
-    
+
     const [maxVer] = await connection.query(
       'SELECT MAX(version_number) as max_v FROM resume_versions WHERE resume_id = ?',
       [req.params.id]
     );
     const nextVer = (maxVer[0].max_v || 0) + 1;
-    
+
     await connection.query(
       'INSERT INTO resume_versions (resume_id, version_number, content) VALUES (?, ?, ?)',
       [req.params.id, nextVer, JSON.stringify(currentContent)]
     );
-    
+
     await connection.query(
       'UPDATE resumes SET content = ? WHERE id = ? AND user_id = ?',
       [JSON.stringify(restoredContent), req.params.id, req.user.id]
     );
-    
+
     connection.release();
     res.json({ message: 'Resume restored successfully. Previous state archived as version ' + nextVer, content: restoredContent });
   } catch (error) {
