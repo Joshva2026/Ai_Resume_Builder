@@ -6,7 +6,6 @@
   "type": "commonjs",
   "scripts": {
     "start": "node backend/server.js",
-    "postinstall": "npx puppeteer browsers install chrome",
     "dev": "nodemon backend/server.js",
     "test": "jest",
     "lint": "eslint ."
