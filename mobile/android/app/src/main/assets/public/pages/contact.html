@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/sections.css" />
+  <style>
+    .contact-shell{display:grid; grid-template-columns:1fr 1fr; gap:32px; padding:120px 0 80px;}
+    .contact-card{background:var(--glass-bg);border:1px solid var(--line); border-radius:24px; padding:24px; box-shadow:var(--shadow-md);} 
+    @media (max-width: 900px){.contact-shell{grid-template-columns:1fr;}}
+  </style>
+
+<title>Contact — ResumeForge</title>
+<meta name="description" content="Get in touch with the ResumeForge support team.">
+<link rel="canonical" href="https://ai-resume-builder-rb1m.onrender.com/pages/contact.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contact — ResumeForge">
+<meta property="og:description" content="Get in touch with the ResumeForge support team.">
+<meta property="og:url" content="https://ai-resume-builder-rb1m.onrender.com/pages/contact.html">
+<meta property="og:site_name" content="ResumeForge">
+<meta property="og:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact — ResumeForge">
+<meta name="twitter:description" content="Get in touch with the ResumeForge support team.">
+<meta name="twitter:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+  <header class="navbar" id="navbar">
+    <div class="container">
+      <a href="../index.html" class="brand"><span class="brand-mark">RF</span>ResumeForge</a>
+      <nav class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../index.html#features">Features</a>
+        <a href="resume-builder.html">Resume Builder</a>
+        <a href="ats-checker.html">ATS Checker</a>
+      </nav>
+      <div class="nav-actions"><a href="login.html" class="btn btn-ghost">Login</a><a href="register.html" class="btn btn-primary">Get Started</a></div>
+    </div>
+  </header>
+  <main>
+    <div class="container contact-shell">
+      <div class="contact-card">
+        <div class="eyebrow">Contact us</div>
+        <h1>Need help with your resume workflow?</h1>
+        <p style="margin-top:16px; color:var(--ink-600);">We’re here to help with onboarding, ATS questions, and product feedback.</p>
+      </div>
+      <div class="contact-card">
+        <div class="field"><label>Email</label><input type="email" placeholder="hello@resumeforge.dev" /></div>
+        <div class="field"><label>Message</label><textarea rows="6" placeholder="Tell us what you need help with..."></textarea></div>
+        <button class="btn btn-primary">Send message</button>
+      </div>
+    </div>
+  </main>
+  <script src="../js/main.js"></script>
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>
