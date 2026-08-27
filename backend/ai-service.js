@@ -14,6 +14,37 @@ function getAiClient() {
   }
 }
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function withRetry(operation, maxRetries = 3) {
+  let attempt = 0;
+  while (attempt <= maxRetries) {
+    try {
+      return await operation(GEMINI_MODEL);
+    } catch (error) {
+      const isTransient = error.status === 503 || error.status === 429 || error.statusCode === 503 || error.statusCode === 429 || (error.message && (error.message.includes('503') || error.message.includes('429') || error.message.toLowerCase().includes('fetch failed')));
+      
+      if (!isTransient || attempt >= maxRetries) {
+        if (isTransient && attempt >= maxRetries) {
+          console.warn(`[AI SERVICE] Max retries reached for ${GEMINI_MODEL}. Attempting fallback to gemini-3.6-flash.`);
+          try {
+            return await operation('gemini-3.6-flash');
+          } catch (fallbackError) {
+            console.error(`[AI SERVICE] Fallback model also failed:`, fallbackError.message);
+            throw fallbackError;
+          }
+        }
+        throw error;
+      }
+      
+      attempt++;
+      const delay = Math.min(500 * Math.pow(2, attempt) + Math.random() * 200, 5000);
+      console.warn(`[AI SERVICE] Transient error (${error.status || error.message}). Retrying in ${Math.round(delay)}ms... (Attempt ${attempt}/${maxRetries})`);
+      await sleep(delay);
+    }
+  }
+}
+
 const ACTION_VERBS = [
   'Spearheaded', 'Orchestrated', 'Accelerated', 'Engineered', 'Streamlined',
   'Championed', 'Amplified', 'Transformed', 'Architected', 'Optimized',
@@ -169,26 +200,30 @@ Format your responses using clean markdown (bolding, bullet points, numbered lis
     };
   });
 
-  if (stream) {
-    return await ai.models.generateContentStream({
-      model: GEMINI_MODEL,
-      contents: contents,
-      config: {
-        systemInstruction: systemInstruction
-      }
-    });
-  } else {
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: contents,
-      config: {
-        systemInstruction: systemInstruction
-      }
-    });
+  const generateOp = async (modelName) => {
+    if (stream) {
+      return await ai.models.generateContentStream({
+        model: modelName,
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction
+        }
+      });
+    } else {
+      const response = await ai.models.generateContent({
+        model: modelName,
+        contents: contents,
+        config: {
+          systemInstruction: systemInstruction
+        }
+      });
+  
+      const reply = response.text ? response.text.trim() : 'I am here to help you optimize your resume, ATS score, and career strategy. How can I help you today?';
+      return { reply };
+    }
+  };
 
-    const reply = response.text ? response.text.trim() : 'I am here to help you optimize your resume, ATS score, and career strategy. How can I help you today?';
-    return { reply };
-  }
+  return await withRetry(generateOp);
 }
 
 async function rewriteText(text) {

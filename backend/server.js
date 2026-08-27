@@ -1858,7 +1858,7 @@ app.post('/api/ai/chat', optionalAuthenticateToken, async (req, res) => {
         res.end();
       } catch (streamErr) {
         console.error('Error during AI streaming:', streamErr);
-        res.write(`data: ${JSON.stringify({ error: 'Stream failed midway.' })}\n\n`);
+        res.write(`data: ${JSON.stringify({ error: 'AI is temporarily busy. Please try again in a few moments.' })}\n\n`);
         res.end();
       }
     } else {

@@ -858,7 +858,7 @@
                 container.scrollTop = container.scrollHeight;
               }
             } catch (parseErr) {
-              if (parsed && parseErr.message === parsed.error || parseErr.message.includes('Stream failed') || parseErr.message.includes('JSON')) {
+              if (parsed && parseErr.message === parsed.error || parseErr.message.includes('AI is temporarily busy') || parseErr.message.includes('JSON')) {
                  if (parsed && parsed.error) throw parseErr; 
                  // otherwise ignore JSON parse error on incomplete chunks
               }
