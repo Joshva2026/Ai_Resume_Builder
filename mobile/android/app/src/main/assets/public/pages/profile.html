@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
+<style>
+.page-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--sp-5);
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.profile-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-card h2 {
+  font-size: var(--fs-md);
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--ink-950);
+}
+
+.profile-card p {
+  color: var(--ink-600);
+  font-size: var(--fs-sm);
+}
+
+.profile-meta {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.profile-meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--paper-50);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink-900);
+}
+
+.profile-meta-item .meta-label {
+  color: var(--ink-600);
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.meta-value-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+.meta-value-link:hover {
+  text-decoration: underline;
+}
+
+.profile-note {
+  padding: var(--sp-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--paper-50);
+  color: var(--ink-700);
+  font-size: var(--fs-sm);
+}
+
+.profile-note p {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+textarea#bio {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.status {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+@media (max-width: 980px) {
+  .page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<title>Profile — ResumeForge</title>
+<meta name="description" content="Manage your ResumeForge profile and settings.">
+<link rel="canonical" href="https://ai-resume-builder-rb1m.onrender.com/pages/profile.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Profile — ResumeForge">
+<meta property="og:description" content="Manage your ResumeForge profile and settings.">
+<meta property="og:url" content="https://ai-resume-builder-rb1m.onrender.com/pages/profile.html">
+<meta property="og:site_name" content="ResumeForge">
+<meta property="og:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Profile — ResumeForge">
+<meta name="twitter:description" content="Manage your ResumeForge profile and settings.">
+<meta name="twitter:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="profileTemplate">
+  <div class="page-grid">
+    <div class="card profile-card">
+      <div class="profile-card-head">
+        <div class="profile-avatar" id="profileAvatar">RF</div>
+        <div>
+          <h2 id="profileName">Your Name</h2>
+          <p id="profileEmail">email@example.com</p>
+        </div>
+      </div>
+
+      <div class="profile-note">
+        <p id="profileBio">Add a short bio to personalize your profile and help us remember your story.</p>
+      </div>
+
+      <div class="profile-meta">
+        <div class="profile-meta-item">
+          <span class="meta-label">Phone</span>
+          <span id="profilePhone" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
+        </div>
+        <div class="profile-meta-item">
+          <span class="meta-label">Location</span>
+          <span id="profileLocation" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
+        </div>
+        <div class="profile-meta-item">
+          <span class="meta-label">LinkedIn</span>
+          <span id="profileLinkedin" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
+        </div>
+        <div class="profile-meta-item">
+          <span class="meta-label">Portfolio</span>
+          <span id="profilePortfolio" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
+        </div>
+        <div class="profile-meta-item">
+          <span class="meta-label">GitHub</span>
+          <span id="profileGithub" style="font-size: var(--fs-xs); font-weight: 500;">Not added</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="panel-head">
+        <h3>Profile details</h3>
+      </div>
+      <form id="profileForm" autocomplete="off" style="margin-top: var(--sp-4);">
+        <div class="field">
+          <label for="profileImageUrl">Profile Image URL</label>
+          <div style="display:flex; gap:8px;">
+            <input type="url" id="profileImageUrl" name="profileImageUrl" placeholder="https://example.com/avatar.jpg" style="flex:1;">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnUploadAvatar" style="white-space:nowrap;"><i class="fa-solid fa-upload"></i> Upload</button>
+            <input type="file" id="avatarFileInput" accept="image/*" hidden>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Jane">
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Doe">
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" placeholder="jane@example.com">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567">
+          </div>
+          <div class="field">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="New York, NY">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="bio">About you (Bio)</label>
+          <textarea id="bio" name="bio" rows="4" placeholder="A short professional bio..."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="linkedinUrl">LinkedIn URL</label>
+          <input type="url" id="linkedinUrl" name="linkedinUrl" placeholder="https://linkedin.com/in/username">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="portfolioUrl">Portfolio URL</label>
+            <input type="url" id="portfolioUrl" name="portfolioUrl" placeholder="https://yourportfolio.dev">
+          </div>
+          <div class="field">
+            <label for="githubUrl">GitHub URL</label>
+            <input type="url" id="githubUrl" name="githubUrl" placeholder="https://github.com/username">
+          </div>
+        </div>
+
+        <div class="field">
+          <div id="profileStatus" class="hint"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="saveProfileBtn">Save profile details</button>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'profile', title: 'Profile' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('profileTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/profile.js"></script>
+<a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>

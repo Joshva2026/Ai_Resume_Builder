@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/app-shell.css">
+<link rel="stylesheet" href="../css/animations.css">
+<style>
+.match-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr;
+  gap: var(--sp-5);
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .match-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.match-card {
+  background: var(--paper-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-sm);
+}
+.tab-header {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--ink-600);
+  font-weight: 700;
+  font-size: var(--fs-2xs);
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.tab-btn:hover {
+  color: var(--primary);
+}
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.score-circle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--sp-4);
+}
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.score-circle .val {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--ink-950);
+}
+.score-circle .label {
+  font-size: var(--fs-3xs);
+  text-transform: uppercase;
+  color: var(--ink-600);
+  font-weight: 700;
+}
+.details-panel {
+  border-bottom: 1px solid var(--line);
+  padding: var(--sp-4) 0;
+}
+.details-panel:last-child {
+  border-bottom: none;
+}
+.details-panel h4 {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink-950);
+  margin-bottom: var(--sp-2);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.match-chip {
+  font-size: var(--fs-3xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+.empty-results {
+  text-align: center;
+  padding: var(--sp-8) var(--sp-4);
+  color: var(--ink-600);
+}
+.empty-results i {
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--sp-3);
+  color: var(--ink-400);
+}
+</style>
+
+<title>Job Match Analyzer — ResumeForge</title>
+<meta name="description" content="Analyze job descriptions and match your resume to your dream job.">
+<link rel="canonical" href="https://ai-resume-builder-rb1m.onrender.com/pages/job-match.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Job Match Analyzer — ResumeForge">
+<meta property="og:description" content="Analyze job descriptions and match your resume to your dream job.">
+<meta property="og:url" content="https://ai-resume-builder-rb1m.onrender.com/pages/job-match.html">
+<meta property="og:site_name" content="ResumeForge">
+<meta property="og:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Job Match Analyzer — ResumeForge">
+<meta name="twitter:description" content="Analyze job descriptions and match your resume to your dream job.">
+<meta name="twitter:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+
+<div id="appShellRoot"></div>
+
+<template id="matchTemplate">
+  <div class="match-layout">
+    <!-- Input Panel -->
+    <div class="match-card">
+      <h3>Compare Job Description</h3>
+      <p class="sub" style="margin-bottom:var(--sp-4)">Run an instant overlap score test to discover matching and missing experience elements compared to specific job listings.</p>
+      
+      <div class="tab-header">
+        <button class="tab-btn active" id="tabUpload">Upload File</button>
+        <button class="tab-btn" id="tabSaved">Select Created Resume</button>
+      </div>
+
+      <!-- File Upload option -->
+      <div id="fileUploadContainer" class="input-section">
+        <div class="field">
+          <label for="resumeFileInput">Upload Resume File</label>
+          <input type="file" id="resumeFileInput" accept=".pdf,.doc,.docx,.txt" style="display:block; width:100%;">
+        </div>
+      </div>
+
+      <!-- Saved Resume option -->
+      <div id="savedResumeContainer" class="input-section" style="display:none">
+        <div class="field">
+          <label for="resumeSelect">Select Saved Resume</label>
+          <select id="resumeSelect" style="width:100%;">
+            <option value="">Loading your saved resumes…</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Job details -->
+      <div class="field" style="margin-top:var(--sp-4)">
+        <label for="jobTitle">Job Title</label>
+        <input type="text" id="jobTitle" placeholder="e.g. Senior Frontend Engineer">
+      </div>
+      <div class="field">
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" placeholder="e.g. Google">
+      </div>
+      <div class="field">
+        <label for="jobDescription">Job Description</label>
+        <textarea id="jobDescription" rows="6" placeholder="Paste the job details or requirements here for skill gap analysis…"></textarea>
+      </div>
+
+      <div id="matchErrorBox" class="scan-error-box" style="display:none; color:var(--score-low); margin-bottom:var(--sp-3)"></div>
+
+      <button class="btn btn-primary btn-block btn-lg" id="btnMatch"><i class="fa-solid fa-arrows-turn-to-dots"></i> Analyze Match Score</button>
+    </div>
+
+    <!-- Output Panel -->
+    <div class="match-card" id="resultsPanel">
+      <div class="empty-results">
+        <i class="fa-solid fa-compress"></i>
+        <h3>Awaiting analysis</h3>
+        <p>Provide your resume and job description details and click Analyze Match Score to see gaps and recommendations.</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/components/app-shell.js"></script>
+<script>
+AppShell.render({ active: 'job-match', title: 'Job Match Analyzer' });
+const content = document.getElementById('appContent');
+content.appendChild(document.getElementById('matchTemplate').content.cloneNode(true));
+</script>
+<script src="../js/pages/job-match.js"></script>
+<a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+</body>
+</html>

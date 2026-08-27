@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/app-shell.css" />
+  <style>
+    .settings-panel { 
+      max-width: 600px; 
+      background: var(--paper-0); 
+      border: 1px solid var(--line); 
+      border-radius: var(--radius-md); 
+      padding: var(--sp-6); 
+      margin-top: var(--sp-5); 
+      box-shadow: var(--shadow-sm);
+      color: var(--ink-800);
+    }
+    .settings-panel h3 { 
+      margin-bottom: var(--sp-5); 
+      font-size: var(--fs-md); 
+      font-weight: 700;
+      border-bottom: 1px solid var(--line); 
+      padding-bottom: 12px; 
+      color: var(--ink-950); 
+    }
+    .form-actions { 
+      margin-top: var(--sp-5); 
+      display: flex; 
+      gap: 16px; 
+      justify-content: flex-end; 
+    }
+  </style>
+
+<title>Settings — ResumeForge</title>
+<meta name="description" content="Configure your ResumeForge account settings.">
+<link rel="canonical" href="https://ai-resume-builder-rb1m.onrender.com/pages/settings.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Settings — ResumeForge">
+<meta property="og:description" content="Configure your ResumeForge account settings.">
+<meta property="og:url" content="https://ai-resume-builder-rb1m.onrender.com/pages/settings.html">
+<meta property="og:site_name" content="ResumeForge">
+<meta property="og:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Settings — ResumeForge">
+<meta name="twitter:description" content="Configure your ResumeForge account settings.">
+<meta name="twitter:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+  <div id="appShellRoot"></div>
+
+  <template id="settingsTemplate">
+    <div class="settings-panel">
+      <h3>Profile Settings</h3>
+      <form id="settingsForm">
+        <div class="field">
+          <label>First Name</label>
+          <input type="text" id="setFirstName" placeholder="Jane" />
+        </div>
+        <div class="field">
+          <label>Last Name</label>
+          <input type="text" id="setLastName" placeholder="Doe" />
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="setEmail" disabled />
+          <p class="hint">Your login email address is managed securely and cannot be changed.</p>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>
+
+  <script src="../js/services/api-service.js"></script>
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/components/app-shell.js"></script>
+  <script>
+    AppShell.render({ active: 'settings', title: 'Settings' });
+    const content = document.getElementById('appContent');
+    content.appendChild(document.getElementById('settingsTemplate').content.cloneNode(true));
+
+    async function loadSettings() {
+      try {
+        const { user } = await ApiService.auth.me();
+        document.getElementById('setFirstName').value = user.firstName || '';
+        document.getElementById('setLastName').value = user.lastName || '';
+        document.getElementById('setEmail').value = user.email || '';
+      } catch(e) {
+        console.error('Failed to load settings', e);
+      }
+    }
+    loadSettings();
+
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+
+      try {
+        await ApiService.profile.update({
+          firstName: document.getElementById('setFirstName').value,
+          lastName: document.getElementById('setLastName').value
+        });
+        if (typeof window.showToast === 'function') {
+          window.showToast('Settings saved successfully!', 'success');
+        }
+        setTimeout(() => window.location.reload(), 600);
+      } catch (err) {
+        if (typeof window.showToast === 'function') {
+          window.showToast(err.message || 'Failed to save settings.', 'error');
+        }
+      } finally {
+        btn.textContent = 'Save Changes';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Styles -->
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/templates.css">
+<style>
+body {
+  background: var(--bg-ocean);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Preview Header Toolbar */
+.preview-header {
+  background: var(--paper-0);
+  border-bottom: 1px solid var(--line);
+  padding: 12px var(--sp-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.preview-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.preview-header h1 {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--ink-950);
+}
+
+.preview-header-actions {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+/* Printable paper container */
+.preview-container {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-6) var(--sp-4);
+}
+
+.paper {
+  width: 210mm;
+  min-height: 297mm;
+  background: #FFFFFF;
+  padding: var(--sp-8);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xs);
+  color: #1E293B;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Shared template styling (copied from builder.css for rendering) */
+.paper .p-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: #0F172A;
+}
+.paper .p-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.paper .p-contact {
+  font-size: 9.5px;
+  color: #475569;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 8px;
+}
+.paper .p-section {
+  margin-bottom: 16px;
+}
+.paper .p-heading {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 2px;
+  margin-bottom: 8px;
+}
+.paper .p-entry {
+  margin-bottom: 10px;
+}
+.paper .p-entry-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 10.5px;
+  color: #0F172A;
+}
+.paper .p-entry-sub {
+  font-size: 9.5px;
+  color: #475569;
+  margin-bottom: 2px;
+}
+.paper .p-entry ul {
+  padding-left: 16px;
+  list-style: disc;
+  font-size: 9.5px;
+  color: #334155;
+  margin: 4px 0 0 0;
+}
+.paper .p-empty {
+  color: #94A3B8;
+  font-style: italic;
+  font-size: 9.5px;
+}
+
+/* Printing overlays */
+@media print {
+  body {
+    background: #FFFFFF;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+  .preview-header {
+    display: none !important;
+  }
+  .preview-container {
+    padding: 0;
+  }
+  .paper {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+}
+</style>
+
+<title>Resume Preview — ResumeForge</title>
+<meta name="description" content="Preview and download your polished resume.">
+<link rel="canonical" href="https://ai-resume-builder-rb1m.onrender.com/pages/resume-preview.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Resume Preview — ResumeForge">
+<meta property="og:description" content="Preview and download your polished resume.">
+<meta property="og:url" content="https://ai-resume-builder-rb1m.onrender.com/pages/resume-preview.html">
+<meta property="og:site_name" content="ResumeForge">
+<meta property="og:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Resume Preview — ResumeForge">
+<meta name="twitter:description" content="Preview and download your polished resume.">
+<meta name="twitter:image" content="https://ai-resume-builder-rb1m.onrender.com/assets/images/og-image.jpg">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+
+<header class="preview-header">
+  <div class="preview-header-left">
+    <button class="btn btn-ghost btn-sm" id="btnBackToBuilder"><i class="fa-solid fa-arrow-left"></i> Edit Resume</button>
+    <h1 id="previewResumeTitle">Loading Resume Preview…</h1>
+  </div>
+  <div class="preview-header-actions">
+    <button class="btn btn-primary btn-sm" id="btnPrintResume"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
+  </div>
+</header>
+
+<main class="preview-container">
+  <div class="paper" id="previewPaper">
+    <div class="p-empty">Loading resume content details…</div>
+  </div>
+</main>
+
+<script src="../js/services/api-service.js"></script>
+<script src="../js/services/template-renderer.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="resume-preview.js"></script>
+</body>
+</html>

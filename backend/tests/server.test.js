@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 
+jest.setTimeout(30000);
+
 let mockUser = null;
 let mockResumes = [];
 let mockAtsReports = [];

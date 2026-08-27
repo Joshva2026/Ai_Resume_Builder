@@ -1,0 +1,223 @@
+{
+  "tables": {
+    "users": [
+      {
+        "id": 1,
+        "email": "demo@resumeforge.dev",
+        "password_hash": "$2b$10$LtrTAIxbatQ3Tn.9Qvr9H.RwQ6jHEtL7KSu2DQBX5eCWYi2.UTpJO",
+        "first_name": "Alex",
+        "last_name": "Morgan",
+        "created_at": "2026-08-27T12:53:53.979Z",
+        "updated_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 2,
+        "email": "joshva756@gmail.com",
+        "password_hash": "$2b$10$LtrTAIxbatQ3Tn.9Qvr9H.RwQ6jHEtL7KSu2DQBX5eCWYi2.UTpJO",
+        "first_name": "Joshva",
+        "last_name": "Candidate",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "updated_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      }
+    ],
+    "profiles": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "phone": "+1 (555) 234-5678",
+        "location": "San Francisco, CA",
+        "bio": "Senior Software Engineer specializing in modern web platforms and distributed cloud systems.",
+        "profile_image_url": "",
+        "linkedin_url": "https://linkedin.com/in/alexmorgan-dev",
+        "portfolio_url": "https://alexmorgan.dev",
+        "github_url": "https://github.com/alexmorgan",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "updated_at": "2026-08-27T12:53:53.980Z"
+      },
+      {
+        "id": 2,
+        "user_id": 2,
+        "phone": "+1 (555) 345-6789",
+        "location": "New York, NY",
+        "bio": "Full-Stack Software Engineer & AI Resume Creator.",
+        "profile_image_url": "",
+        "linkedin_url": "https://linkedin.com/in/joshva",
+        "portfolio_url": "https://joshva.dev",
+        "github_url": "https://github.com/joshva756",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "updated_at": "2026-08-27T12:53:53.980Z"
+      }
+    ],
+    "resumes": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "title": "Senior Software Engineer Resume",
+        "content": "{\"personal\":{\"fullName\":\"Alex Morgan\",\"headline\":\"Senior Full-Stack Engineer | React • Node.js • Cloud Architecture\",\"email\":\"alex.morgan@example.com\",\"phone\":\"+1 (555) 234-5678\",\"location\":\"San Francisco, CA\",\"link\":\"https://alexmorgan.dev\",\"github\":\"https://github.com/alexmorgan\"},\"summary\":\"Results-driven Senior Full-Stack Engineer with 6+ years of experience designing, scaling, and maintaining high-throughput web applications. Expert in TypeScript, React, Node.js, and cloud deployments with a focus on latency reduction and developer productivity.\",\"skills\":\"JavaScript, TypeScript, React, Node.js, Express, PostgreSQL, MySQL, Redis, AWS, Docker, Git, REST APIs, GraphQL, Tailwind CSS, Jest, CI/CD\",\"experience\":[{\"company\":\"CloudScale Technologies\",\"position\":\"Lead Full-Stack Engineer\",\"role\":\"Lead Full-Stack Engineer\",\"title\":\"Lead Full-Stack Engineer\",\"location\":\"San Francisco, CA\",\"startDate\":\"2022-03\",\"endDate\":\"Present\",\"start\":\"2022-03\",\"end\":\"Present\",\"current\":true,\"description\":\"Spearheaded migration of legacy monolith to distributed microservices, reducing API response latency by 45%.\\nArchitected real-time analytics dashboard used by over 50,000 active enterprise users.\\nMentored a team of 8 engineers and instituted automated CI/CD quality gates, cutting regression defect rates by 35%.\"},{\"company\":\"Nexus Software Labs\",\"position\":\"Senior Software Engineer\",\"role\":\"Senior Software Engineer\",\"title\":\"Senior Software Engineer\",\"location\":\"Remote\",\"startDate\":\"2019-06\",\"endDate\":\"2022-02\",\"start\":\"2019-06\",\"end\":\"2022-02\",\"current\":false,\"description\":\"Engineered responsive full-stack applications with React, Node.js, and PostgreSQL.\\nOptimized database indexing and SQL query execution plans, improving throughput by 60%.\"}],\"education\":[{\"institution\":\"University of California, Berkeley\",\"school\":\"University of California, Berkeley\",\"degree\":\"Bachelor of Science in Computer Science\",\"startDate\":\"2015-09\",\"endDate\":\"2019-05\",\"start\":\"2015\",\"end\":\"2019\",\"gpa\":\"3.85\",\"description\":\"Focus in Distributed Systems, Algorithms, and Software Engineering Principles.\"}],\"projects\":[{\"title\":\"Real-Time Resume Analytics Engine\",\"name\":\"Real-Time Resume Analytics Engine\",\"description\":\"Built high-concurrency ATS parsing engine analyzing keywords, formatting, and grammar scores in sub-200ms.\",\"technologies\":\"Node.js, Express, React, Tailwind CSS, Docker\",\"link\":\"https://github.com/alexmorgan/ats-engine\",\"github\":\"https://github.com/alexmorgan/ats-engine\"}],\"certifications\":\"AWS Certified Solutions Architect – Associate, Certified Kubernetes Application Developer (CKAD)\",\"achievements\":\"Winner – Global Hackathon 2021 (1st Place out of 400 teams)\",\"styling\":{\"template\":\"classic-ats\",\"font\":\"'Inter', sans-serif\",\"fontSize\":10,\"headingSize\":14,\"subheadingSize\":11,\"lineSpacing\":1.5,\"sectionSpacing\":12,\"pSpacing\":6,\"marginSize\":20}}",
+        "template_id": 1,
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "updated_at": "2026-08-27T12:53:53.980Z",
+        "is_primary": 1,
+        "original_filename": null,
+        "source": "builder",
+        "raw_text": null
+      }
+    ],
+    "resume_versions": [
+      {
+        "id": 1,
+        "resume_id": 1,
+        "version_number": 1,
+        "content": "{\"personal\":{\"fullName\":\"Alex Morgan\",\"headline\":\"Senior Full-Stack Engineer | React • Node.js • Cloud Architecture\",\"email\":\"alex.morgan@example.com\",\"phone\":\"+1 (555) 234-5678\",\"location\":\"San Francisco, CA\",\"link\":\"https://alexmorgan.dev\",\"github\":\"https://github.com/alexmorgan\"},\"summary\":\"Results-driven Senior Full-Stack Engineer with 6+ years of experience designing, scaling, and maintaining high-throughput web applications. Expert in TypeScript, React, Node.js, and cloud deployments with a focus on latency reduction and developer productivity.\",\"skills\":\"JavaScript, TypeScript, React, Node.js, Express, PostgreSQL, MySQL, Redis, AWS, Docker, Git, REST APIs, GraphQL, Tailwind CSS, Jest, CI/CD\",\"experience\":[{\"company\":\"CloudScale Technologies\",\"position\":\"Lead Full-Stack Engineer\",\"role\":\"Lead Full-Stack Engineer\",\"title\":\"Lead Full-Stack Engineer\",\"location\":\"San Francisco, CA\",\"startDate\":\"2022-03\",\"endDate\":\"Present\",\"start\":\"2022-03\",\"end\":\"Present\",\"current\":true,\"description\":\"Spearheaded migration of legacy monolith to distributed microservices, reducing API response latency by 45%.\\nArchitected real-time analytics dashboard used by over 50,000 active enterprise users.\\nMentored a team of 8 engineers and instituted automated CI/CD quality gates, cutting regression defect rates by 35%.\"},{\"company\":\"Nexus Software Labs\",\"position\":\"Senior Software Engineer\",\"role\":\"Senior Software Engineer\",\"title\":\"Senior Software Engineer\",\"location\":\"Remote\",\"startDate\":\"2019-06\",\"endDate\":\"2022-02\",\"start\":\"2019-06\",\"end\":\"2022-02\",\"current\":false,\"description\":\"Engineered responsive full-stack applications with React, Node.js, and PostgreSQL.\\nOptimized database indexing and SQL query execution plans, improving throughput by 60%.\"}],\"education\":[{\"institution\":\"University of California, Berkeley\",\"school\":\"University of California, Berkeley\",\"degree\":\"Bachelor of Science in Computer Science\",\"startDate\":\"2015-09\",\"endDate\":\"2019-05\",\"start\":\"2015\",\"end\":\"2019\",\"gpa\":\"3.85\",\"description\":\"Focus in Distributed Systems, Algorithms, and Software Engineering Principles.\"}],\"projects\":[{\"title\":\"Real-Time Resume Analytics Engine\",\"name\":\"Real-Time Resume Analytics Engine\",\"description\":\"Built high-concurrency ATS parsing engine analyzing keywords, formatting, and grammar scores in sub-200ms.\",\"technologies\":\"Node.js, Express, React, Tailwind CSS, Docker\",\"link\":\"https://github.com/alexmorgan/ats-engine\",\"github\":\"https://github.com/alexmorgan/ats-engine\"}],\"certifications\":\"AWS Certified Solutions Architect – Associate, Certified Kubernetes Application Developer (CKAD)\",\"achievements\":\"Winner – Global Hackathon 2021 (1st Place out of 400 teams)\",\"styling\":{\"template\":\"classic-ats\",\"font\":\"'Inter', sans-serif\",\"fontSize\":10,\"headingSize\":14,\"subheadingSize\":11,\"lineSpacing\":1.5,\"sectionSpacing\":12,\"pSpacing\":6,\"marginSize\":20}}",
+        "created_at": "2026-08-27T12:53:53.980Z"
+      }
+    ],
+    "ats_reports": [],
+    "password_resets": [
+      {
+        "id": 1,
+        "user_id": 2,
+        "token_hash": "bbd8c372c969d1ddc6622123609e672b0e526829f1f627f40f15b2070228ac4a",
+        "expires_at": "2026-08-27T14:09:53.492Z",
+        "used": 0,
+        "created_at": "2026-08-27T13:39:53.492Z"
+      }
+    ],
+    "cover_letters": [],
+    "templates": [
+      {
+        "id": 1,
+        "name": "Classic ATS",
+        "description": "Standard block layout, strictly parsed by automated recruitment scanners.",
+        "thumbnail_url": "",
+        "category": "Classic ATS",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 2,
+        "name": "Minimal ATS",
+        "description": "Very clean, no borders, left-aligned standard layout.",
+        "thumbnail_url": "",
+        "category": "Classic ATS",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 3,
+        "name": "Corporate ATS",
+        "description": "Heavy lines and clearly defined structured headers.",
+        "thumbnail_url": "",
+        "category": "Classic ATS",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 4,
+        "name": "Modern Professional",
+        "description": "Left sidebar for skills/contact with clean right body layout.",
+        "thumbnail_url": "",
+        "category": "Modern",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 5,
+        "name": "Modern Minimal",
+        "description": "Grid-based header with minimal structured body.",
+        "thumbnail_url": "",
+        "category": "Modern",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 6,
+        "name": "Technical",
+        "description": "Monospace elements optimized for engineering and developer roles.",
+        "thumbnail_url": "",
+        "category": "Technical",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 7,
+        "name": "Software Engineer",
+        "description": "Code-like brackets and clean developer layout.",
+        "thumbnail_url": "",
+        "category": "Technical",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 8,
+        "name": "Fresher",
+        "description": "Focus on education, coursework, and academic projects.",
+        "thumbnail_url": "",
+        "category": "Fresher",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      },
+      {
+        "id": 9,
+        "name": "Executive",
+        "description": "Authoritative, distinguished layout best suited for leadership and senior management.",
+        "thumbnail_url": "",
+        "category": "Executive",
+        "structure": "{}",
+        "created_at": "2026-08-27T12:53:53.980Z",
+        "is_active": 1
+      }
+    ],
+    "downloads": [],
+    "refresh_tokens": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkZW1vQHJlc3VtZWZvcmdlLmRldiIsImlhdCI6MTc4NzgzODA1MCwiZXhwIjoxNzg4NDQyODUwfQ.KBUfcVwxgzjApxfmoxXa8o40N_znKvjY-lzENsCh_I0",
+        "expires_at": "2026-09-03T13:40:50.630Z",
+        "created_at": "2026-08-27T13:05:32.553Z",
+        "is_revoked": 0
+      }
+    ],
+    "settings": [],
+    "portfolios": [],
+    "portfolio_projects": [],
+    "portfolio_skills": [],
+    "portfolio_experience": [],
+    "portfolio_education": [],
+    "job_matches": [],
+    "applications": [],
+    "linkedin_reviews": []
+  },
+  "counters": {
+    "users": 3,
+    "profiles": 3,
+    "resumes": 2,
+    "resume_versions": 2,
+    "ats_reports": 1,
+    "password_resets": 2,
+    "cover_letters": 1,
+    "templates": 10,
+    "downloads": 1,
+    "refresh_tokens": 3,
+    "settings": 1,
+    "portfolios": 1,
+    "portfolio_projects": 1,
+    "portfolio_skills": 1,
+    "portfolio_experience": 1,
+    "portfolio_education": 1,
+    "job_matches": 1,
+    "applications": 1,
+    "linkedin_reviews": 1
+  }
+}

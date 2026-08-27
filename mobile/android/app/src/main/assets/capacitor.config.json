@@ -1,0 +1,13 @@
+{
+	"appId": "dev.resumeforge.app",
+	"appName": "AI Resume Forge",
+	"webDir": "../Fontend",
+	"bundledWebRuntime": false,
+	"server": {
+		"androidScheme": "https",
+		"allowNavigation": [
+			"ai-resume-builder-rb1m.onrender.com",
+			"ais-dev-64ocjxaj4kkqqqnxc3uzbz-758727885662.asia-southeast1.run.app"
+		]
+	}
+}
