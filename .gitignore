@@ -12,3 +12,15 @@ playwright-report/
 test-results/
 *.zip
 backend/data/
+
+# Android Studio / IntelliJ IDE metadata
+.idea/
+
+# Native Android build artifacts
+mobile-native/.gradle/
+mobile-native/app/build/
+mobile-native/build/
+mobile-native/local.properties
+
+# Accidental nested Gradle wrapper/cache
+mobile-native/gradle/gradle/
