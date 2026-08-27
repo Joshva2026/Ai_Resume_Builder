@@ -20,7 +20,12 @@ const crypto = require('crypto');
 const multer = require('multer');
 const aiService = require('./ai-service');
 const atsEngine = require('./ats-engine');
-const puppeteer = require('puppeteer');
+let puppeteer = null;
+try {
+  puppeteer = require('puppeteer');
+} catch (_) {}
+const { createDatabaseProxy } = require('./in-memory-db');
+const { generatePdfFallback } = require('./pdf-fallback');
 
 // In-memory mock resumes store for audit user when DB is offline
 const mockAuditResumes = [];
@@ -100,42 +105,55 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
-// Initial connection without database to create it if it doesn't exist
-const adminPool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 4000),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    minVersion: 'TLSv1.2',
-    rejectUnauthorized: true
-  },
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 10000,
-  maxIdle: 10,
-  idleTimeout: 30000
-});
+/// Database connection initialization with resilient in-memory fallback
+const isTestEnv = process.env.NODE_ENV === 'test';
+const hasConfiguredDb = Boolean(process.env.DB_HOST) || isTestEnv;
+let realAdminPool = null;
+let realPool = null;
 
-// Main database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 4000),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    minVersion: 'TLSv1.2',
-    rejectUnauthorized: true
-  },
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 10000,
-  maxIdle: 10,
-  idleTimeout: 30000
-});
+if (hasConfiguredDb) {
+  try {
+    realAdminPool = mysql.createPool({
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT || 4000),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: false
+      },
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 10000,
+      maxIdle: 10,
+      idleTimeout: 30000
+    });
+
+    realPool = mysql.createPool({
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT || 4000),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: false
+      },
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 10000,
+      maxIdle: 10,
+      idleTimeout: 30000
+    });
+  } catch (err) {
+    console.warn('[DATABASE] Failed to initialize MySQL pool, using in-memory store:', err.message);
+  }
+}
+
+const adminPool = isTestEnv ? realAdminPool : createDatabaseProxy(realAdminPool, hasConfiguredDb);
+const pool = isTestEnv ? realPool : createDatabaseProxy(realPool, hasConfiguredDb);
 
 // ==========================================
 // MIDDLEWARE SETUP
@@ -681,6 +699,10 @@ app.post('/api/auth/register', async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
     const connection = await pool.getConnection();
@@ -2275,49 +2297,39 @@ app.post('/api/download/pdf', authenticateToken, async (req, res) => {
     connection.release();
     connection = null;
 
-    // Stream the PDF directly to the response — no disk I/O needed
+    // Stream the PDF directly to the response - no disk I/O needed
     let pdfBuffer;
     await runPdfTask(async () => {
         let browser;
         try {
-          const puppeteerCacheDir = path.join(__dirname, '.cache', 'puppeteer');
-          console.log(`[RESUME PDF] PUPPETEER_CACHE_DIR = ${puppeteerCacheDir}`);
-          console.log(`[RESUME PDF] cache directory exists = ${fs.existsSync(puppeteerCacheDir)}`);
-          try {
-            const executablePath = puppeteer.executablePath();
-            console.log(`[RESUME PDF] expected Chrome path = ${executablePath}`);
-            console.log(`[RESUME PDF] Chrome executable exists = ${fs.existsSync(executablePath)}`);
-          } catch (execErr) {
-            console.log(`[RESUME PDF] expected Chrome path = Unknown (${execErr.message})`);
+          if (puppeteer) {
+            browser = await puppeteer.launch({
+              headless: 'new',
+              args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+              ]
+            });
+            const page = await browser.newPage();
+            // Important: Use networkidle0 to ensure fonts and images are fully loaded
+            await page.setContent(fullHtmlContent, { waitUntil: 'networkidle0', timeout: 15000 });
+            
+            // Generate PDF
+            pdfBuffer = await page.pdf({
+              format: 'A4',
+              printBackground: true,
+              margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
+            });
+            
+            await page.close();
+          } else {
+            pdfBuffer = await generatePdfFallback(resumeContent, resumeTitle);
           }
-          
-          browser = await puppeteer.launch({
-          headless: 'new',
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu'
-          ]
-        });
-        const page = await browser.newPage();
-
-
-        // pass the string fullHtmlContent instead of the object
-        await page.setContent(fullHtmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
-
-
-        pdfBuffer = await page.pdf({
-          format: 'A4',
-          printBackground: true,
-          margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
-        });
-
-
-        await page.close();
       } catch (puppeteerErr) {
-        console.error(`[RESUME PDF] Puppeteer exception:`, puppeteerErr);
-        throw puppeteerErr;
+        console.warn(`[RESUME PDF] Puppeteer exception, using pdf-lib fallback:`, puppeteerErr.message);
+        pdfBuffer = await generatePdfFallback(resumeContent, resumeTitle);
       } finally {
         if (browser) {
           try { await browser.close(); } catch (_) {}

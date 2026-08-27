@@ -829,9 +829,13 @@
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
 
-      while (true) {
+      let isStreaming = true;
+      while (isStreaming) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          isStreaming = false;
+          break;
+        }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');

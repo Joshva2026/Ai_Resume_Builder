@@ -1,6 +1,6 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const GEMINI_MODEL = 'gemini-3.6-flash';
+const GEMINI_MODEL = 'gemini-3.7-flash';
 
 function getAiClient() {
   if (!process.env.GEMINI_API_KEY) {

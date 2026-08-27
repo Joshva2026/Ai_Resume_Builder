@@ -160,9 +160,8 @@
 
       <div class="divider">or continue with</div>
       <div class="social-auth-row">
-        <button type="button" class="btn-social" aria-label="Google"><i class="fa-brands fa-google"></i></button>
-        <button type="button" class="btn-social" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></button>
-        <button type="button" class="btn-social" aria-label="Apple"><i class="fa-brands fa-apple"></i></button>
+        <button type="button" class="btn-social" id="googleRegisterBtn" aria-label="Google"><i class="fa-brands fa-google"></i> Google</button>
+        <button type="button" class="btn-social" id="linkedinRegisterBtn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</button>
       </div>
 
       <p class="auth-switch">Already have an account? <a href="login.html" class="btn-text">Login</a></p>
@@ -173,6 +172,28 @@
 <script src="../js/services/api-service.js"></script>
 <script src="../js/auth-guard.js"></script>
 <script>
+// Social OAuth Handlers
+async function handleSocialRegister(provider) {
+  const errorBox = document.getElementById('formError');
+  errorBox.classList.remove('is-visible');
+  const btn = document.getElementById(`${provider}RegisterBtn`);
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+
+  try {
+    await ApiService.auth.initiateOAuth(provider);
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> Connected!';
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 300);
+  } catch (err) {
+    if (btn) btn.innerHTML = originalHtml;
+    errorBox.querySelector('span').innerHTML = `<strong>${provider.toUpperCase()} Sign-in:</strong> ${err.message || 'Social sign-in failed.'}`;
+    errorBox.classList.add('is-visible');
+  }
+}
+
+document.getElementById('googleRegisterBtn')?.addEventListener('click', () => handleSocialRegister('google'));
+document.getElementById('linkedinRegisterBtn')?.addEventListener('click', () => handleSocialRegister('linkedin'));
+
 // Toggle password visibility
 document.getElementById('togglePw').addEventListener('click', () => {
   const input = document.getElementById('password');

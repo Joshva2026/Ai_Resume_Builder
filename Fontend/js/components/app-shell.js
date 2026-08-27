@@ -201,7 +201,9 @@ const AppShell = (() => {
       if (dropNameEl) dropNameEl.textContent = fullName;
       if (dropEmailEl) dropEmailEl.textContent = user?.email || 'Registered Candidate';
     } catch (err) {
-      console.warn('Could not load user:', err.message);
+      if (err?.status !== 401) {
+        console.warn('Could not load user:', err.message);
+      }
     }
   }
 

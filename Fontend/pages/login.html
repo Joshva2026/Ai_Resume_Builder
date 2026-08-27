@@ -101,8 +101,8 @@
 
       <form id="loginForm" novalidate>
         <div class="field">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+          <label for="email">Email Address or Username</label>
+          <input type="text" id="email" name="email" placeholder="you@example.com or username" required autocomplete="username">
         </div>
         <div class="field">
           <label for="password">Password</label>
@@ -118,29 +118,16 @@
           <a href="forgot-password.html" class="btn-text">Forgot Password?</a>
         </div>
         <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-bottom: var(--sp-4);" id="loginSubmit">
-          <span id="loginBtnText">Login</span>
+          <span id="loginBtnText">Log In</span>
           <i class="fa-solid fa-spinner fa-spin" id="loginSpinner" style="display:none"></i>
         </button>
       </form>
 
       <div class="divider">or continue with</div>
       <div class="social-auth-row">
-        <button type="button" class="btn-social" aria-label="Google"><i class="fa-brands fa-google"></i></button>
-        <button type="button" class="btn-social" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></button>
-        <button type="button" class="btn-social" aria-label="Apple"><i class="fa-brands fa-apple"></i></button>
-      </div>
-
-      <!-- Dev mode: shown only on localhost when backend is unreachable -->
-      <div id="devModeBanner" style="display:none; margin-top:var(--sp-4); padding:12px 16px; background:rgba(108,92,255,0.08); border:1px solid rgba(108,92,255,0.25); border-radius:var(--radius-md); font-size:var(--fs-xs); color:var(--ink-300);">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <i class="fa-solid fa-flask" style="color:#a78bfa;"></i>
-          <strong style="color:#c4b5fd;">Local Dev Mode</strong>
-          <span style="font-size:10px;background:rgba(108,92,255,0.2);color:#a78bfa;padding:2px 8px;border-radius:20px;">offline</span>
-        </div>
-        <p style="margin:0 0 8px;">Backend DB is unreachable. Using local mock storage.</p>
-        <button type="button" id="fillDemoBtn" style="background:rgba(108,92,255,0.15);border:1px solid rgba(108,92,255,0.3);color:#c4b5fd;border-radius:var(--radius-sm);padding:6px 14px;font-size:var(--fs-xs);cursor:pointer;width:100%;transition:background 0.2s;" onmouseover="this.style.background='rgba(108,92,255,0.25)'" onmouseout="this.style.background='rgba(108,92,255,0.15)'">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Use demo account (demo@resumeforge.dev)
-        </button>
+        <button type="button" class="btn-social" id="googleLoginBtn" aria-label="Google" title="Sign in with Google"><i class="fa-brands fa-google"></i> Google</button>
+        <button type="button" class="btn-social" id="linkedinLoginBtn" aria-label="LinkedIn" title="Sign in with LinkedIn"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</button>
+        <button type="button" class="btn-social" id="githubLoginBtn" aria-label="GitHub" title="Sign in with GitHub"><i class="fa-brands fa-github"></i> GitHub</button>
       </div>
 
       <p class="auth-switch">Don't have an account? <a href="register.html" class="btn-text">Create one free</a></p>
@@ -172,6 +159,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   const email    = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
 
+  if (!email || !password) {
+    errorBox.querySelector('span').textContent = 'Please enter both your email/username and password.';
+    errorBox.classList.add('is-visible');
+    return;
+  }
+
   submitBtn.disabled = true;
   btnText.textContent = 'Logging in…';
   spinner.style.display = 'inline-block';
@@ -180,9 +173,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     await ApiService.auth.login({ email, password });
     btnText.textContent = 'Success! ✓';
     submitBtn.style.background = 'var(--score-high)';
-    setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 300);
   } catch (err) {
-    errorBox.querySelector('span').textContent = err.message || 'Login failed. Please check your credentials.';
+    const msg = err.message || 'Invalid credentials. Please check your email and password.';
+    errorBox.querySelector('span').innerHTML = `${msg} <br><small style="opacity:0.85">Need an account? <a href="register.html" style="color:var(--brand-300);text-decoration:underline;">Create a free account</a>.</small>`;
     errorBox.classList.add('is-visible');
     errorBox.style.animation = 'bounceIn 0.35s var(--ease-out)';
     submitBtn.disabled = false;
@@ -191,32 +185,38 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
+// Social OAuth Handlers
+async function handleSocialLogin(provider) {
+  const errorBox = document.getElementById('formError');
+  errorBox.classList.remove('is-visible');
+  const btn = document.getElementById(`${provider}LoginBtn`);
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+
+  try {
+    await ApiService.auth.initiateOAuth(provider);
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> Connected!';
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 300);
+  } catch (err) {
+    if (btn) btn.innerHTML = originalHtml;
+    errorBox.querySelector('span').innerHTML = `<strong>${provider.toUpperCase()} Sign-in:</strong> ${err.message || 'Social sign-in failed.'}`;
+    errorBox.classList.add('is-visible');
+  }
+}
+
+document.getElementById('googleLoginBtn')?.addEventListener('click', () => handleSocialLogin('google'));
+document.getElementById('linkedinLoginBtn')?.addEventListener('click', () => handleSocialLogin('linkedin'));
+document.getElementById('githubLoginBtn')?.addEventListener('click', () => {
+  const errorBox = document.getElementById('formError');
+  errorBox.querySelector('span').textContent = 'GitHub Sign-in is available via standard OAuth. Please use Email or Google / LinkedIn.';
+  errorBox.classList.add('is-visible');
+});
+
 // Page fade in
 document.body.style.opacity = '0';
 requestAnimationFrame(() => {
   document.body.style.transition = 'opacity 0.4s ease';
   document.body.style.opacity = '1';
-});
-
-// Show dev mode banner ONLY on local development environment
-const isLocalhostMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-if (isLocalhostMode) {
-  // Ping backend to check if it's up; show banner if it's not
-  fetch(ApiService.BASE_URL + '/auth/me', { method: 'GET' })
-    .then(r => { if (!r.ok && r.status !== 401) throw new Error(); }) // 401 = backend alive, just not authed
-    .catch(() => {
-      const banner = document.getElementById('devModeBanner');
-      if (banner) banner.style.display = 'block';
-    });
-}
-
-// Fill demo credentials (only works if banner is shown)
-document.getElementById('fillDemoBtn')?.addEventListener('click', () => {
-  if (!isLocalhostMode) return;
-  document.getElementById('email').value = 'demo@resumeforge.dev';
-  document.getElementById('password').value = 'Demo1234!';
-  document.getElementById('email').dispatchEvent(new Event('input'));
-  document.getElementById('password').dispatchEvent(new Event('input'));
 });
 </script>
   <a href="../index.html" class="global-back-btn" aria-label="Back to Home" title="Back to Home"><i class="fa-solid fa-house"></i></a>

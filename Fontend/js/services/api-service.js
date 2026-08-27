@@ -160,6 +160,59 @@ const ApiService = (() => {
       return data;
     },
 
+    async initiateOAuth(provider) {
+      // Fetch the provider OAuth authorization URL from backend
+      const res = await request(`/auth/${provider}/url`, { method: 'GET', auth: false });
+      if (!res || !res.success || !res.url) {
+        throw new Error(res?.error || `${provider} OAuth is not configured on this server.`);
+      }
+
+      return new Promise((resolve, reject) => {
+        const width = 540;
+        const height = 660;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+        const popup = window.open(
+          res.url,
+          `${provider}_oauth_popup`,
+          `width=${width},height=${height},top=${top},left=${left},status=no,resizable=yes`
+        );
+
+        if (!popup) {
+          window.location.href = res.url;
+          return;
+        }
+
+        const messageHandler = (event) => {
+          if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+            window.removeEventListener('message', messageHandler);
+            clearInterval(pollTimer);
+            setTokens(event.data);
+            resolve(event.data);
+          } else if (event.data?.type === 'OAUTH_AUTH_ERROR') {
+            window.removeEventListener('message', messageHandler);
+            clearInterval(pollTimer);
+            reject(new Error(event.data.error || 'Social sign-in failed.'));
+          }
+        };
+
+        window.addEventListener('message', messageHandler);
+
+        const pollTimer = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(pollTimer);
+            window.removeEventListener('message', messageHandler);
+            const token = getToken();
+            if (token) {
+              resolve({ accessToken: token, user: getUser() });
+            } else {
+              reject(new Error('Sign-in window was closed before completion.'));
+            }
+          }
+        }, 500);
+      });
+    },
+
     async logout() {
       const refreshToken = localStorage.getItem(REFRESH_KEY);
       try { 

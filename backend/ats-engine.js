@@ -47,7 +47,7 @@ async function extractText(filePath, mimetype, originalName = '') {
 
     const textFallback = fs.readFileSync(filePath, 'utf8');
     // Check for raw binary OLE header junk
-    if (/\x00/.test(textFallback.slice(0, 100))) {
+    if (textFallback.slice(0, 100).includes('\0')) {
       throw new Error('Legacy binary .doc files are not supported. Please convert your file to .docx or .pdf.');
     }
     return textFallback;

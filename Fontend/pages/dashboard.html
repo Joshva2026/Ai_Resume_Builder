@@ -471,7 +471,9 @@ async function loadDashboard() {
     const firstName = user?.firstName || user?.email.split('@')[0] || 'User';
     document.getElementById('greetingName').textContent = `Good morning, ${firstName}! ☕`;
   } catch (err) {
-    console.warn('Greeting fetch error', err);
+    if (err?.status !== 401) {
+      console.warn('Greeting fetch error', err);
+    }
   }
 
   let resumes = [];
@@ -481,19 +483,25 @@ async function loadDashboard() {
   try {
     resumes = await ApiService.resumes.list();
   } catch (err) {
-    console.warn('Error loading resumes list', err);
+    if (err?.status !== 401) {
+      console.warn('Error loading resumes list', err);
+    }
   }
 
   try {
     atsHistory = await ApiService.ats.history();
   } catch (err) {
-    console.warn('Error loading ATS history', err);
+    if (err?.status !== 401) {
+      console.warn('Error loading ATS history', err);
+    }
   }
 
   try {
     apps = await ApiService.applications.list();
   } catch (err) {
-    console.warn('Error loading applications list', err);
+    if (err?.status !== 401) {
+      console.warn('Error loading applications list', err);
+    }
   }
 
   // Card 1: Resumes Created

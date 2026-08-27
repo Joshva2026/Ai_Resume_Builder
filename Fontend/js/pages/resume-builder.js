@@ -108,11 +108,6 @@
     }
   }
 
-  function navigateToSection(secName) {
-    const item = document.querySelector(`.rail-item[data-section="${secName}"]`);
-    if (item) item.click();
-  }
-
   function highlightAiModifiedFields() {
     const metaStr = localStorage.getItem('rf_ai_improved_meta');
     if (!metaStr) return;
@@ -1100,7 +1095,9 @@ function bindUndo() {
       currentResumeId = id;
       populateStateAndUI(resume.content || {});
     } catch (err) {
-      console.warn('Could not load resume:', err.message);
+      if (err?.status !== 401) {
+        console.warn('Could not load resume:', err.message);
+      }
       addExperienceBlock();
       addEducationBlock();
       renderPreview();

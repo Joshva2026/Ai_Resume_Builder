@@ -8,3 +8,7 @@ db.json
 backend/clear_db.js
 test-flow.js
 backend/.cache/
+playwright-report/
+test-results/
+*.zip
+backend/data/
