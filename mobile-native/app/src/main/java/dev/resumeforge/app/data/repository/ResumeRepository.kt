@@ -10,8 +10,11 @@ class ResumeRepository {
     suspend fun getResumes(): Result<List<Resume>> {
         return try {
             val res = api.getResumes()
-            if (res.isSuccessful) Result.success(res.body() ?: emptyList())
-            else Result.failure(Exception("Failed to load resumes"))
+            when {
+                res.isSuccessful -> Result.success(res.body() ?: emptyList())
+                res.code() == 401 -> Result.failure(Exception("401: Session expired"))
+                else -> Result.failure(Exception("Failed to load resumes (${res.code()})"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -1,5 +1,7 @@
 package dev.resumeforge.app.data.models
 
+import com.google.gson.annotations.SerializedName
+
 data class AtsAnalyzeRequest(
     val resumeId: Int,
     val jobDescription: String? = null
@@ -7,9 +9,9 @@ data class AtsAnalyzeRequest(
 
 data class AtsReport(
     val id: String,
-    val score: Int,
-    val matchedKeywords: List<String> = emptyList(),
-    val missingKeywords: List<String> = emptyList(),
+    @SerializedName("overall_score") val score: Int,
+    @SerializedName("matched_keywords")  val matchedKeywords: List<String> = emptyList(),
+    @SerializedName("missing_keywords")  val missingKeywords: List<String> = emptyList(),
     val recommendations: List<String> = emptyList(),
-    val createdAt: String
+    @SerializedName("created_at") val createdAt: String
 )

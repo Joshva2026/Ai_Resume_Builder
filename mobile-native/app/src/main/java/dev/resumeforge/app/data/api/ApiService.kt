@@ -21,7 +21,7 @@ interface ApiService {
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
 
     @GET("/api/auth/me")
-    suspend fun getMe(): Response<User>
+    suspend fun getMe(): Response<MeResponse>
 
     // ── Resumes ───────────────────────────────────────────────────────────
     @GET("/api/resumes")
