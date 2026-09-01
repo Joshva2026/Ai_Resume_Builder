@@ -1,4 +1,0 @@
-# ResumeForge
-ResumeForge is an AI-powered resume builder and ATS checker application.
-It provides tools to build professional resumes, analyze them against ATS systems, generate tailored cover letters, and track job applications.
-Public features include Resume Templates, ATS Checking, and an AI Career Assistant.

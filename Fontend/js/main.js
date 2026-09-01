@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initCtaConfig();
   initScrollReveal();
   initCounterAnimation();
-  initParticles();
   initPageTransitions();
   initBarAnimations();
+  initCinematicScroll();
   checkAuthState();
   if (window.AOS) AOS.init({ once: true, duration: 600, easing: 'ease-out-cubic' });
 });
@@ -516,3 +516,92 @@ function showToast(message, type = '') {
 
 // Expose globally
 window.showToast = showToast;
+
+/* ─────────────────────────────────────────────────────────────
+   CINEMATIC SCROLL VIDEO
+───────────────────────────────────────────────────────────── */
+function initCinematicScroll() {
+  const section = document.getElementById('cinematic-section');
+  const video = document.getElementById('cinematic-video');
+  const contents = document.querySelectorAll('.cinematic-content');
+  
+  if (!section || !video || !contents.length) return;
+
+  // Reduced motion fallback
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    video.removeAttribute('muted'); // Optional, but usually we just want to avoid autoplay/scrubbing
+    // Make first content always visible
+    contents.forEach((el, index) => {
+      if (index === 0) el.classList.add('active');
+      else el.style.display = 'none';
+    });
+    return;
+  }
+
+  let videoDuration = 0;
+  
+  video.addEventListener('loadedmetadata', () => {
+    videoDuration = video.duration;
+  });
+
+  // Ensure metadata is loaded if it's already available
+  if (video.readyState >= 1) {
+    videoDuration = video.duration;
+  }
+
+  let rafId = null;
+
+  function handleScroll() {
+    if (!videoDuration) return;
+
+    const rect = section.getBoundingClientRect();
+    const sectionTop = rect.top;
+    const sectionHeight = rect.height;
+    const viewportHeight = window.innerHeight;
+
+    // Calculate progress (0 at top of section, 1 at bottom where sticky ends)
+    const scrollableDistance = sectionHeight - viewportHeight;
+    let progress = -sectionTop / scrollableDistance;
+
+    // Clamp progress between 0 and 1
+    progress = Math.max(0, Math.min(1, progress));
+
+    // Update video time
+    if (progress >= 0 && progress <= 1) {
+      // Small optimization: only seek if the time has changed significantly
+      const targetTime = progress * videoDuration;
+      if (Math.abs(video.currentTime - targetTime) > 0.05) {
+        video.currentTime = targetTime;
+      }
+    }
+
+    // Determine which step to show based on progress
+    const totalSteps = contents.length;
+    const stepProgress = 1 / totalSteps;
+    
+    let currentStep = Math.floor(progress / stepProgress);
+    if (currentStep >= totalSteps) currentStep = totalSteps - 1;
+
+    contents.forEach((content, index) => {
+      content.classList.remove('active', 'exit-up', 'exit-down');
+      
+      if (index === currentStep) {
+        content.classList.add('active');
+      } else if (index < currentStep) {
+        content.classList.add('exit-up');
+      } else {
+        content.classList.add('exit-down');
+      }
+    });
+
+    rafId = null;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!rafId) {
+      rafId = requestAnimationFrame(handleScroll);
+    }
+  }, { passive: true });
+}
+

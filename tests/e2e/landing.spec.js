@@ -15,18 +15,13 @@ test.describe('ResumeForge Landing Page Suite', () => {
     // Verify main display heading
     const h1 = page.locator('h1');
     await expect(h1).toBeVisible();
-    await expect(h1).toContainText('Build Smarter.');
-    await expect(h1).toContainText('Get Hired Faster.');
+    await expect(h1).toContainText('Build a resume that works as hard as you do.');
   });
 
-  test('should show statistic card values', async ({ page }) => {
-    // Verify core stats are rendered
-    const statCards = page.locator('.hero-stat-card');
-    await expect(statCards).toHaveCount(4);
-    await expect(statCards.nth(0)).toContainText('20K+');
-    await expect(statCards.nth(1)).toContainText('95%');
-    await expect(statCards.nth(2)).toContainText('10K+');
-    await expect(statCards.nth(3)).toContainText('4.9 ★');
+  test('should show cinematic scroll elements', async ({ page }) => {
+    // Verify cinematic overlay renders
+    const cinematicContent = page.locator('.cinematic-content');
+    await expect(cinematicContent).toHaveCount(6);
   });
 
   test('should have CTA buttons pointing to register/login', async ({ page }) => {
