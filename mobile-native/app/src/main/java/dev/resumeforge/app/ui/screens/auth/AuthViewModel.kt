@@ -66,6 +66,18 @@ class AuthViewModel(private val repository: AuthRepository = AuthRepository()) :
         }
     }
 
+    fun updateProfile(req: dev.resumeforge.app.data.models.UpdateProfileRequest) {
+        viewModelScope.launch {
+            _uiState.value = AuthState.Loading
+            val res = repository.updateProfile(req)
+            if (res.isSuccess) {
+                _uiState.value = AuthState.Success
+            } else {
+                _uiState.value = AuthState.Error(res.exceptionOrNull()?.message ?: "Update failed")
+            }
+        }
+    }
+
     fun resetState() {
         _uiState.value = AuthState.Idle
     }

@@ -1,159 +1,161 @@
 package dev.resumeforge.app.ui.screens.settings
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.resumeforge.app.R
 
+// ── Design tokens ─────────────────────────────────────────────────────────────
+private val BgDeep    = Color(0xFF0F172A)
+private val BgSurface = Color(0xFF1E293B)
+private val BgCard    = Color(0xFF1E293B)
+private val TextPrime = Color.White
+private val TextSub   = Color(0xFF94A3B8)
+private val Danger    = Color(0xFFEF4444)
+private val Border    = Color(0xFF334155)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onLogout: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0D1117))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 16.dp)
-        ) {
-            Text(
-                "Settings",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            )
+fun SettingsScreen(
+    onLogout: () -> Unit,
+    onBack: () -> Unit
+) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ── Appearance Section ────────────────────────────────────────
-            SettingsSectionLabel("Appearance")
-            SettingsCard {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("Dark Theme", color = Color.White, fontWeight = FontWeight.Medium)
-                        Text("Active", color = Color(0xFF8B949E), fontSize = 13.sp)
-                    }
-                    Surface(
-                        color = Color(0xFF00C47D),
-                        shape = RoundedCornerShape(4.dp)
+    Scaffold(
+        containerColor = BgDeep,
+        topBar = {
+            Surface(color = BgDeep, tonalElevation = 0.dp) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            "ON",
-                            color = Color(0xFF0D1117),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, "Back", tint = TextPrime)
+                        }
+                        Text("Settings", color = TextPrime, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     }
+                    HorizontalDivider(color = Border, thickness = 1.dp)
                 }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ── About Section ─────────────────────────────────────────────
-            SettingsSectionLabel("About")
-            SettingsCard {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_logo),
-                        contentDescription = "ResumeForge Logo",
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(RoundedCornerShape(14.dp))
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.padding(padding).fillMaxSize().background(BgDeep),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                SettingsSection(
+                    title = "Preferences",
+                    items = listOf(
+                        SettingsItemData(Icons.Default.DarkMode, "Dark Mode", "Enabled by default"),
+                        SettingsItemData(Icons.Default.Notifications, "Notifications", "Manage alerts")
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        "ResumeForge",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        "AI Resume & Career Intelligence Platform",
-                        color = Color(0xFF8B949E),
-                        fontSize = 13.sp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Divider(color = Color(0xFF21262D))
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "© Joshva",
-                        color = Color(0xFF8B949E),
-                        fontSize = 13.sp
-                    )
-                    Text(
-                        "Made by Jo — MCA Student Mini Project",
-                        color = Color(0xFF8B949E),
-                        fontSize = 12.sp
-                    )
-                }
+                )
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // ── Logout ────────────────────────────────────────────────────
-            Button(
-                onClick = onLogout,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2D1518)),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text(
-                    "Sign Out",
-                    color = Color(0xFFF85149),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp
+            
+            item {
+                SettingsSection(
+                    title = "Support",
+                    items = listOf(
+                        SettingsItemData(Icons.Default.Help, "Help Center", "FAQs and guides"),
+                        SettingsItemData(Icons.Default.PrivacyTip, "Privacy Policy", "How we handle your data"),
+                        SettingsItemData(Icons.Default.Article, "Terms of Service", "Rules and agreements")
+                    )
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = BgCard),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { showLogoutDialog = true }.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Logout, null, tint = Danger, modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Text("Log Out", color = Danger, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                    }
+                }
+            }
+            
+            item {
+                Box(Modifier.fillMaxWidth().padding(top = 16.dp), contentAlignment = Alignment.Center) {
+                    Text("ResumeForge v1.0.0", color = TextSub, fontSize = 12.sp)
+                }
+            }
         }
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            containerColor = BgCard,
+            titleContentColor = TextPrime,
+            textContentColor = TextSub,
+            title = { Text("Log Out") },
+            text = { Text("Are you sure you want to log out of your account?") },
+            confirmButton = {
+                TextButton(onClick = { showLogoutDialog = false; onLogout() }, colors = ButtonDefaults.textButtonColors(contentColor = Danger)) {
+                    Text("Log Out")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }, colors = ButtonDefaults.textButtonColors(contentColor = TextPrime)) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
-@Composable
-private fun SettingsSectionLabel(label: String) {
-    Text(
-        label,
-        color = Color(0xFF8B949E),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 0.8.sp,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-}
+data class SettingsItemData(val icon: ImageVector, val title: String, val subtitle: String)
 
 @Composable
-private fun SettingsCard(content: @Composable () -> Unit) {
-    Surface(
-        color = Color(0xFF161B22),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        content()
+private fun SettingsSection(title: String, items: List<SettingsItemData>) {
+    Column {
+        Text(title, color = TextSub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = BgCard),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column {
+                items.forEachIndexed { index, item ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(item.icon, null, tint = TextSub, modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(item.title, color = TextPrime, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            Text(item.subtitle, color = TextSub, fontSize = 13.sp)
+                        }
+                        Icon(Icons.Default.ChevronRight, null, tint = TextSub, modifier = Modifier.size(20.dp))
+                    }
+                    if (index < items.size - 1) {
+                        HorizontalDivider(color = Border, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
+                    }
+                }
+            }
+        }
     }
 }

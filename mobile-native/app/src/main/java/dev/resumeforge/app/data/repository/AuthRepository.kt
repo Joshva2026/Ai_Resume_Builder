@@ -63,6 +63,23 @@ class AuthRepository {
     }
 
     /**
+     * Update user profile.
+     */
+    suspend fun updateProfile(req: UpdateProfileRequest): Result<MeResponse> {
+        return try {
+            val response = api.updateProfile(req)
+            if (response.isSuccessful && response.body() != null) {
+                _currentUser.value = response.body()!!.user
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to update profile (${response.code()})"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
      * Attempt to restore an existing session from the persisted token.
      * Calls /api/auth/me to verify the token is still valid and populate currentUser.
      * Returns true if the session was successfully restored.

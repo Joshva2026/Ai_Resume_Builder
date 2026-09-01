@@ -35,92 +35,127 @@ fun LoginScreen(viewModel: AuthViewModel, onLoginSuccess: () -> Unit, onNavigate
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0D1117))
+            .background(Color(0xFF0F172A)) // Match design dark background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 28.dp),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // ── Logo ──────────────────────────────────────────────────────
-            Image(
-                painter = painterResource(id = R.drawable.ic_logo),
-                contentDescription = "ResumeForge Logo",
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+            // ── Header ────────────────────────────────────────────────────
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_logo),
+                    contentDescription = "ResumeForge Logo",
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "ResumeForge",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                )
+            }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "ResumeForge",
+                text = "Welcome Back",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "AI Career Companion",
+                text = "Enter credentials to access your workspace",
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color(0xFF8B949E)
+                    color = Color(0xFF94A3B8)
                 )
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // ── Email ─────────────────────────────────────────────────────
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email", color = Color(0xFF8B949E)) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00C47D),
-                    unfocusedBorderColor = Color(0xFF30363D),
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color(0xFF00C47D)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(text = "Email Address", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = { Text("alex@resumeforge.ai", color = Color(0xFF475569)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF10B981),
+                        unfocusedBorderColor = Color(0xFF1E293B),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color(0xFF10B981),
+                        focusedContainerColor = Color(0xFF1E293B),
+                        unfocusedContainerColor = Color(0xFF1E293B)
+                    )
                 )
-            )
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // ── Password ──────────────────────────────────────────────────
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password", color = Color(0xFF8B949E)) },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF00C47D),
-                    unfocusedBorderColor = Color(0xFF30363D),
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color(0xFF00C47D)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(text = "Password", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = { Text("••••••••••••", color = Color(0xFF475569)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF10B981),
+                        unfocusedBorderColor = Color(0xFF1E293B),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color(0xFF10B981),
+                        focusedContainerColor = Color(0xFF1E293B),
+                        unfocusedContainerColor = Color(0xFF1E293B)
+                    )
                 )
-            )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(
+                        checked = true, 
+                        onCheckedChange = {}, 
+                        colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Color(0xFF10B981))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Remember me", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                }
+                Text("Forgot Password?", color = Color(0xFF10B981), fontSize = 14.sp)
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // ── Error ─────────────────────────────────────────────────────
             if (uiState is AuthState.Error) {
-                Surface(
-                    color = Color(0xFF2D1518),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = (uiState as AuthState.Error).message,
-                        color = Color(0xFFF85149),
-                        modifier = Modifier.padding(12.dp),
-                        fontSize = 14.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = (uiState as AuthState.Error).message,
+                    color = Color(0xFFEF4444),
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    fontSize = 14.sp
+                )
             }
 
             // ── Sign In Button ────────────────────────────────────────────
@@ -128,34 +163,61 @@ fun LoginScreen(viewModel: AuthViewModel, onLoginSuccess: () -> Unit, onNavigate
                 onClick = { viewModel.login(email, password) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(56.dp),
                 enabled = uiState !is AuthState.Loading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C47D)),
-                shape = RoundedCornerShape(10.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 if (uiState is AuthState.Loading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(22.dp),
+                        modifier = Modifier.size(24.dp),
                         color = Color.White,
                         strokeWidth = 2.dp
                     )
                 } else {
                     Text(
-                        "Sign In",
+                        "→ Login to Workspace",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color(0xFF0D1117)
+                        color = Color(0xFF0F172A)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            TextButton(onClick = onNavigateRegister) {
-                Text(
-                    "Don't have an account? Register",
-                    color = Color(0xFF00C47D)
-                )
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Divider(modifier = Modifier.weight(1f), color = Color(0xFF1E293B))
+                Text(" OR CONTINUE WITH ", color = Color(0xFF475569), fontSize = 12.sp)
+                Divider(modifier = Modifier.weight(1f), color = Color(0xFF1E293B))
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = { },
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Google", color = Color.White)
+                }
+                Button(
+                    onClick = { },
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("LinkedIn", color = Color.White)
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                Text("New to ResumeForge? ", color = Color(0xFF94A3B8))
+                Text("Sign Up", color = Color(0xFF10B981), modifier = Modifier.padding(start = 4.dp))
             }
         }
     }

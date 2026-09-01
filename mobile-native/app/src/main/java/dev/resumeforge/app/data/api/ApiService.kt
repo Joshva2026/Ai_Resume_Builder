@@ -23,6 +23,9 @@ interface ApiService {
     @GET("/api/auth/me")
     suspend fun getMe(): Response<MeResponse>
 
+    @PUT("/api/profile")
+    suspend fun updateProfile(@Body request: dev.resumeforge.app.data.models.UpdateProfileRequest): Response<MeResponse>
+
     // ── Resumes ───────────────────────────────────────────────────────────
     @GET("/api/resumes")
     suspend fun getResumes(): Response<List<Resume>>
@@ -46,6 +49,10 @@ interface ApiService {
     // ── ATS ───────────────────────────────────────────────────────────────
     @POST("/api/ats/analyze")
     suspend fun analyzeAts(@Body request: AtsAnalyzeRequest): Response<AtsReport>
+
+    @retrofit2.http.Multipart
+    @POST("/api/ats/analyze-upload")
+    suspend fun analyzeUpload(@retrofit2.http.Part resume: okhttp3.MultipartBody.Part): Response<AtsReport>
 
     @GET("/api/ats/history")
     suspend fun getAtsHistory(): Response<List<AtsReport>>

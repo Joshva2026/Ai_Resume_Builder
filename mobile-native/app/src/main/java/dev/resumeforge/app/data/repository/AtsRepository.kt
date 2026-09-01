@@ -17,6 +17,16 @@ class AtsRepository {
         }
     }
 
+    suspend fun analyzeUpload(filePart: okhttp3.MultipartBody.Part): Result<AtsReport> {
+        return try {
+            val res = api.analyzeUpload(filePart)
+            if (res.isSuccessful && res.body() != null) Result.success(res.body()!!)
+            else Result.failure(Exception("Failed to analyze PDF (${res.code()})"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     /** Fetches the most recent ATS reports for the authenticated user. */
     suspend fun getHistory(): Result<List<AtsReport>> {
         return try {

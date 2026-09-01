@@ -7,17 +7,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,15 +27,14 @@ import dev.resumeforge.app.ui.screens.auth.AuthViewModel
 import java.util.Calendar
 
 // ─── Brand colours ───────────────────────────────────────────────────────────
-private val BgDeep     = Color(0xFF0D1117)
-private val BgSurface  = Color(0xFF161B22)
-private val BgCard     = Color(0xFF1C2128)
-private val Accent     = Color(0xFF00C47D)
-private val AccentDim  = Color(0xFF00C47D).copy(alpha = 0.12f)
-private val TextPrime  = Color(0xFFE6EDF3)
-private val TextSub    = Color(0xFF8B949E)
+private val BgDeep     = Color(0xFF0F172A)
+private val BgCard     = Color(0xFF1E293B)
+private val Accent     = Color(0xFF10B981)
+private val AccentDim  = Color(0xFF10B981).copy(alpha = 0.12f)
+private val TextPrime  = Color.White
+private val TextSub    = Color(0xFF94A3B8)
 private val DangerCard = Color(0xFF2D1518)
-private val Danger     = Color(0xFFF85149)
+private val Danger     = Color(0xFFEF4444)
 
 @Composable
 fun HomeScreen(
@@ -105,27 +103,42 @@ private fun DashboardContent(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 32.dp)
+        contentPadding = PaddingValues(bottom = 32.dp, top = 24.dp)
     ) {
         // ── Greeting header ───────────────────────────────────────────────
         item { GreetingHeader(data, onNavigateProfile) }
 
         // ── Career Strength ───────────────────────────────────────────────
-        item { Spacer(Modifier.height(16.dp)) }
+        item { Spacer(Modifier.height(24.dp)) }
         item { CareerStrengthCard(data.latestAtsScore) }
 
-        // ── Quick Actions ─────────────────────────────────────────────────
-        item { Spacer(Modifier.height(20.dp)) }
-        item { SectionLabel("Quick Actions") }
-        item { Spacer(Modifier.height(10.dp)) }
+        // ── Stats Grid ─────────────────────────────────────────────────
+        item { Spacer(Modifier.height(16.dp)) }
         item {
-            QuickActionsRow(
-                onCreateResume  = onCreateResume,
-                onNavigateAts   = onNavigateAts,
-                onNavigateAi    = onNavigateAi,
-                onNavigateProfile = onNavigateProfile
-            )
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                StatCard(title = "Total Resumes", value = "${data.resumes.size}", modifier = Modifier.weight(1f))
+                StatCard(title = "Avg ATS Score", value = "${data.latestAtsScore ?: 0}%", valueColor = Accent, modifier = Modifier.weight(1f))
+            }
         }
+        item { Spacer(Modifier.height(16.dp)) }
+        item {
+            val skillsCount = data.resumes.flatMap { it.content?.skills ?: emptyList() }.distinct().size
+            // Simple profile completion calculation based on User fields
+            var filledFields = 1 // email always present
+            if (!data.user.firstName.isNullOrBlank()) filledFields++
+            if (!data.user.lastName.isNullOrBlank()) filledFields++
+            val totalFields = 3
+            val profileCompletion = (filledFields * 100) / totalFields
+
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                StatCard(title = "Skills Indexed", value = "$skillsCount", modifier = Modifier.weight(1f))
+                StatCard(title = "Profile Completion", value = "$profileCompletion%", modifier = Modifier.weight(1f))
+            }
+        }
+
+        // ── AI Recommendation ─────────────────────────────────────────────────
+        item { Spacer(Modifier.height(16.dp)) }
+        item { AiRecommendationCard() }
 
         // ── Resumes ───────────────────────────────────────────────────────
         item { Spacer(Modifier.height(24.dp)) }
@@ -137,9 +150,14 @@ private fun DashboardContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SectionLabel("Your Resumes (${data.resumes.size})", modifier = Modifier)
-                TextButton(onClick = onCreateResume) {
-                    Text("View All", color = Accent, fontSize = 13.sp)
+                Text(
+                    "My Resumes",
+                    color = TextPrime,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                TextButton(onClick = onCreateResume, contentPadding = PaddingValues(0.dp)) {
+                    Text("See All", color = Accent, fontSize = 14.sp)
                 }
             }
         }
@@ -150,23 +168,12 @@ private fun DashboardContent(
         } else {
             // Show at most 3 on the home screen
             items(data.resumes.take(3)) { resume ->
-                ResumeListItem(resume)
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-
-        // ── Logout ────────────────────────────────────────────────────────
-        item { Spacer(Modifier.height(24.dp)) }
-        item {
-            OutlinedButton(
-                onClick = onLogout,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Danger),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Danger.copy(alpha = 0.5f))
-            ) {
-                Text("Log Out", fontWeight = FontWeight.SemiBold)
+                ResumeListItem(
+                    resume = resume,
+                    onEdit = onCreateResume,
+                    onAnalyze = onNavigateAts
+                )
+                Spacer(Modifier.height(12.dp))
             }
         }
     }
@@ -177,25 +184,28 @@ private fun DashboardContent(
 @Composable
 private fun GreetingHeader(data: HomeDashboardData, onProfile: () -> Unit) {
     val greeting = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
-        in 5..11  -> "Good Morning"
-        in 12..16 -> "Good Afternoon"
-        else      -> "Good Evening"
+        in 5..11  -> "Good Morning,"
+        in 12..16 -> "Good Afternoon,"
+        else      -> "Good Evening,"
     }
     val displayName = data.user.firstName?.takeIf { it.isNotBlank() } ?: data.user.email.substringBefore("@")
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(listOf(BgSurface, BgDeep))
-            )
-            .padding(horizontal = 16.dp, vertical = 24.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(AccentDim),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Person, contentDescription = "Profile", tint = Accent)
+            }
+            Spacer(Modifier.width(12.dp))
             Column {
                 Text(
                     text = greeting,
@@ -206,26 +216,17 @@ private fun GreetingHeader(data: HomeDashboardData, onProfile: () -> Unit) {
                 Text(
                     text = displayName,
                     color = TextPrime,
-                    fontSize = 24.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "${data.resumes.size} resume${if (data.resumes.size == 1) "" else "s"} · ResumeForge",
-                    color = TextSub,
-                    fontSize = 13.sp
-                )
             }
+        }
 
-            IconButton(
-                onClick = onProfile,
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(AccentDim)
-            ) {
-                Icon(Icons.Default.Person, contentDescription = "Profile", tint = Accent)
-            }
+        IconButton(
+            onClick = onProfile,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(Icons.Default.Person, contentDescription = "Profile Settings", tint = TextPrime)
         }
     }
 }
@@ -246,101 +247,82 @@ private fun CareerStrengthCard(latestAtsScore: Int?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text("Career Strength", color = TextSub, fontSize = 13.sp)
-                Spacer(Modifier.height(6.dp))
-                if (latestAtsScore != null) {
-                    Text(
-                        text = "$latestAtsScore / 100",
-                        color = Accent,
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = "Based on your latest ATS scan",
-                        color = TextSub,
-                        fontSize = 12.sp
-                    )
-                } else {
-                    Text(
-                        text = "— / 100",
-                        color = TextSub,
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = "Run an ATS scan to see your score",
-                        color = TextSub,
-                        fontSize = 12.sp
-                    )
-                }
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF0F172A)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    progress = (latestAtsScore ?: 0) / 100f,
+                    modifier = Modifier.fillMaxSize().padding(4.dp),
+                    color = Accent,
+                    trackColor = Color(0xFF1E293B),
+                    strokeWidth = 4.dp
+                )
+                Text(
+                    text = "${latestAtsScore ?: 0}",
+                    color = TextPrime,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
             }
+            
+            Spacer(Modifier.width(16.dp))
 
-            if (latestAtsScore != null) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(AccentDim),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "$latestAtsScore",
-                        color = Accent,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                }
+            Column {
+                Text("Career Strength Score", color = TextPrime, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Your ATS profile health is looking great. 3 optimizations pending.",
+                    color = TextSub,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
             }
         }
     }
 }
 
-// ─── Quick Actions ────────────────────────────────────────────────────────────
-
 @Composable
-private fun QuickActionsRow(
-    onCreateResume: () -> Unit,
-    onNavigateAts: () -> Unit,
-    onNavigateAi: () -> Unit,
-    onNavigateProfile: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+private fun StatCard(title: String, value: String, valueColor: Color = TextPrime, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = BgCard),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        QuickActionChip(label = "New Resume",  icon = Icons.Default.Add,                                modifier = Modifier.weight(1f), onClick = onCreateResume)
-        QuickActionChip(label = "ATS Check",   icon = Icons.AutoMirrored.Filled.ArrowForward,           modifier = Modifier.weight(1f), onClick = onNavigateAts)
-        QuickActionChip(label = "AI Chat",     icon = Icons.AutoMirrored.Filled.ArrowForward,           modifier = Modifier.weight(1f), onClick = onNavigateAi)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, color = TextSub, fontSize = 13.sp)
+            Spacer(Modifier.height(8.dp))
+            Text(value, color = valueColor, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
 @Composable
-private fun QuickActionChip(label: String, icon: ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun AiRecommendationCard() {
     Card(
-        onClick = onClick,
-        modifier = modifier.height(72.dp),
-        colors = CardDefaults.cardColors(containerColor = BgCard),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(0.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = AccentDim),
+        shape = RoundedCornerShape(16.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Accent.copy(alpha = 0.3f))
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(icon, contentDescription = label, tint = Accent, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.height(4.dp))
-            Text(label, color = TextPrime, fontSize = 11.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Warning, contentDescription = "AI", tint = Accent, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("AI Recommendation", color = Accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Add Docker and GraphQL to your Skills section to match the Senior Frontend Engineer role at Vercel.",
+                color = TextPrime,
+                fontSize = 14.sp,
+                lineHeight = 20.sp
+            )
         }
     }
 }
@@ -348,45 +330,71 @@ private fun QuickActionChip(label: String, icon: ImageVector, modifier: Modifier
 // ─── Resume list item ─────────────────────────────────────────────────────────
 
 @Composable
-private fun ResumeListItem(resume: Resume) {
+private fun ResumeListItem(resume: Resume, onEdit: () -> Unit, onAnalyze: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(containerColor = BgCard),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    resume.title,
-                    color = TextPrime,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(Modifier.height(2.dp))
-                val atsText = resume.ats_score?.let { "ATS $it / 100" } ?: "No ATS score yet"
-                Text(atsText, color = TextSub, fontSize = 12.sp)
-            }
-            if (resume.ats_score != null) {
-                Spacer(Modifier.width(12.dp))
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(AccentDim),
-                    contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        resume.title,
+                        color = TextPrime,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text("Modified recently", color = TextSub, fontSize = 12.sp)
+                }
+                
+                Surface(
+                    color = AccentDim,
+                    shape = RoundedCornerShape(16.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Accent)
                 ) {
-                    Text("${resume.ats_score}", color = Accent, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(
+                        "${resume.ats_score ?: 0} ATS",
+                        color = Accent,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+            }
+            
+            Spacer(Modifier.height(16.dp))
+            
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    onClick = onEdit,
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F172A)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Edit", color = TextPrime)
+                }
+                Button(
+                    onClick = onAnalyze,
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F172A)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Analyze", color = TextPrime)
                 }
             }
         }
@@ -402,8 +410,7 @@ private fun EmptyResumesCard(onCreate: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(containerColor = BgCard),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(0.dp)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -411,17 +418,15 @@ private fun EmptyResumesCard(onCreate: () -> Unit) {
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("No resumes yet", color = TextSub, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+            Text("No resumes yet", color = TextPrime, fontWeight = FontWeight.Medium, fontSize = 16.sp)
             Spacer(Modifier.height(8.dp))
-            Text("Build your first resume to get started.", color = TextSub, fontSize = 13.sp)
+            Text("Build your first resume to get started.", color = TextSub, fontSize = 14.sp)
             Spacer(Modifier.height(20.dp))
             Button(
                 onClick = onCreate,
                 colors = ButtonDefaults.buttonColors(containerColor = Accent),
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, tint = BgDeep)
-                Spacer(Modifier.width(6.dp))
                 Text("Create Your First Resume", color = BgDeep, fontWeight = FontWeight.SemiBold)
             }
         }
@@ -433,11 +438,7 @@ private fun EmptyResumesCard(onCreate: () -> Unit) {
 @Composable
 private fun LoadingView() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = Accent)
-            Spacer(Modifier.height(16.dp))
-            Text("Loading your dashboard…", color = TextSub, fontSize = 14.sp)
-        }
+        CircularProgressIndicator(color = Accent)
     }
 }
 
@@ -446,47 +447,7 @@ private fun LoadingView() {
 @Composable
 private fun ErrorView(message: String, onRetry: () -> Unit) {
     Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = DangerCard),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Something went wrong", color = Danger, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    Spacer(Modifier.height(8.dp))
-                    // Surface a clean message; never expose raw stack traces or tokens
-                    val cleanMsg = when {
-                        message.contains("401") -> "Your session has expired. Please log in again."
-                        message.contains("timeout", ignoreCase = true) -> "Connection timed out. Check your internet."
-                        else -> "Unable to load your dashboard. Please try again."
-                    }
-                    Text(cleanMsg, color = TextSub, fontSize = 13.sp)
-                }
-            }
-            Spacer(Modifier.height(20.dp))
-            Button(
-                onClick = onRetry,
-                colors = ButtonDefaults.buttonColors(containerColor = Accent),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = null, tint = BgDeep)
-                Spacer(Modifier.width(6.dp))
-                Text("Retry", color = BgDeep, fontWeight = FontWeight.SemiBold)
-            }
-        }
+        Text("Error: $message", color = Danger)
     }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-@Composable
-private fun SectionLabel(text: String, modifier: Modifier = Modifier.padding(horizontal = 16.dp)) {
-    Text(
-        text,
-        modifier = modifier,
-        color = TextSub,
-        fontSize = 12.sp,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 0.8.sp
-    )
-}

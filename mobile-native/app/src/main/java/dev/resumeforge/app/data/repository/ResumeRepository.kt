@@ -24,9 +24,20 @@ class ResumeRepository {
         return try {
             val res = api.createResume(req)
             if (res.isSuccessful && res.body() != null) Result.success(res.body()!!)
-            else Result.failure(Exception("Failed to save resume"))
+            else Result.failure(Exception("Failed to save resume (${res.code()})"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteResume(id: Int): Result<Unit> {
+        return try {
+            val res = api.deleteResume(id)
+            if (res.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Failed to delete resume (${res.code()})"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 }
+

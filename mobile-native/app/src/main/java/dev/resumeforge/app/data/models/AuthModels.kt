@@ -20,6 +20,18 @@ data class MeResponse(val user: User)
 
 data class LoginRequest(val email: String, val password: String)
 data class RegisterRequest(val email: String, val password: String, val firstName: String?, val lastName: String?)
+data class UpdateProfileRequest(
+    val email: String?, 
+    val firstName: String?, 
+    val lastName: String?,
+    val phone: String? = null,
+    val location: String? = null,
+    val bio: String? = null,
+    val profileImageUrl: String? = null,
+    val linkedinUrl: String? = null,
+    val portfolioUrl: String? = null,
+    val githubUrl: String? = null
+)
 
 /**
  * Backend login/register response.

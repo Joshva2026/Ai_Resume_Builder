@@ -9,6 +9,7 @@ data class AtsAnalyzeRequest(
 
 data class AtsReport(
     val id: String,
+    @SerializedName("resume_id") val resumeId: Int,
     @SerializedName("overall_score") val score: Int,
     @SerializedName("matched_keywords")  val matchedKeywords: List<String> = emptyList(),
     @SerializedName("missing_keywords")  val missingKeywords: List<String> = emptyList(),

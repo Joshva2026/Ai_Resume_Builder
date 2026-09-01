@@ -24,9 +24,19 @@ class ResumeEditorViewModel(private val repo: ResumeRepository = ResumeRepositor
     val saveState: StateFlow<SaveState> = _saveState
 
     var currentStep = MutableStateFlow(1)
-    
+
+    /** Sync local step state into the ViewModel. Called before step advance and before save. */
+    fun updateContent(c: ResumeContent) { _content.value = c }
+
+    /** Reset all state for a fresh new resume. */
+    fun resetForNewResume() {
+        _content.value = ResumeContent()
+        currentStep.value = 1
+        _saveState.value = SaveState.Idle
+    }
+
     // Auto-save is disabled by requirement. This is the single explicit save endpoint.
-    fun saveResume(title: String, templateId: String) {
+    fun saveResume(title: String, templateId: Int?) {
         viewModelScope.launch {
             _saveState.value = SaveState.Saving
             

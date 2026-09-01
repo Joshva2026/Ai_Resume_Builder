@@ -52,7 +52,7 @@ class AiViewModel(private val repo: AiRepository = AiRepository()) : ViewModel()
     
     private fun appendAiMessage(id: String, chunk: String) {
         _messages.value = _messages.value.map {
-            if (it.id == id) it.copy(text = it.text + chunk.replace("\"","")) else it
+            if (it.id == id) it.copy(text = it.text + chunk) else it
         }
     }
     

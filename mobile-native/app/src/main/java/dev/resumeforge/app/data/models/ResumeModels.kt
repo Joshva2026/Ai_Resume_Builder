@@ -4,7 +4,7 @@ data class Resume(
     val id: Int,
     val user_id: Int,
     val title: String,
-    val template_id: String?,
+    val template_id: Int?,
     val content: ResumeContent?,
     val ats_score: Int?,
     val created_at: String,
@@ -71,7 +71,7 @@ data class Certification(
 
 data class CreateResumeRequest(
     val title: String,
-    val templateId: String,
+    val templateId: Int?,
     val content: ResumeContent
 )
 

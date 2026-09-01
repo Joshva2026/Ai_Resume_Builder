@@ -21,7 +21,16 @@ class AiRepository {
                     if (line.startsWith("data: ")) {
                         val data = line.removePrefix("data: ")
                         if (data != "[DONE]") {
-                            emit(data)
+                            try {
+                                val json = org.json.JSONObject(data)
+                                if (json.has("text")) {
+                                    emit(json.getString("text"))
+                                } else if (json.has("error")) {
+                                    throw Exception(json.getString("error"))
+                                }
+                            } catch (e: org.json.JSONException) {
+                                emit(data)
+                            }
                         }
                     }
                     line = reader.readLine()
