@@ -615,16 +615,16 @@ function initCinematicScroll() {
       }
     });
 
-    // Smooth continuous perspective tilt and parallax for A4 sheet
+    // Smooth continuous perspective tilt, scale, and spatial depth for A4 sheet
     if (sheet) {
-      const rotY = -7 + progress * 7; // -7deg -> 0deg
-      const rotX = 5 - progress * 5;  // 5deg -> 0deg
-      const transZ = 5 + progress * 30; // 5px -> 35px
-      const scale = 0.94 + progress * 0.08; // 0.94 -> 1.02
+      const rotY = -18 + progress * 18; // -18deg -> 0deg
+      const rotX = 12 - progress * 12;   // 12deg -> 0deg
+      const transZ = 10 + progress * 110; // 10px -> 120px
+      const scale = 0.75 + progress * 0.40; // 0.75 -> 1.15 (Dramatic scale transition from far to prominent)
       sheet.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
       
-      if (progress >= 0.92) {
-        sheet.style.boxShadow = '0 32px 80px -10px rgba(0, 0, 0, 0.92), 0 0 38px rgba(56, 189, 248, 0.38)';
+      if (progress >= 0.90) {
+        sheet.style.boxShadow = '0 32px 90px -10px rgba(0, 0, 0, 0.95), 0 0 45px rgba(56, 189, 248, 0.45)';
       } else {
         sheet.style.boxShadow = '0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1)';
       }
