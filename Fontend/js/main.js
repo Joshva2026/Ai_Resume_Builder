@@ -561,7 +561,7 @@ function initCinematicScroll() {
     handleHeroScroll();
   }
 
-  // Pinned Product-First Cinematic Scroll Track Engine
+  // Pinned Product-First Cinematic Scroll Track Engine (The Watch Inspired)
   if (track && anchor) {
     const atsCard = document.getElementById('worldAtsCard');
     const aiCard = document.getElementById('worldAiCard');
@@ -570,12 +570,31 @@ function initCinematicScroll() {
     const intelCard = document.getElementById('worldIntelCard');
     const laser = document.getElementById('worldScanLaser');
     const wSkill1 = document.getElementById('wSkillAi1');
+    const sceneBadge = document.getElementById('editorialSceneBadge');
+
+    const scenes = [
+      'SCENE 01 • CAREER IDENTITY',
+      'SCENE 02 • RESUME FORMATION',
+      'SCENE 03 • ATS STRUCTURAL X-RAY',
+      'SCENE 04 • AI QUANTIFIED REWRITE',
+      'SCENE 05 • TARGET JOB ALIGNMENT',
+      'SCENE 06 • SPATIAL RESUME BRANCHING',
+      'SCENE 07 • CAREER INTELLIGENCE',
+      'SCENE 08 • TEMPLATE ENGINE',
+      'SCENE 09 • CAREER WORKSPACE RESOLUTION'
+    ];
 
     function handleJourneyScroll() {
       const rect = track.getBoundingClientRect();
       const scrollable = rect.height - window.innerHeight;
       if (scrollable <= 0) return;
       let progress = Math.max(0, Math.min(1, -rect.top / scrollable));
+
+      // Dynamic Editorial Scene Badge
+      if (sceneBadge) {
+        const sceneIndex = Math.min(scenes.length - 1, Math.floor(progress * scenes.length));
+        sceneBadge.textContent = scenes[sceneIndex];
+      }
 
       // Continuous 3D camera approach for main A4 anchor
       const rotY = -18 + progress * 18; // -18deg -> 0deg
@@ -584,46 +603,46 @@ function initCinematicScroll() {
       const transZ = -40 + progress * 160; // -40px -> 120px
       anchor.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
 
-      // Moment 02: ATS Laser Scanner (Progress 0.15 -> 0.35)
-      const atsActive = progress >= 0.15 && progress <= 0.40;
+      // Scene 03: ATS Laser Scanner
+      const atsActive = progress >= 0.20 && progress <= 0.40;
       if (laser) {
         laser.style.opacity = atsActive ? '1' : '0';
         if (atsActive) {
-          const yPos = ((progress - 0.15) / 0.25) * 500;
+          const yPos = ((progress - 0.20) / 0.20) * 520;
           laser.style.transform = `translateY(${yPos}px)`;
         }
       }
       if (atsCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.12) / 0.12));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.18) / 0.10));
         atsCard.style.opacity = opacity.toFixed(2);
         atsCard.style.transform = `translate3d(${(1 - opacity) * 40}px, 0, 40px)`;
       }
 
-      // Moment 03: AI Assistant Layer (Progress 0.35 -> 0.55)
+      // Scene 04: AI Quantified Rewrite
       if (aiCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.32) / 0.12));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.32) / 0.10));
         aiCard.style.opacity = opacity.toFixed(2);
         aiCard.style.transform = `translate3d(${(1 - opacity) * -40}px, 0, 50px)`;
       }
-      if (wSkill1) wSkill1.style.display = progress >= 0.38 ? 'inline-flex' : 'none';
+      if (wSkill1) wSkill1.style.display = progress >= 0.36 ? 'inline-flex' : 'none';
 
-      // Moment 04: Target Job Match Layer (Progress 0.50 -> 0.70)
+      // Scene 05: Target Job Alignment
       if (jobCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.48) / 0.12));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.46) / 0.10));
         jobCard.style.opacity = opacity.toFixed(2);
         jobCard.style.transform = `translate3d(${(1 - opacity) * -40}px, 0, 35px)`;
       }
 
-      // Moment 05: Multi-Version Spatial Resume Branching (Progress 0.65 -> 0.85)
+      // Scene 06: Spatial Resume Branching
       if (versionBranch) {
-        const branchingActive = progress >= 0.62 && progress <= 0.88;
+        const branchingActive = progress >= 0.60 && progress <= 0.82;
         versionBranch.style.opacity = branchingActive ? '1' : '0';
         versionBranch.style.transform = branchingActive ? 'translateZ(20px)' : 'translateZ(-100px)';
       }
 
-      // Moment 06: Career Intelligence (Progress >= 0.80)
+      // Scene 07: Career Intelligence
       if (intelCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.78) / 0.12));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.76) / 0.10));
         intelCard.style.opacity = opacity.toFixed(2);
         intelCard.style.transform = `translate3d(${(1 - opacity) * 40}px, 0, 45px)`;
       }

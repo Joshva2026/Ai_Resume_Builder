@@ -681,89 +681,105 @@
     </div>
   </section>
 
-  <!-- ============================= CONTINUOUS PRODUCT-FIRST CINEMATIC TRACK ============================= -->
-  <div class="cinematic-journey-track" id="cinematicJourneyTrack" style="height: 450vh; position: relative; background: var(--bg-ocean);">
+  <!-- ============================= THE WATCH INSPIRED CINEMATIC FILM JOURNEY ============================= -->
+  <div class="cinematic-journey-track" id="cinematicJourneyTrack" style="height: 550vh; position: relative; background: var(--bg-editorial, #F3F1EC); color: var(--ink-editorial, #111111);">
     <div class="cinematic-journey-sticky" style="position: sticky; top: 0; height: 100vh; width: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; perspective: 1200px;">
       
+      <!-- Minimal Editorial Overlay Label -->
+      <div class="editorial-scene-badge" id="editorialSceneBadge" style="position: absolute; top: 80px; left: 40px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.15em; border-left: 2px solid #111111; padding-left: 10px; z-index: 50;">
+        SCENE 01 &bull; CAREER IDENTITY
+      </div>
+
       <!-- Spatial 3D Camera Stage Viewport -->
-      <div class="cinematic-world-stage" id="cinematicWorldStage" style="position: relative; width: 100%; max-width: 1000px; height: 650px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d;">
+      <div class="cinematic-world-stage" id="cinematicWorldStage" style="position: relative; width: 100%; max-width: 1050px; height: 650px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d;">
         
-        <!-- Persistent Central A4 Resume Anchor -->
-        <div class="world-resume-anchor" id="worldResumeAnchor" style="width: 420px; height: 560px; background: #FFFFFF; border-radius: 12px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.85); color: #0F172A; position: relative; z-index: 10; padding: 24px; display: flex; flex-direction: column; gap: 12px; transform-style: preserve-3d; transition: transform 0.1s linear;">
-          <div style="font-size: 10px; font-family: var(--font-mono); color: #0284C7; font-weight: 700; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px; display: flex; justify-content: space-between;">
+        <!-- Persistent Central Protagonist Object -->
+        <div class="world-resume-anchor" id="worldResumeAnchor" style="width: 440px; height: 580px; background: #FFFFFF; border-radius: 8px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0,0,0,0.05); color: #111111; position: relative; z-index: 10; padding: 28px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #D6D3CC; transform-style: preserve-3d; transition: transform 0.1s linear, box-shadow 0.3s ease;">
+          
+          <div style="font-size: 10px; font-family: var(--font-mono); color: #6B6B67; font-weight: 700; border-bottom: 1px solid #E5E3DC; padding-bottom: 6px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.08em;">
             <span>A4 &bull; RESUMEFORGE ENGINE</span>
-            <span>Modern ATS Pro</span>
+            <span>MODERN ATS PRO</span>
           </div>
-          <div style="font-size: 16px; font-weight: 800; color: #0F172A;">Alex Morgan</div>
-          <div style="font-size: 10px; color: #475569; font-weight: 600; margin-top: -8px;">Senior Full-Stack Architect &bull; San Francisco, CA</div>
-          <div style="font-size: 9.5px; color: #334155; line-height: 1.45;">
-            <div style="font-weight: 700; color: #0F172A; border-bottom: 1px solid #0F172A; margin: 6px 0 4px 0; font-size: 9px; letter-spacing: 0.05em;">EXPERIENCE</div>
+
+          <div style="font-size: 18px; font-weight: 800; color: #111111; letter-spacing: -0.02em;">Alex Morgan</div>
+          <div style="font-size: 10.5px; color: #6B6B67; font-weight: 600; margin-top: -10px;">Senior Full-Stack Architect &bull; San Francisco, CA</div>
+
+          <!-- Section: Experience -->
+          <div style="font-size: 9.5px; color: #333333; line-height: 1.5;" id="wDocExpSection">
+            <div style="font-weight: 700; color: #111111; border-bottom: 1px solid #111111; margin: 8px 0 6px 0; font-size: 9px; letter-spacing: 0.08em;">EXPERIENCE</div>
             <div style="display:flex; justify-content:space-between; font-weight: 700;">
               <span>Lead Platform Engineer &bull; CloudScale</span>
-              <span style="color: #64748B;">2022 &ndash; Present</span>
+              <span style="color: #6B6B67;">2022 &ndash; Present</span>
             </div>
             <ul style="padding-left: 14px; margin: 4px 0;">
-              <li>Architected distributed streaming pipeline reducing latency by <strong style="color:#0284C7">42%</strong>.</li>
-              <li>Spearheaded microservices migration improving uptime to <strong style="color:#0284C7">99.98%</strong>.</li>
+              <li id="wBulletText1">Architected distributed streaming pipeline reducing latency by <strong style="color:#0284C7; font-weight:700;">42%</strong>.</li>
+              <li id="wBulletText2">Spearheaded microservices migration improving uptime to <strong style="color:#0284C7; font-weight:700;">99.98%</strong>.</li>
             </ul>
           </div>
-          <div style="font-size: 9.5px; color: #334155; margin-top: 4px;">
-            <div style="font-weight: 700; color: #0F172A; border-bottom: 1px solid #0F172A; margin-bottom: 4px; font-size: 9px;">TECHNICAL SKILLS</div>
-            <div style="display:flex; gap:4px; flex-wrap:wrap;">
-              <span style="background:#F1F5F9; padding:2px 6px; border-radius:3px; font-size:8.5px; font-weight:600;">TypeScript</span>
-              <span style="background:#F1F5F9; padding:2px 6px; border-radius:3px; font-size:8.5px; font-weight:600;">React</span>
-              <span style="background:#F1F5F9; padding:2px 6px; border-radius:3px; font-size:8.5px; font-weight:600;">Node.js</span>
-              <span style="background:#F1F5F9; padding:2px 6px; border-radius:3px; font-size:8.5px; font-weight:600;">PostgreSQL</span>
-              <span style="background:#E0F2FE; color:#0284C7; padding:2px 6px; border-radius:3px; font-size:8.5px; font-weight:700; display:none;" id="wSkillAi1">Distributed Systems</span>
+
+          <!-- Section: Skills -->
+          <div style="font-size: 9.5px; color: #333333; margin-top: 4px;" id="wDocSkillsSection">
+            <div style="font-weight: 700; color: #111111; border-bottom: 1px solid #111111; margin-bottom: 6px; font-size: 9px; letter-spacing: 0.08em;">TECHNICAL SKILLS</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <span style="background:#F3F1EC; border:1px solid #D6D3CC; padding:3px 8px; border-radius:3px; font-size:9px; font-weight:600;">TypeScript</span>
+              <span style="background:#F3F1EC; border:1px solid #D6D3CC; padding:3px 8px; border-radius:3px; font-size:9px; font-weight:600;">React</span>
+              <span style="background:#F3F1EC; border:1px solid #D6D3CC; padding:3px 8px; border-radius:3px; font-size:9px; font-weight:600;">Node.js</span>
+              <span style="background:#F3F1EC; border:1px solid #D6D3CC; padding:3px 8px; border-radius:3px; font-size:9px; font-weight:600;">PostgreSQL</span>
+              <span style="background:#E0F2FE; color:#0284C7; border:1px solid #BAE6FD; padding:3px 8px; border-radius:3px; font-size:9px; font-weight:700; display:none;" id="wSkillAi1">Distributed Systems</span>
             </div>
           </div>
-          <div class="world-scan-laser" id="worldScanLaser" style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, transparent, #38BDF8, #34D399, transparent); opacity:0; pointer-events:none;"></div>
+
+          <!-- ATS Laser Scan Overlay -->
+          <div class="world-scan-laser" id="worldScanLaser" style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, transparent, #0284C7, #34D399, transparent); opacity:0; pointer-events:none;"></div>
         </div>
 
-        <!-- ATS Radar Satellite Card -->
-        <div class="world-card ats-radar-card" id="worldAtsCard" style="position: absolute; right: 20px; top: 80px; width: 260px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); opacity: 0; transform: translate3d(40px, 0, 40px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
-          <div style="font-size: 11px; font-weight: 700; color: #38BDF8; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-            <span><i class="fa-solid fa-gauge-high"></i> ATS Scanner</span>
-            <span style="background:rgba(52, 211, 153, 0.15); color:#34D399; font-size:9px; padding:2px 6px; border-radius:4px;">Verified</span>
+        <!-- ATS Radar Layer -->
+        <div class="world-card ats-radar-card" id="worldAtsCard" style="position: absolute; right: 10px; top: 60px; width: 280px; background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); opacity: 0; transform: translate3d(40px, 0, 40px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
+          <div style="font-size: 11px; font-weight: 700; color: #111111; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.05em;">
+            <span><i class="fa-solid fa-gauge-high"></i> ATS DETERMINISTIC SCORE</span>
+            <span style="background:#DCFCE7; color:#166534; font-size:9px; padding:2px 6px; border-radius:4px; font-weight:700;">PASSED</span>
           </div>
-          <div style="font-size: 32px; font-weight: 800; color: #FFFFFF; text-align: center; margin: 4px 0;">94 <span style="font-size:12px; color:#94A3B8;">/ 100</span></div>
-          <div style="font-size: 9px; color: #94A3B8; text-align: center;">Parsing &bull; Keywords &bull; Structure</div>
+          <div style="font-size: 36px; font-weight: 800; color: #111111; text-align: center; margin: 6px 0;">94 <span style="font-size:14px; color:#6B6B67;">/ 100</span></div>
+          <div style="font-size: 9.5px; color: #6B6B67; text-align: center; border-top:1px solid #F3F1EC; padding-top:8px;">Parsing &bull; Keyword Density &bull; Structure</div>
         </div>
 
-        <!-- AI Recommendation Assistant Layer -->
-        <div class="world-card ai-context-card" id="worldAiCard" style="position: absolute; left: 20px; bottom: 80px; width: 280px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); opacity: 0; transform: translate3d(-40px, 0, 50px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
-          <div style="font-size: 11px; font-weight: 700; color: #38BDF8; margin-bottom: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Bullet Optimizer</div>
-          <div style="font-size: 9px; color: #CBD5E1; line-height: 1.4;">
-            <div style="color: #F87171; text-decoration: line-through; margin-bottom: 4px;">"Worked on app performance."</div>
-            <div style="color: #34D399; font-weight: 700;">"Architected streaming pipeline reducing latency by 42%."</div>
+        <!-- AI Recommendation Layer -->
+        <div class="world-card ai-context-card" id="worldAiCard" style="position: absolute; left: 10px; bottom: 60px; width: 300px; background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); opacity: 0; transform: translate3d(-40px, 0, 50px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
+          <div style="font-size: 11px; font-weight: 700; color: #0284C7; margin-bottom: 8px; letter-spacing: 0.05em;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI QUANTIFIED REWRITE</div>
+          <div style="font-size: 9.5px; color: #333333; line-height: 1.5;">
+            <div style="color: #991B1B; text-decoration: line-through; margin-bottom: 4px;">"Worked on app performance."</div>
+            <div style="color: #166534; font-weight: 700;">"Architected streaming pipeline reducing latency by 42% across 12M daily events."</div>
           </div>
         </div>
 
-        <!-- Job Description Match Layer -->
-        <div class="world-card job-engine-card" id="worldJobCard" style="position: absolute; left: 20px; top: 100px; width: 260px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); opacity: 0; transform: translate3d(-40px, 0, 35px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
-          <div style="font-size: 11px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;"><i class="fa-solid fa-crosshairs"></i> Target Job Match</div>
-          <div style="font-size: 10px; font-weight: 700; color: #F8FAFC;">Staff Engineer &bull; 87% Match</div>
-          <div style="font-size: 8.5px; color: #94A3B8; margin-top: 4px;">Matched: Distributed Systems, React, Node.js</div>
+        <!-- Target Job Match Layer -->
+        <div class="world-card job-engine-card" id="worldJobCard" style="position: absolute; left: 10px; top: 80px; width: 280px; background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); opacity: 0; transform: translate3d(-40px, 0, 35px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
+          <div style="font-size: 11px; font-weight: 700; color: #111111; margin-bottom: 6px; letter-spacing: 0.05em;"><i class="fa-solid fa-crosshairs"></i> TARGET JOB ALIGNMENT</div>
+          <div style="font-size: 11px; font-weight: 800; color: #0284C7;">Staff Engineer &bull; 87% Match</div>
+          <div style="font-size: 9px; color: #6B6B67; margin-top: 4px;">Matched: Distributed Systems, React, Node.js</div>
         </div>
 
-        <!-- Multi-Version Spatial Branching -->
-        <div class="world-version-branch" id="worldVersionBranch" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 20px; pointer-events: none; z-index: 8; opacity: 0; transform: translateZ(-100px); transition: opacity 0.4s ease, transform 0.4s ease;">
-          <div style="width: 140px; height: 190px; background: #FFFFFF; border-radius: 6px; padding: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #0F172A; font-size: 8px;">
-            <div style="font-weight:700; color:#0284C7;">Frontend Specialist</div>
+        <!-- Multi-Version Spatial Branching Layer -->
+        <div class="world-version-branch" id="worldVersionBranch" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 24px; pointer-events: none; z-index: 8; opacity: 0; transform: translateZ(-100px); transition: opacity 0.4s ease, transform 0.4s ease;">
+          <div style="width: 150px; height: 210px; background: #FFFFFF; border-radius: 6px; padding: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); color: #111111; border: 1px solid #D6D3CC; font-size: 8.5px;">
+            <div style="font-weight:800; color:#0284C7; margin-bottom:4px;">Frontend Specialist</div>
+            <div style="color:#6B6B67;">React &bull; Next.js &bull; TypeScript</div>
           </div>
-          <div style="width: 140px; height: 190px; background: #FFFFFF; border-radius: 6px; padding: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #0F172A; font-size: 8px;">
-            <div style="font-weight:700; color:#0284C7;">Staff Full-Stack</div>
+          <div style="width: 150px; height: 210px; background: #FFFFFF; border-radius: 6px; padding: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); color: #111111; border: 1px solid #D6D3CC; font-size: 8.5px;">
+            <div style="font-weight:800; color:#0284C7; margin-bottom:4px;">Staff Full-Stack</div>
+            <div style="color:#6B6B67;">Master Profile Branch</div>
           </div>
-          <div style="width: 140px; height: 190px; background: #FFFFFF; border-radius: 6px; padding: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #0F172A; font-size: 8px;">
-            <div style="font-weight:700; color:#0284C7;">Data Systems</div>
+          <div style="width: 150px; height: 210px; background: #FFFFFF; border-radius: 6px; padding: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); color: #111111; border: 1px solid #D6D3CC; font-size: 8.5px;">
+            <div style="font-weight:800; color:#0284C7; margin-bottom:4px;">Data Systems</div>
+            <div style="color:#6B6B67;">Python &bull; SQL &bull; Pipeline</div>
           </div>
         </div>
 
         <!-- Career Intelligence Layer -->
-        <div class="world-card intelligence-card" id="worldIntelCard" style="position: absolute; right: 20px; bottom: 80px; width: 260px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); opacity: 0; transform: translate3d(40px, 0, 45px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
-          <div style="font-size: 11px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;"><i class="fa-solid fa-chart-line"></i> Career Intelligence</div>
-          <div style="font-size: 9px; color: #94A3B8;">Career Strength: <strong style="color:#FFF">87%</strong></div>
-          <div style="font-size: 9px; color: #94A3B8;">Tech Density: <strong style="color:#FFF">92%</strong></div>
+        <div class="world-card intelligence-card" id="worldIntelCard" style="position: absolute; right: 10px; bottom: 60px; width: 280px; background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); opacity: 0; transform: translate3d(40px, 0, 45px); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 15;">
+          <div style="font-size: 11px; font-weight: 700; color: #111111; margin-bottom: 8px; letter-spacing: 0.05em;"><i class="fa-solid fa-chart-line"></i> CAREER INTELLIGENCE</div>
+          <div style="font-size: 9.5px; color: #6B6B67; margin-bottom:4px;">Career Benchmark: <strong style="color:#111111">87%</strong></div>
+          <div style="font-size: 9.5px; color: #6B6B67;">Technical Density: <strong style="color:#111111">92%</strong></div>
         </div>
 
       </div>
@@ -771,54 +787,50 @@
   </div>
 
   <!-- PRODUCT COMMAND CENTER -->
-  <section class="section" id="features" style="background: radial-gradient(circle at 50% 50%, #0F172A 0%, #0B1120 100%); border-bottom: 1px solid #1E293B;">
+  <section class="section" id="features" style="background: var(--bg-editorial-subtle, #ECEAE4); border-bottom: 1px solid var(--line-editorial, #D6D3CC); color: var(--ink-editorial, #111111); padding: 80px 0;">
     <div class="container">
-      <div class="section-head center" data-reveal>
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Product Command Center</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: #FFFFFF; margin-bottom: 8px;">Integrated AI Career Intelligence</h2>
-        <p style="color: rgba(255, 255, 255, 0.6); max-width: 680px; margin: 0 auto;">Build ATS-friendly resumes, optimize applications with AI recommendations, and manage targeted career profiles in one platform.</p>
+      <div class="section-head center" data-reveal style="text-align: center; margin-bottom: 48px;">
+        <div class="eyebrow" style="color: var(--muted-editorial, #6B6B67); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.12em; margin-bottom: 8px;">INTEGRATED SYSTEM</div>
+        <h2 style="font-size: 32px; font-weight: 800; color: #111111; margin-bottom: 12px; letter-spacing: -0.02em;">AI Career Workspace</h2>
+        <p style="color: #6B6B67; max-width: 620px; margin: 0 auto; font-size: 15px; line-height: 1.6;">Build ATS-friendly resumes, optimize applications with AI recommendations, and manage targeted career profiles in one platform.</p>
       </div>
 
-      <div class="showcase-grid" data-reveal-group>
-        <div class="showcase-card">
-          <div class="card-num">01</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-          <h4 class="card-title">AI Resume Builder</h4>
-          <p class="card-desc">Build professional, ATS-friendly resumes with an intuitive step-by-step builder. Create, edit, preview and manage multiple resumes from one place.</p>
+      <div class="showcase-grid" data-reveal-group style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+        <div class="showcase-card" style="background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 24px; color: #111111;">
+          <div class="card-num" style="font-size: 11px; font-family: var(--font-mono); color: #0284C7; font-weight: 700; margin-bottom: 12px;">01</div>
+          <h4 class="card-title" style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">AI Resume Builder</h4>
+          <p class="card-desc" style="font-size: 13px; color: #6B6B67; line-height: 1.5;">Build professional, ATS-friendly resumes with an intuitive step-by-step builder. Create, edit, preview and manage multiple resumes from one place.</p>
         </div>
 
-        <div class="showcase-card">
-          <div class="card-num">02</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-bullseye"></i></div>
-          <h4 class="card-title">ATS Resume Checker</h4>
-          <p class="card-desc">Analyze your resume against ATS-friendly standards and identify areas that can be improved before applying for jobs.</p>
+        <div class="showcase-card" style="background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 24px; color: #111111;">
+          <div class="card-num" style="font-size: 11px; font-family: var(--font-mono); color: #0284C7; font-weight: 700; margin-bottom: 12px;">02</div>
+          <h4 class="card-title" style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">ATS Resume Checker</h4>
+          <p class="card-desc" style="font-size: 13px; color: #6B6B67; line-height: 1.5;">Analyze your resume against ATS-friendly standards and identify areas that can be improved before applying for jobs.</p>
         </div>
 
-        <div class="showcase-card">
-          <div class="card-num">03</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-robot"></i></div>
-          <h4 class="card-title">AI Career Assistant</h4>
-          <p class="card-desc">Get AI-powered guidance for resume improvements, career questions, professional writing and job preparation.</p>
+        <div class="showcase-card" style="background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 24px; color: #111111;">
+          <div class="card-num" style="font-size: 11px; font-family: var(--font-mono); color: #0284C7; font-weight: 700; margin-bottom: 12px;">03</div>
+          <h4 class="card-title" style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">AI Career Assistant</h4>
+          <p class="card-desc" style="font-size: 13px; color: #6B6B67; line-height: 1.5;">Get AI-powered guidance for resume improvements, career questions, professional writing and job preparation.</p>
         </div>
 
-        <div class="showcase-card">
-          <div class="card-num">04</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-table-cells-large"></i></div>
-          <h4 class="card-title">Professional Templates</h4>
-          <p class="card-desc">Choose from clean, modern and ATS-friendly resume templates designed for different career paths.</p>
+        <div class="showcase-card" style="background: #FFFFFF; border: 1px solid #D6D3CC; border-radius: 8px; padding: 24px; color: #111111;">
+          <div class="card-num" style="font-size: 11px; font-family: var(--font-mono); color: #0284C7; font-weight: 700; margin-bottom: 12px;">04</div>
+          <h4 class="card-title" style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">Professional Templates</h4>
+          <p class="card-desc" style="font-size: 13px; color: #6B6B67; line-height: 1.5;">Choose from clean, modern and ATS-friendly resume templates designed for different career paths.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- FINAL CINEMATIC CTA -->
-  <section class="section-cta" style="background: linear-gradient(180deg, var(--paper-0) 0%, var(--bg-ocean) 100%);">
+  <section class="section-cta" style="background: var(--bg-editorial, #F3F1EC); border-top: 1px solid var(--line-editorial, #D6D3CC); padding: 80px 0; text-align: center; color: #111111;">
     <div class="container">
-      <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 12px;">Build a resume that works as hard as you do.</h2>
-      <p style="color: var(--ink-700); margin-bottom: 24px;">Create a free account and build your ATS-optimized resume with intelligent tools today.</p>
-      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
-        <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" style="padding: 12px 28px; font-weight: 600;">Create My Resume <i class="fa-solid fa-arrow-right"></i></a>
-        <a href="pages/ats-checker.html" class="btn btn-outline btn-lg" style="padding: 12px 24px; font-weight: 600;">Check ATS Score</a>
+      <h2 style="font-size: 32px; font-weight: 800; color: #111111; margin-bottom: 12px; letter-spacing: -0.02em;">Build a resume that works as hard as you do.</h2>
+      <p style="color: #6B6B67; margin-bottom: 28px; font-size: 16px;">Create a free account and build your ATS-optimized resume with intelligent tools today.</p>
+      <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+        <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" style="padding: 14px 32px; font-weight: 700; background: #111111; color: #FFFFFF; border-radius: 6px; border: none;">Create My Resume <i class="fa-solid fa-arrow-right" style="margin-left:8px;"></i></a>
+        <a href="pages/ats-checker.html" class="btn btn-outline btn-lg" style="padding: 14px 28px; font-weight: 700; border: 1px solid #111111; color: #111111; border-radius: 6px; background: transparent;">Check ATS Score</a>
       </div>
     </div>
   </section>

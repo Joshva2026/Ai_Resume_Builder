@@ -5,13 +5,20 @@
    ========================================================================== */
 
 :root {
-  /* ---- Colors: Cinematic Dark Palette ---- */
+  /* ---- Colors: Cinematic Dark & Warm Editorial Palette ---- */
   --primary: #38BDF8; /* Neon Cyan */
   --primary-dark: #0284C7;
   --accent: #818CF8; /* Soft Indigo */
   --accent-glow: rgba(56, 189, 248, 0.2);
   --bg-ocean: #09090B; /* Deep Obsidian */
   --bg-ocean-fallback: #09090B;
+
+  /* Editorial Warm Luxury Palette */
+  --bg-editorial: #F3F1EC;
+  --bg-editorial-subtle: #ECEAE4;
+  --ink-editorial: #111111;
+  --muted-editorial: #6B6B67;
+  --line-editorial: #D6D3CC;
 
   --ink-950: #FFFFFF; /* Main Text (White) */
   --ink-900: #F8FAFC;
