@@ -126,6 +126,7 @@ app.use(helmet({
 
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  'https://ai-resume-builder-rb1m.onrender.com',
   'https://ai-resume-builder-puce-one.vercel.app',
   'http://localhost:3000',
   'http://localhost:5000',
@@ -141,7 +142,10 @@ app.use(cors({
     if (allowedOrigins.includes(origin) || (!isProd && (/^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)))) {
       return callback(null, true);
     }
-    return callback(new Error('CORS Policy Error: Origin not allowed'));
+    console.warn('[CORS] Rejected origin:', origin);
+    const corsError = new Error('CORS Policy Error: Origin not allowed');
+    corsError.status = 403;
+    return callback(corsError);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -2872,6 +2876,10 @@ app.get('/api/health', async (req, res) => {
 // ==========================================
 
 app.use((err, req, res, next) => {
+  if (err.message && err.message.includes('CORS Policy Error')) {
+    console.warn(`[CORS REJECTED] ${req.method} ${req.originalUrl} from origin: ${req.headers.origin || 'unknown'}`);
+    return res.status(403).json({ error: 'CORS Policy Error: Origin not allowed', code: 'CORS_REJECTED' });
+  }
   console.error('Global error:', err);
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
