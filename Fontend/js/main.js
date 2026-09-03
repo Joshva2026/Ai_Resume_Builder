@@ -571,6 +571,7 @@ function initCinematicScroll() {
     const laser = document.getElementById('worldScanLaser');
     const wSkill1 = document.getElementById('wSkillAi1');
     const sceneBadge = document.getElementById('editorialSceneBadge');
+    const heroSheet = document.getElementById('stageResumeSheet');
 
     const scenes = [
       'SCENE 01 • CAREER IDENTITY',
@@ -596,12 +597,15 @@ function initCinematicScroll() {
         sceneBadge.textContent = scenes[sceneIndex];
       }
 
-      // Continuous 3D camera approach for main A4 anchor
+      // Continuous 3D camera approach for main A4 anchor and hero sheet
       const rotY = -18 + progress * 18; // -18deg -> 0deg
       const rotX = 10 - progress * 10;   // 10deg -> 0deg
       const scale = 0.75 + progress * 0.35; // 0.75 -> 1.10
       const transZ = -40 + progress * 160; // -40px -> 120px
-      anchor.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
+      const transformStr = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
+      
+      anchor.style.transform = transformStr;
+      if (heroSheet) heroSheet.style.transform = transformStr;
 
       // Scene 03: ATS Laser Scanner
       const atsActive = progress >= 0.20 && progress <= 0.40;
