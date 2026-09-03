@@ -124,10 +124,20 @@ app.use(helmet({
   contentSecurityPolicy: false // Allow inline scripts/styles for resume preview/print
 }));
 
-const allowedOrigins = [
+const sanitizeOrigin = (urlStr) => {
+  if (!urlStr) return null;
+  try {
+    const parsed = new URL(urlStr.startsWith('http') ? urlStr : `https://${urlStr}`);
+    return parsed.origin.toLowerCase();
+  } catch (_) {
+    return urlStr.replace(/\/+$/, '').toLowerCase();
+  }
+};
+
+const rawOrigins = [
   process.env.FRONTEND_URL,
-  'https://ai-resume-builder-rb1m.onrender.com',
   'https://ai-resume-builder-puce-one.vercel.app',
+  'https://ai-resume-builder-rb1m.onrender.com',
   'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:3000',
@@ -136,13 +146,16 @@ const allowedOrigins = [
   'http://localhost:5500'
 ].filter(Boolean);
 
+const allowedOrigins = Array.from(new Set(rawOrigins.map(sanitizeOrigin).filter(Boolean)));
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || (!isProd && (/^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)))) {
+    const normalizedOrigin = sanitizeOrigin(origin);
+    if (allowedOrigins.includes(normalizedOrigin) || (!isProd && (/^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)))) {
       return callback(null, true);
     }
-    console.warn('[CORS] Rejected origin:', origin);
+    console.warn('[CORS] Rejected origin:', origin, 'normalized:', normalizedOrigin);
     const corsError = new Error('CORS Policy Error: Origin not allowed');
     corsError.status = 403;
     return callback(corsError);
