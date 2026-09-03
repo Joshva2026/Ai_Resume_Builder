@@ -682,238 +682,162 @@
   </section>
 
   <!-- ============================= CONTINUOUS CINEMATIC SCROLL JOURNEY ============================= -->
-
-  <!-- SCENE 01 — THE PROBLEM: IMPRESSION & STRUCTURE -->
-  <section class="section showcase-section" id="scene-problem" style="padding: var(--sp-8) 0; border-bottom: 1px solid var(--line);">
-    <div class="container" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--sp-7); align-items: center;">
-      <div>
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">Scene 01 &bull; Impression & Structure</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Your resume has 6 seconds to make an impression.</h2>
-        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
-          Unstructured resumes get filtered out instantly. ResumeForge structures scattered career history into clean, algorithmically compliant A4 printable documents designed for recruiter scanning.
-        </p>
-        <ul style="list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--fs-xs); color: var(--ink-800);">
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> A4 printable boundaries prevent multi-page overflow errors.</li>
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Section ordering controls prioritize high-impact achievements.</li>
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Live formatting updates render instantaneously as you type.</li>
-        </ul>
-      </div>
-      <div class="product-workspace-mockup" style="background: var(--paper-50); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom: 1px solid var(--line); padding-bottom: 8px;">
-          <div style="display:flex; gap:6px;">
-            <span style="width:10px; height:10px; border-radius:50%; background:#EF4444;"></span>
-            <span style="width:10px; height:10px; border-radius:50%; background:#F59E0B;"></span>
-            <span style="width:10px; height:10px; border-radius:50%; background:#10B981;"></span>
+  <div class="cinematic-journey-track" id="cinematicJourneyTrack">
+    <div class="cinematic-journey-sticky">
+      <div class="cinematic-ambient-grid"></div>
+      
+      <!-- Spatial 3D Camera Stage Viewport -->
+      <div class="cinematic-world-stage" id="cinematicWorldStage">
+        
+        <!-- Persistent A4 Document Anchor Object -->
+        <div class="world-resume-anchor" id="worldResumeAnchor">
+          <div class="anchor-sheet-header">
+            <span class="anchor-tag">A4 &bull; RESUMEFORGE ENGINE</span>
+            <span class="anchor-template-name">Modern ATS Pro</span>
           </div>
-          <span style="font-size:10px; font-family:var(--font-mono); color:var(--ink-600)">resumeforge.dev/builder</span>
-        </div>
-        <div class="demo-preview-box" style="margin-top:0; padding:12px; font-size:11px; display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:var(--ink-950)">Senior Full-Stack Engineer</strong>
-            <span style="color:var(--primary); font-size:9px; font-family:var(--font-mono)">Structured Data Input</span>
+          <div class="anchor-sheet-body">
+            <div class="r-part r-header">
+              <div class="r-name">Alex Morgan</div>
+              <div class="r-title">Senior Full-Stack Architect</div>
+              <div class="r-meta">San Francisco, CA &bull; alex.morgan@dev.io &bull; github.com/alexm</div>
+            </div>
+            <div class="r-part r-summary" id="wPartSummary">
+              <div class="r-section-title">PROFESSIONAL SUMMARY</div>
+              <p class="r-text" id="wSummaryText">Full-stack software architect with 6+ years delivering distributed web applications, high-throughput microservices, and AI-enabled developer platforms.</p>
+            </div>
+            <div class="r-part r-experience" id="wPartExperience">
+              <div class="r-section-title">EXPERIENCE</div>
+              <div class="r-exp-item">
+                <div class="r-exp-top">
+                  <strong>Lead Platform Engineer</strong> &bull; CloudScale
+                  <span class="r-date">2022 &ndash; Present</span>
+                </div>
+                <ul class="r-bullets">
+                  <li class="r-bullet" id="wBullet1">Architected distributed streaming pipeline reducing latency by <span class="metric-highlight">42%</span> across 12M daily events.</li>
+                  <li class="r-bullet" id="wBullet2">Spearheaded microservices migration improving application uptime to <span class="metric-highlight">99.98%</span>.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="r-part r-skills" id="wPartSkills">
+              <div class="r-section-title">TECHNICAL SKILLS</div>
+              <div class="r-skills-list">
+                <span class="r-skill-tag core">TypeScript</span>
+                <span class="r-skill-tag core">React</span>
+                <span class="r-skill-tag core">Node.js</span>
+                <span class="r-skill-tag core">PostgreSQL</span>
+                <span class="r-skill-tag core">Docker</span>
+                <span class="r-skill-tag ai-added" id="wSkillAi1" style="display:none;">System Design</span>
+                <span class="r-skill-tag ai-added" id="wSkillAi2" style="display:none;">AWS Architecture</span>
+              </div>
+            </div>
           </div>
-          <div style="height:6px; width:90%; background:var(--ink-200); border-radius:3px;"></div>
-          <div style="height:6px; width:75%; background:var(--ink-200); border-radius:3px;"></div>
-          <div style="height:6px; width:82%; background:var(--ink-200); border-radius:3px;"></div>
+          <!-- ATS Laser Scanner Overlay -->
+          <div class="world-scan-laser" id="worldScanLaser"></div>
         </div>
+
+        <!-- Satellite Layer 1: ATS Radar Scanner Card -->
+        <div class="world-card ats-radar-card" id="worldAtsCard">
+          <div class="sat-header">
+            <span class="sat-icon-circle"><i class="fa-solid fa-gauge-high"></i></span>
+            <span class="sat-title">ATS Deterministic Score</span>
+            <span class="sat-status-chip high" id="wAtsStatusChip">Verified</span>
+          </div>
+          <div class="ats-score-display">
+            <div class="ats-score-number" id="wAtsScoreVal">94</div>
+            <div class="ats-score-denom">/100</div>
+            <span class="sat-demo-badge">Sample Benchmark</span>
+          </div>
+          <div class="ats-score-bar-bg">
+            <div class="ats-score-bar-fill" id="wAtsScoreBarFill" style="width: 94%;"></div>
+          </div>
+          <div class="ats-submetrics">
+            <div class="submetric"><span>Parsing:</span> <strong>98%</strong></div>
+            <div class="submetric"><span>Keyword Match:</span> <strong>92%</strong></div>
+          </div>
+        </div>
+
+        <!-- Satellite Layer 2: Contextual AI Assistant Layer -->
+        <div class="world-card ai-context-card" id="worldAiCard">
+          <div class="sat-header">
+            <span class="sat-icon-circle ai-pulse"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span class="sat-title">AI Assistant Layer</span>
+            <span class="ai-badge-pill">Demonstration</span>
+          </div>
+          <div class="ai-suggestion-body">
+            <div class="ai-suggestion-prompt">&ldquo;Optimize experience bullet for staff engineer role.&rdquo;</div>
+            <div class="ai-arrow-indicator"><i class="fa-solid fa-arrow-down"></i> AI Quantified Recommendation</div>
+            <div class="ai-suggestion-result">&ldquo;Architected distributed streaming pipeline reducing latency by <span class="highlight">42%</span>.&rdquo;</div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <span class="btn btn-primary btn-sm" style="font-size:9px; padding:4px 10px;">Apply to Resume</span>
+              <span class="btn btn-ghost btn-sm" style="font-size:9px; padding:4px 10px;">Regenerate</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Satellite Layer 3: Spatial Job Description Match Engine -->
+        <div class="world-card job-engine-card" id="worldJobCard">
+          <div class="sat-header">
+            <span class="sat-icon-circle job-icon"><i class="fa-solid fa-crosshairs"></i></span>
+            <span class="sat-title">Target Job Match Engine</span>
+            <span class="match-score-badge">87% Match</span>
+          </div>
+          <div class="job-meta">
+            <div class="job-role-title">Staff Full-Stack Engineer <span class="demo-tag">Sample Job</span></div>
+            <div class="job-company">NextGen Tech Inc. &bull; Role Alignment</div>
+          </div>
+          <div class="job-keywords-comparison">
+            <div class="keyword-row">
+              <span class="kw-tag matched"><i class="fa-solid fa-check"></i> Distributed Systems</span>
+              <span class="kw-tag matched"><i class="fa-solid fa-check"></i> TypeScript</span>
+            </div>
+            <div class="keyword-row">
+              <span class="kw-tag matched"><i class="fa-solid fa-check"></i> System Design</span>
+              <span class="kw-tag matched"><i class="fa-solid fa-check"></i> AWS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Satellite Layer 4: Multi-Version Spatial Resume Branching -->
+        <div class="world-version-branch" id="worldVersionBranch">
+          <div class="branch-card left-branch">
+            <div class="branch-tag">Frontend Specialist</div>
+            <div class="branch-preview-mini">React &bull; Next.js &bull; TypeScript</div>
+          </div>
+          <div class="branch-card center-branch">
+            <div class="branch-tag">Staff Full-Stack</div>
+            <div class="branch-preview-mini">Master Profile Branch</div>
+          </div>
+          <div class="branch-card right-branch">
+            <div class="branch-tag">Data Systems</div>
+            <div class="branch-preview-mini">Python &bull; SQL &bull; Pipeline</div>
+          </div>
+        </div>
+
+        <!-- Satellite Layer 5: Spatial Career Intelligence Analytics -->
+        <div class="world-card intelligence-card" id="worldIntelCard">
+          <div class="sat-header">
+            <span class="sat-icon-circle strength-icon"><i class="fa-solid fa-chart-line"></i></span>
+            <span class="sat-title">Career Intelligence System</span>
+            <span class="sat-status-chip high">Demonstration</span>
+          </div>
+          <div class="strength-metrics">
+            <div class="strength-bar-group">
+              <div class="strength-label"><span>Career Strength Benchmark</span> <strong>87%</strong></div>
+              <div class="strength-track"><div class="strength-fill" style="width:87%;"></div></div>
+            </div>
+            <div class="strength-bar-group">
+              <div class="strength-label"><span>Technical Density</span> <strong>92%</strong></div>
+              <div class="strength-track"><div class="strength-fill" style="width:92%;"></div></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </section>
-
-  <!-- SCENE 02 — THE ATS SCANNING ENGINE -->
-  <section class="section showcase-section" id="scene-ats-scan" style="padding: var(--sp-8) 0; background: var(--paper-50); border-bottom: 1px solid var(--line);">
-    <div class="container" style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--sp-7); align-items: center;">
-      <div style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm); text-align: center;">
-        <div style="font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">94 <span style="font-size:14px; color:var(--ink-600);">/ 100</span></div>
-        <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink-950); margin-bottom: 4px;">Deterministic ATS Score</div>
-        <div style="font-size: 9px; font-family: var(--font-mono); color: var(--ink-600); margin-bottom: 12px;">Sample Analysis Benchmark</div>
-        <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
-          <span class="chip" style="font-size:10px; padding:4px 8px; border-radius:10px; background:var(--score-high-bg); color:var(--score-high)">TypeScript ✔</span>
-          <span class="chip" style="font-size:10px; padding:4px 8px; border-radius:10px; background:var(--score-high-bg); color:var(--score-high)">Node.js ✔</span>
-          <span class="chip" style="font-size:10px; padding:4px 8px; border-radius:10px; background:var(--score-high-bg); color:var(--score-high)">Distributed Systems ✔</span>
-        </div>
-      </div>
-      <div>
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">Scene 02 &bull; ATS Filter Engine</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Pass Parser Algorithms on Every Application</h2>
-        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
-          Our deterministic ATS Scanner parses your resume structure, measures keyword density against job descriptions, and highlights missing skills before recruiters even open your file.
-        </p>
-        <ul style="list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--fs-xs); color: var(--ink-800);">
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Identifies missing tech-stack keywords before you click submit.</li>
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Verifies standard heading compatibility for automated ATS parsers.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 03 — RESUME TRANSFORMATION & METRIC REWRITE -->
-  <section class="section showcase-section" id="scene-ai-transformation" style="padding: var(--sp-8) 0; border-bottom: 1px solid var(--line);">
-    <div class="container" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: var(--sp-7); align-items: center;">
-      <div>
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">Scene 03 &bull; Content Optimization</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Transform Weak Bullets into Quantified Metrics</h2>
-        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
-          Our AI identifies non-quantified statements, suggests high-impact action verbs, and helps add measurable business results to your project summaries.
-        </p>
-        <ul style="list-style: none; padding: 0; display: grid; gap: 10px; font-size: var(--fs-xs); color: var(--ink-800);">
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Role-tailored professional summary generator.</li>
-          <li><i class="fa-solid fa-circle-check" style="color: var(--primary); margin-right: 8px;"></i> Instant 1-click application of AI suggestions.</li>
-        </ul>
-      </div>
-      <div style="background: var(--paper-50); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-        <div style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: var(--sp-2); color: var(--ink-900); display:flex; justify-content:space-between; align-items:center;">
-          <span><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> AI Quantified Rewrite</span>
-          <span style="font-size:9px; font-family:var(--font-mono); color:var(--ink-600)">Demonstration</span>
-        </div>
-        <div class="demo-preview-box" style="margin-top:0; padding:12px; font-size: 11px; line-height: 1.4;">
-          <div style="color:var(--score-low); text-decoration:line-through; margin-bottom:6px;">"Worked on frontend performance and improved app speed."</div>
-          <div style="color:var(--score-high); font-weight:600;">"Architected distributed streaming pipeline reducing latency by 42% across 12M daily events."</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 04 & 05 — JOB MATCH ALIGNMENT -->
-  <section class="section showcase-section" id="scene-job-match" style="padding: var(--sp-8) 0; background: var(--paper-50); border-bottom: 1px solid var(--line);">
-    <div class="container" style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: var(--sp-7); align-items: center;">
-      <div style="background: var(--paper-0); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <strong style="font-size:var(--fs-xs); color:var(--ink-950);">Target Vacancy Alignment</strong>
-          <span class="chip" style="font-size:9px; background:rgba(245,158,11,0.15); color:#F59E0B; padding:2px 6px;">88% Match</span>
-        </div>
-        <div style="font-size:10px; color:var(--ink-600); margin-bottom:8px;">Staff Full-Stack Engineer &bull; NextGen Tech (Illustrative)</div>
-        <div style="display:flex; gap:4px; flex-wrap:wrap;">
-          <span style="font-size:9px; background:rgba(52,211,153,0.15); color:#34D399; padding:2px 6px; border-radius:3px;">+ System Design</span>
-          <span style="font-size:9px; background:rgba(52,211,153,0.15); color:#34D399; padding:2px 6px; border-radius:3px;">+ AWS Architecture</span>
-        </div>
-      </div>
-      <div>
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; font-size: var(--fs-3xs); text-transform: uppercase; margin-bottom: 8px;">Scene 04 &bull; Job Match Engine</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 16px;">Tailor Your Resume to Every Opportunity</h2>
-        <p style="font-size: var(--fs-sm); color: var(--ink-700); line-height: 1.6; margin-bottom: 16px;">
-          Compare your master profile against job descriptions to pinpoint missing requirements and tailor your application for maximum relevance.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 06 & 07 — MULTI-VERSION CAREER BRANCHING & INTELLIGENCE -->
-  <section class="section showcase-section" id="scene-versioning" style="padding: var(--sp-8) 0; border-bottom: 1px solid var(--line);">
-    <div class="container">
-      <div class="section-head center">
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Scene 05 &bull; Multi-Version Branching</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 8px;">One Master Profile. Multiple Targeted Resumes.</h2>
-        <p style="color: var(--ink-700);">Maintain one centralized career record and generate customized versions for different roles.</p>
-      </div>
-
-      <div class="step-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-top: 32px;">
-        <div class="step-card" style="background:var(--paper-50); border:1px solid var(--line); border-radius:var(--radius-md); padding:var(--sp-4);">
-          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.2;">01</div>
-          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 12px;">Central Profile</h4>
-          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Store skills, experience, and projects in one structured master record.</p>
-        </div>
-        <div class="step-card" style="background:var(--paper-50); border:1px solid var(--line); border-radius:var(--radius-md); padding:var(--sp-4);">
-          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.2;">02</div>
-          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 12px;">Branch & Tailor</h4>
-          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Create custom versions for Software, Frontend, or Data roles in seconds.</p>
-        </div>
-        <div class="step-card" style="background:var(--paper-50); border:1px solid var(--line); border-radius:var(--radius-md); padding:var(--sp-4);">
-          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.2;">03</div>
-          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 12px;">ATS Audit</h4>
-          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Audit each version against job specifications for maximum match score.</p>
-        </div>
-        <div class="step-card" style="background:var(--paper-50); border:1px solid var(--line); border-radius:var(--radius-md); padding:var(--sp-4);">
-          <div class="num" style="font-size: var(--fs-xl); font-weight: 800; color: var(--primary); opacity: 0.2;">04</div>
-          <h4 style="font-size: var(--fs-xs); font-weight: 700; margin-bottom: 6px; margin-top: 12px;">Export Clean PDF</h4>
-          <p style="font-size: var(--fs-3xs); color: var(--ink-700);">Export algorithmically verified A4 PDFs ready for instant submission.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCENE 08 & 09 — PRODUCT COMMAND CENTER & FINAL CTA -->
-  <section class="section" id="features" style="background: radial-gradient(circle at 50% 50%, #0F172A 0%, #0B1120 100%); border-bottom: 1px solid #1E293B;">
-    <div class="container">
-      <div class="section-head center" data-reveal>
-        <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Product Command Center</div>
-        <h2 style="font-size: var(--fs-xl); font-weight: 800; color: #FFFFFF; margin-bottom: 8px;">Integrated AI Career Intelligence</h2>
-        <p style="color: rgba(255, 255, 255, 0.6); max-width: 680px; margin: 0 auto;">Build ATS-friendly resumes, optimize applications with AI recommendations, and manage targeted career profiles in one platform.</p>
-      </div>
-
-      <div class="showcase-grid" data-reveal-group>
-        <div class="showcase-card">
-          <div class="card-num">01</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-          <h4 class="card-title">AI Resume Builder</h4>
-          <p class="card-desc">Build professional, ATS-friendly resumes with an intuitive step-by-step builder. Create, edit, preview and manage multiple resumes from one place.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">02</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-bullseye"></i></div>
-          <h4 class="card-title">ATS Resume Checker</h4>
-          <p class="card-desc">Analyze your resume against ATS-friendly standards and identify areas that can be improved before applying for jobs.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">03</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-robot"></i></div>
-          <h4 class="card-title">AI Career Assistant</h4>
-          <p class="card-desc">Get AI-powered guidance for resume improvements, career questions, professional writing and job preparation.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">04</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-table-cells-large"></i></div>
-          <h4 class="card-title">Professional Templates</h4>
-          <p class="card-desc">Choose from clean, modern and ATS-friendly resume templates designed for different career paths.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">05</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-eye"></i></div>
-          <h4 class="card-title">Live Resume Preview</h4>
-          <p class="card-desc">See your resume update in real time while editing and make changes with confidence before downloading.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">06</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-folder-open"></i></div>
-          <h4 class="card-title">Resume Management</h4>
-          <p class="card-desc">Create, save, edit, duplicate and manage your resumes from a single dashboard.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">07</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-user-gear"></i></div>
-          <h4 class="card-title">Profile Management</h4>
-          <p class="card-desc">Keep your professional information organized and reuse it while creating and updating resumes.</p>
-        </div>
-
-        <div class="showcase-card">
-          <div class="card-num">08</div>
-          <div class="card-icon-wrap"><i class="fa-solid fa-arrow-trend-up"></i></div>
-          <h4 class="card-title">Career Insights</h4>
-          <p class="card-desc">Get actionable suggestions to improve your resume quality and strengthen your overall job application.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TRUST & SECURITY -->
-  <section class="section" style="padding: var(--sp-7) 0; border-bottom: 1px solid var(--line); background: var(--paper-0);">
-    <div class="container" style="text-align: center; max-width: 720px; margin: 0 auto;">
-      <div class="eyebrow" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: var(--fs-3xs); margin-bottom: 8px;">Architecture Integrity</div>
-      <h3 style="font-size: var(--fs-md); font-weight: 800; color: var(--ink-950); margin-bottom: 10px;">Protected Workspace & Private Resume Data</h3>
-      <p style="font-size: var(--fs-xs); color: var(--ink-600); line-height: 1.5;">
-        ResumeForge uses JWT-based token authentication and isolated PostgreSQL database persistence via Supabase. Your career records are strictly private and accessible only through your authenticated session.
-      </p>
-    </div>
-  </section>
+  </div>
 
   <!-- FINAL CINEMATIC CTA -->
-  <section class="section-cta" style="background: linear-gradient(180deg, var(--paper-0) 0%, var(--bg-ocean) 100%);">
+  <section class="section-cta" style="background: linear-gradient(180deg, var(--paper-0) 0%, var(--bg-ocean) 100%); position: relative; z-index: 30;">
     <div class="container">
       <h2 style="font-size: var(--fs-xl); font-weight: 800; color: var(--ink-950); margin-bottom: 12px;">Build a resume that works as hard as you do.</h2>
       <p style="color: var(--ink-700); margin-bottom: 24px;">Create a free account and build your ATS-optimized resume with intelligent tools today.</p>

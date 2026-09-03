@@ -1384,3 +1384,161 @@
   }
 }
 
+/* ==========================================================================
+   PINNED SPATIAL CAMERA STAGE JOURNEY ENGINE
+   ========================================================================== */
+.cinematic-journey-track {
+  height: 600vh;
+  position: relative;
+  background: var(--bg-ocean);
+}
+
+.cinematic-journey-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+}
+
+.cinematic-world-stage {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  transition: transform 0.1s linear;
+}
+
+/* Persistent 3D Document Anchor */
+.world-resume-anchor {
+  width: 400px;
+  height: 550px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(56, 189, 248, 0.25);
+  color: #0F172A;
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+  transition: transform 0.1s linear, box-shadow 0.3s ease;
+}
+
+.anchor-sheet-header {
+  height: 34px;
+  background: #0F172A;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.anchor-tag { color: #38BDF8; font-weight: 700; }
+.anchor-template-name { margin-left: auto; color: #F8FAFC; }
+
+.anchor-sheet-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #FFFFFF;
+}
+
+.world-scan-laser {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #38BDF8, #34D399, transparent);
+  box-shadow: 0 0 20px 4px rgba(56, 189, 248, 0.9);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(0);
+}
+
+.world-scan-laser.scanning {
+  opacity: 1;
+  animation: worldLaserScan 2s ease-in-out infinite alternate;
+}
+
+@keyframes worldLaserScan {
+  0% { transform: translateY(40px); }
+  100% { transform: translateY(500px); }
+}
+
+/* Spatial Satellite Cards & Layers */
+.world-card {
+  position: absolute;
+  background: rgba(17, 24, 39, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+  z-index: 15;
+  transition: transform 0.1s linear, opacity 0.3s ease;
+}
+
+.ats-radar-card { top: 60px; right: 40px; width: 240px; }
+.ai-context-card { bottom: 60px; left: 40px; width: 300px; }
+.job-engine-card { top: 180px; left: 20px; width: 280px; }
+.intelligence-card { bottom: 80px; right: 30px; width: 260px; }
+
+/* 3D Multi-Version Spatial Branching */
+.world-version-branch {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  pointer-events: none;
+  z-index: 8;
+  opacity: 0;
+  transform: translateZ(-100px);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.branch-card {
+  width: 220px;
+  height: 300px;
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  color: #0F172A;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.branch-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #0284C7;
+  text-transform: uppercase;
+}
+
+.branch-preview-mini {
+  font-size: 9px;
+  color: #64748B;
+  border-top: 1px solid #E2E8F0;
+  padding-top: 8px;
+}
+
