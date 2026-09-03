@@ -103,15 +103,36 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (status) { status.textContent = ''; status.style.color = ''; }
+
+      const emailVal = getValue('email');
+      const firstNameVal = getValue('firstName');
+      const lastNameVal = getValue('lastName');
+
+      if (!emailVal) {
+        if (status) {
+          status.textContent = 'Please provide an email address.';
+          status.style.color = 'var(--score-low)';
+        }
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        if (status) {
+          status.textContent = 'Please enter a valid email address.';
+          status.style.color = 'var(--score-low)';
+        }
+        return;
+      }
+
       submitBtn.disabled    = true;
       submitBtn.textContent = 'Saving…';
 
       try {
         const payload = {
-          email:           getValue('email'),
+          email:           emailVal,
           profileImageUrl: getValue('profileImageUrl'),
-          firstName:       getValue('firstName'),
-          lastName:        getValue('lastName'),
+          firstName:       firstNameVal,
+          lastName:        lastNameVal,
           phone:           getValue('phone'),
           location:        getValue('location'),
           bio:             document.getElementById('bio') ? document.getElementById('bio').value.trim() : '',
@@ -143,7 +164,7 @@
         }
       } finally {
         submitBtn.disabled    = false;
-        submitBtn.textContent = 'Save changes';
+        submitBtn.textContent = 'Save profile details';
       }
     });
   }
