@@ -213,10 +213,32 @@ function bindUndo() {
      Personal info + summary + skills + certs fields
   --------------------------------------------------------------------- */
   function bindPersonalFields() {
+    const fnEl = document.getElementById('f_fullName');
+    const emEl = document.getElementById('f_email');
+    const errFn = document.getElementById('err_fullName');
+    const errEm = document.getElementById('err_email');
+
+    if (fnEl) {
+      fnEl.addEventListener('input', () => {
+        state.personal.fullName = fnEl.value;
+        if (errFn) errFn.style.display = fnEl.value.trim() ? 'none' : 'block';
+        pushState();
+        renderPreview();
+      });
+    }
+
+    if (emEl) {
+      emEl.addEventListener('input', () => {
+        state.personal.email = emEl.value;
+        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emEl.value.trim());
+        if (errEm) errEm.style.display = (!emEl.value.trim() || !isValidEmail) ? 'block' : 'none';
+        pushState();
+        renderPreview();
+      });
+    }
+
     const map = {
-      f_fullName:  (v) => (state.personal.fullName  = v),
       f_headline:  (v) => (state.personal.headline  = v),
-      f_email:     (v) => (state.personal.email     = v),
       f_phone:     (v) => (state.personal.phone     = v),
       f_location:  (v) => (state.personal.location  = v),
       f_link:      (v) => (state.personal.link      = v),
@@ -279,6 +301,18 @@ function bindUndo() {
       selTemplate.addEventListener('change', () => {
         pushState();
         state.styling.template = selTemplate.value;
+        const secSel = document.getElementById('selTemplateSection');
+        if (secSel) secSel.value = selTemplate.value;
+        renderPreview();
+      });
+    }
+
+    const selTemplateSection = document.getElementById('selTemplateSection');
+    if (selTemplateSection) {
+      selTemplateSection.addEventListener('change', () => {
+        pushState();
+        state.styling.template = selTemplateSection.value;
+        if (selTemplate) selTemplate.value = selTemplateSection.value;
         renderPreview();
       });
     }

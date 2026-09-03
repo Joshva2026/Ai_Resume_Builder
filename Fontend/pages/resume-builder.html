@@ -38,58 +38,75 @@
 
 <template id="builderTemplate">
   <div class="builder-toolbar">
-    <button class="btn btn-ghost btn-sm" id="btnBackTop"><i class="fa-solid fa-arrow-left"></i> Back</button>
-    <input type="text" class="title-input" id="resumeTitle" value="Untitled Resume" aria-label="Resume title">
+    <button class="btn btn-ghost btn-sm" id="btnBackTop"><i class="fa-solid fa-arrow-left"></i> Workspace</button>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-family: var(--font-mono); font-size: 11px; font-weight:600; color: #0284C7; text-transform: uppercase; letter-spacing:0.1em;">AI RESUME STUDIO</span>
+      <input type="text" class="title-input" id="resumeTitle" value="Untitled Resume" aria-label="Resume title">
+    </div>
     <div class="toolbar-actions">
-      <span class="save-indicator" id="saveIndicator"><span class="dot"></span> Saved</span>
+      <span class="save-indicator" id="saveIndicator"><span class="dot"></span> Draft Editor</span>
       <button class="btn btn-ghost btn-sm" id="btnHistory"><i class="fa-solid fa-clock-rotate-left"></i> Versions</button>
       <a href="ats-checker.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-gauge-high"></i> ATS Score</a>
       <button class="btn btn-ghost btn-sm" id="btnUndo"><i class="fa-solid fa-undo"></i> Undo</button>
-      <button class="btn btn-primary btn-sm" id="btnDownload"><i class="fa-solid fa-download"></i> PDF</button>
-      <button class="btn btn-primary btn-sm" id="btnSave">Save</button>
+      <button class="btn btn-primary btn-sm" id="btnDownload" style="background:#111111; color:#FFFFFF; border:none;"><i class="fa-solid fa-download"></i> PDF</button>
+      <button class="btn btn-primary btn-sm" id="btnSave" style="background:#0284C7; color:#FFFFFF; border:none; font-weight:600;"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
       <button class="btn btn-ghost btn-sm" id="btnRetry" style="display:none">Retry</button>
     </div>
   </div>
 
   <div class="progress-container">
-    <div class="progress-bar" id="wizardProgress" style="width: 8%;"></div>
+    <div class="progress-bar" id="wizardProgress" style="width: 10%;"></div>
   </div>
 
   <div class="builder-steps-nav">
     <div class="step-nav-item active" data-step="personal">
-      <div class="step-icon"><i class="fa-solid fa-user"></i></div>
+      <div class="step-icon">01</div>
       <span>Personal</span>
     </div>
     <div class="step-nav-line"></div>
+    <div class="step-nav-item" data-step="summary">
+      <div class="step-icon">02</div>
+      <span>Summary</span>
+    </div>
+    <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="education">
-      <div class="step-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="step-icon">03</div>
       <span>Education</span>
     </div>
     <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="experience">
-      <div class="step-icon"><i class="fa-solid fa-briefcase"></i></div>
+      <div class="step-icon">04</div>
       <span>Experience</span>
     </div>
     <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="skills">
-      <div class="step-icon"><i class="fa-solid fa-sliders"></i></div>
+      <div class="step-icon">05</div>
       <span>Skills</span>
     </div>
     <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="projects">
-      <div class="step-icon"><i class="fa-solid fa-diagram-project"></i></div>
+      <div class="step-icon">06</div>
       <span>Projects</span>
     </div>
     <div class="step-nav-line"></div>
+    <div class="step-nav-item" data-step="certifications">
+      <div class="step-icon">07</div>
+      <span>Certs</span>
+    </div>
     <div class="step-nav-line"></div>
-    <div class="step-nav-item" data-step="summary">
-      <div class="step-icon"><i class="fa-solid fa-file-invoice"></i></div>
-      <span>Summary</span>
+    <div class="step-nav-item" data-step="awards">
+      <div class="step-icon">08</div>
+      <span>Achievements</span>
+    </div>
+    <div class="step-nav-line"></div>
+    <div class="step-nav-item" data-step="template">
+      <div class="step-icon">09</div>
+      <span>Template</span>
     </div>
     <div class="step-nav-line"></div>
     <div class="step-nav-item" data-step="review">
-      <div class="step-icon"><i class="fa-solid fa-list-check"></i></div>
-      <span>Review</span>
+      <div class="step-icon">10</div>
+      <span>Preview & Save</span>
     </div>
   </div>
 
@@ -149,11 +166,19 @@
       <div class="editor-section active" data-section="personal">
         <h3>Personal Information</h3>
         <div class="field-row">
-          <div class="field"><label>Full name</label><input type="text" id="f_fullName" placeholder="Jane Doe"></div>
+          <div class="field">
+            <label>Full name *</label>
+            <input type="text" id="f_fullName" placeholder="Jane Doe">
+            <div id="err_fullName" style="display:none; color:#DC2626; font-size:11px; margin-top:3px; font-weight:500;">Please enter your full name.</div>
+          </div>
           <div class="field"><label>Professional title</label><input type="text" id="f_headline" placeholder="Web Developer"></div>
         </div>
         <div class="field-row">
-          <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="jane@email.com"></div>
+          <div class="field">
+            <label>Email *</label>
+            <input type="email" id="f_email" placeholder="jane@email.com">
+            <div id="err_email" style="display:none; color:#DC2626; font-size:11px; margin-top:3px; font-weight:500;">Please enter a valid email address.</div>
+          </div>
           <div class="field"><label>Phone</label><input type="tel" id="f_phone" placeholder="+1 555 000 0000"></div>
         </div>
         <div class="field-row">
@@ -303,9 +328,30 @@
       </div>
 
 
-      <!-- Final Review Section -->
+      <!-- Template Selection Section -->
+      <div class="editor-section" data-section="template">
+        <h3>Template Selection</h3>
+        <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Choose a professional layout template. Changes render live in the A4 preview.</p>
+        <div class="field" style="margin-bottom: 20px;">
+          <label>Selected Template</label>
+          <select id="selTemplateSection" style="width: 100%; padding: 10px 14px; font-size: 13px; border-radius: 6px; border: 1px solid #D6D3CC;">
+            <option value="modern-professional">Modern Professional (Recommended)</option>
+            <option value="classic-ats">Classic ATS Standard</option>
+            <option value="minimal-ats">Minimal ATS Clean</option>
+            <option value="corporate-ats">Corporate Executive</option>
+            <option value="technical">Technical Engineer</option>
+            <option value="fresher">Fresher Entry Level</option>
+          </select>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('btnNext').click()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Final Review & Save Section -->
       <div class="editor-section" data-section="review">
-        <h3>Review & Finalize</h3>
+        <h3>Review &amp; Finalize</h3>
         <p style="margin-bottom:var(--sp-4); font-size:var(--fs-sm); color:var(--ink-600)">Review your completeness before downloading or running an ATS scan.</p>
         
         <div id="completenessChecklist" style="background:var(--paper-50); border:1px solid var(--line); border-radius:var(--radius-md); padding:var(--sp-4); margin-bottom:var(--sp-4);">
@@ -314,7 +360,7 @@
 
         <div style="display:flex; justify-content:space-between; margin-top:var(--sp-4)">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('btnBack').click()">Back</button>
-          <button class="btn btn-primary" id="btnSaveBottom" style="flex:1; margin-left:var(--sp-3)"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
+          <button class="btn btn-primary" id="btnSaveBottom" style="flex:1; margin-left:var(--sp-3); background:#0284C7; color:#FFFFFF; border:none; font-weight:600;"><i class="fa-solid fa-floppy-disk"></i> Save Resume</button>
         </div>
         <div style="margin-top:var(--sp-3)">
           <a href="ats-checker.html" class="btn btn-ghost" style="width:100%; text-align:center;"><i class="fa-solid fa-gauge-high"></i> Verify ATS Score</a>
