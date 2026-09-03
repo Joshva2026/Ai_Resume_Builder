@@ -615,44 +615,68 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
 
+    console.log('[REGISTER] request received for email:', email ? email.substring(0, 3) + '***' : undefined);
+
     if (!email || !password) {
+      console.warn('[REGISTER] payload validation failed: missing email or password');
       return res.status(400).json({ error: 'Email and password required' });
     }
 
     if (password.length < 6) {
+      console.warn('[REGISTER] payload validation failed: password too short');
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
-    // Check if user exists
-    const existing = await db.getUserByEmail(email);
+    console.log('[REGISTER] checking existing user');
+    let existing = null;
+    try {
+      existing = await db.getUserByEmail(email);
+    } catch (checkErr) {
+      console.error('[REGISTER] existing user check error:', {
+        message: checkErr?.message,
+        code: checkErr?.code,
+        details: checkErr?.details,
+        hint: checkErr?.hint
+      });
+      throw checkErr;
+    }
+    console.log('[REGISTER] existing user check complete, exists:', Boolean(existing));
 
     if (existing) {
-      return res.status(409).json({ error: 'User already exists' });
+      return res.status(409).json({ error: 'An account with this email already exists.' });
     }
 
-    // Hash password
+    console.log('[REGISTER] hashing password');
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user
+    console.log('[REGISTER] creating user');
     let userId;
     try {
       userId = await db.createUser(email, passwordHash, firstName || '', lastName || '');
+      console.log('[REGISTER] user created successfully with ID:', userId);
     } catch (err) {
-      console.error('[AUTH REGISTER ERROR]', {
+      console.error('[REGISTER] createUser failed:', {
         operation: 'createUser',
         message: err?.message,
         code: err?.code,
         details: err?.details,
         hint: err?.hint
       });
+      if (err?.code === '23505') {
+        return res.status(409).json({ error: 'An account with this email already exists.' });
+      }
       return res.status(500).json({ error: 'Registration failed' });
     }
 
     // Create user profile & refresh token with automatic cleanup on failure
     try {
+      console.log('[REGISTER] creating profile for user:', userId);
       await db.createProfile(userId);
+      console.log('[REGISTER] profile created');
 
       // Generate tokens
+      console.log('[REGISTER] generating JWT tokens');
       const accessToken = jwt.sign(
         { id: userId, email },
         JWT_SECRET,
@@ -666,8 +690,11 @@ app.post('/api/auth/register', async (req, res) => {
       );
 
       // Store refresh token
+      console.log('[REGISTER] storing refresh token');
       await db.createRefreshToken(userId, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      console.log('[REGISTER] refresh token created');
 
+      console.log('[REGISTER] registration successful for user:', userId);
       return res.status(201).json({
         message: 'User registered successfully',
         accessToken,
@@ -675,7 +702,7 @@ app.post('/api/auth/register', async (req, res) => {
         user: { id: userId, email, firstName, lastName },
       });
     } catch (postUserErr) {
-      console.error('[AUTH REGISTER ERROR]', {
+      console.error('[REGISTER] createProfile or createRefreshToken failed:', {
         operation: 'createProfile_or_createRefreshToken',
         userId,
         message: postUserErr?.message,
@@ -687,8 +714,9 @@ app.post('/api/auth/register', async (req, res) => {
       // Cleanup un-profiled/un-authenticated user entry
       try {
         await db.deleteUser(userId);
+        console.log('[REGISTER] cleaned up uncompleted user record:', userId);
       } catch (cleanupErr) {
-        console.error('[AUTH REGISTER CLEANUP ERROR]', {
+        console.error('[REGISTER] cleanup error:', {
           userId,
           message: cleanupErr?.message
         });
@@ -697,7 +725,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(500).json({ error: 'Registration failed' });
     }
   } catch (error) {
-    console.error('[AUTH REGISTER UNHANDLED ERROR]', {
+    console.error('[REGISTER] unhandled error:', {
       message: error?.message,
       code: error?.code,
       details: error?.details,
