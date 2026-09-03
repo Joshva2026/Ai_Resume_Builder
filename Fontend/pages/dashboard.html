@@ -15,19 +15,17 @@
 <link rel="stylesheet" href="../css/app-shell.css">
 <link rel="stylesheet" href="../css/animations.css">
 <style>
-/* Dashboard layout specifics */
+/* AI Career Workspace Specifics */
 .dashboard-greeting {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1px solid #D6D3CC;
   border-radius: var(--radius-lg);
-  padding: var(--sp-5) var(--sp-6);
-  box-shadow: var(--glass-shadow);
-  margin-bottom: var(--sp-5);
+  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  margin-bottom: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
 }
 @media (max-width: 640px) {
   .dashboard-greeting {
@@ -39,22 +37,64 @@
     width: 100%;
   }
 }
-.dashboard-greeting h2 {
-  font-size: var(--fs-lg);
-  font-weight: 800;
-  color: var(--ink-950);
-  margin-bottom: var(--sp-1);
+.dashboard-greeting h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 300;
+  color: #111111;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
 }
 .dashboard-greeting p {
-  color: var(--ink-600);
-  font-size: var(--fs-sm);
+  color: #6B6B67;
+  font-size: 14px;
+}
+
+/* Spatial Capability Switcher Bar */
+.spatial-workspace-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #ECEAE4;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid #D6D3CC;
+  overflow-x: auto;
+}
+.spatial-workspace-tab {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6B6B67;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.spatial-workspace-tab:hover {
+  color: #111111;
+  background: rgba(255, 255, 255, 0.5);
+}
+.spatial-workspace-tab.active {
+  background: #FFFFFF;
+  color: #111111;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.spatial-workspace-tab.active i {
+  color: #0284C7;
 }
 
 .health-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-4);
-  margin-bottom: var(--sp-6);
+  gap: 16px;
+  margin-bottom: 24px;
 }
 @media (max-width: 1024px) {
   .health-grid {
@@ -67,73 +107,73 @@
   }
 }
 .health-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1px solid #D6D3CC;
   border-radius: var(--radius-lg);
-  padding: var(--sp-4);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  transition: all var(--dur-base) var(--ease-out);
+  padding: 18px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
 }
 .health-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(37, 99, 235, 0.3);
-  box-shadow: var(--shadow-glow);
+  border-color: #0284C7;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.08);
 }
 .health-card h4 {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--ink-600);
-  margin-bottom: var(--sp-3);
+  color: #6B6B67;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .health-card h4 i {
-  color: var(--primary);
+  color: #0284C7;
 }
 .health-card .score-row {
   display: flex;
   align-items: baseline;
-  gap: 4px;
-  margin-bottom: var(--sp-2);
+  gap: 6px;
+  margin-bottom: 8px;
 }
 .health-card .score-val {
-  font-size: var(--fs-xl);
-  font-weight: 800;
-  color: var(--ink-950);
+  font-size: 28px;
+  font-weight: 300;
+  font-family: var(--font-display);
+  color: #111111;
 }
 .health-card .score-pct {
-  font-size: var(--fs-2xs);
-  color: var(--score-high);
-  font-weight: 600;
+  font-size: 11px;
+  color: #166534;
+  font-weight: 500;
 }
 .health-card .score-pct.neutral {
-  color: var(--ink-600);
+  color: #6B6B67;
 }
 .health-card .progress-track {
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-pill);
+  background: #ECEAE4;
+  border-radius: 2px;
   overflow: hidden;
-  margin-bottom: var(--sp-2);
+  margin-bottom: 8px;
 }
 .health-card .progress-fill {
   height: 100%;
-  border-radius: var(--radius-pill);
-  transition: width var(--dur-slow) var(--ease-out);
+  border-radius: 2px;
+  background: #0284C7;
+  transition: width 0.4s ease;
 }
 
 /* Two column layout panels */
 .dash-panels {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: var(--sp-5);
-  margin-bottom: var(--sp-6);
+  gap: 20px;
+  margin-bottom: 24px;
 }
 @media (max-width: 1024px) {
   .dash-panels {
@@ -142,13 +182,11 @@
 }
 
 .panel {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1px solid #D6D3CC;
   border-radius: var(--radius-lg);
-  padding: var(--sp-5);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
   display: flex;
   flex-direction: column;
 }
@@ -157,30 +195,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--sp-4);
-  border-bottom: 1px solid var(--ink-100);
-  padding-bottom: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #ECEAE4;
+  padding-bottom: 10px;
 }
 .panel-head h3 {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  color: var(--ink-950);
+  font-size: 16px;
+  font-weight: 400;
+  font-family: var(--font-display);
+  color: #111111;
 }
 
 /* Recent Resumes list styles */
 .resume-list-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .resume-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
+  padding: 14px;
   border-radius: var(--radius-md);
-  background: var(--paper-50);
-  border: 1px solid var(--ink-100);
+  background: #F3F1EC;
+  border: 1px solid #D6D3CC;
   transition: all 0.2s ease;
 }
 @media (max-width: 640px) {
@@ -195,8 +234,8 @@
   }
 }
 .resume-list-item:hover {
-  background: rgba(37, 99, 235, 0.04);
-  border-color: rgba(37, 99, 235, 0.15);
+  background: #FFFFFF;
+  border-color: #0284C7;
 }
 .resume-item-info {
   display: flex;
@@ -204,57 +243,56 @@
   gap: 14px;
 }
 .resume-item-icon {
-  font-size: 18px;
-  color: var(--primary);
-  background: rgba(37, 99, 235, 0.1);
+  font-size: 16px;
+  color: #0284C7;
+  background: #E0F2FE;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .resume-item-details h4 {
-  font-size: var(--fs-xs);
+  font-size: 13px;
   font-weight: 600;
-  color: var(--ink-950);
+  color: #111111;
   margin-bottom: 2px;
 }
 .resume-item-details p {
   font-size: 11px;
-  color: var(--ink-600);
+  color: #6B6B67;
 }
 .resume-item-actions {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
+  gap: 10px;
 }
 .score-badge {
   font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 13px;
-  width: 32px;
-  height: 32px;
+  font-weight: 600;
+  font-size: 12px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .score-badge.high {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--score-high);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+  background: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
 }
 .score-badge.mid {
-  background: rgba(245, 158, 11, 0.12);
-  color: var(--score-mid);
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
 }
 .score-badge.low {
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--score-low);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
 }
 
 .action-dropdown {
@@ -266,20 +304,20 @@
   position: absolute;
   bottom: 100%;
   right: 0;
-  background: #0d0c16;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--glass-shadow);
+  background: #FFFFFF;
+  border: 1px solid #D6D3CC;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   border-radius: var(--radius-md);
   z-index: 10;
   min-width: 160px;
   padding: 6px 0;
 }
 .dropdown-content button {
-  color: var(--ink-700);
+  color: #6B6B67;
   padding: 8px 14px;
   text-decoration: none;
   display: block;
-  font-size: var(--fs-xs);
+  font-size: 12px;
   width: 100%;
   text-align: left;
   border: none;
@@ -289,8 +327,8 @@
   transition: all 0.15s ease;
 }
 .dropdown-content button:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--ink-950);
+  background: #F3F1EC;
+  color: #111111;
 }
 .dropdown-content i {
   margin-right: 8px;
@@ -304,35 +342,35 @@
 .suggestions-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .suggestion-item {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  background: var(--paper-50);
-  border: 1px solid var(--ink-100);
+  background: #F3F1EC;
+  border: 1px solid #D6D3CC;
   border-radius: var(--radius-sm);
 }
 .suggestion-item i {
-  color: var(--primary);
-  font-size: 14px;
+  color: #0284C7;
+  font-size: 13px;
   margin-top: 2px;
-  background: rgba(37, 99, 235, 0.1);
+  background: #E0F2FE;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 .suggestion-item-text h4 {
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  color: var(--ink-950);
+  font-size: 12px;
+  font-weight: 600;
+  color: #111111;
   margin-bottom: 2px;
 }
 .suggestion-item-text p {
   font-size: 11px;
-  color: var(--ink-600);
-  line-height: 1.3;
+  color: #6B6B67;
+  line-height: 1.4;
 }
 </style>
 
@@ -358,11 +396,21 @@
 <template id="dashboardTemplate">
   <div class="dashboard-greeting">
     <div>
-      <div style="font-size: 10px; font-family: var(--font-mono); color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Career Command Center</div>
-      <h1 id="greetingName" style="font-size:inherit; font-weight:inherit; margin:0;">Good morning, John! ☕</h1>
-      <p>Let's build something amazing today.</p>
+      <div style="font-size: 10px; font-family: var(--font-mono); color: #0284C7; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">AI CAREER WORKSPACE</div>
+      <h1 id="greetingName">Good morning, John! ☕</h1>
+      <p style="margin: 0;">Build, optimize and deploy your career documents.</p>
     </div>
-    <a href="resume-builder.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Resume</a>
+    <a href="resume-builder.html" class="btn btn-primary" style="background: #111111; color: #FFFFFF; border: none; font-weight: 600; padding: 10px 18px; border-radius: 6px;"><i class="fa-solid fa-plus" style="margin-right: 6px;"></i> New Resume</a>
+  </div>
+
+  <!-- Spatial Workspace Capability Switcher Bar -->
+  <div class="spatial-workspace-bar" id="spatialWorkspaceBar">
+    <button class="spatial-workspace-tab active" data-view="all"><i class="fa-solid fa-table-cells-large"></i> All Capabilities</button>
+    <button class="spatial-workspace-tab" data-view="resumes"><i class="fa-solid fa-file-lines"></i> Resumes</button>
+    <button class="spatial-workspace-tab" data-view="ats"><i class="fa-solid fa-gauge-high"></i> ATS Intelligence</button>
+    <button class="spatial-workspace-tab" data-view="ai"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Assistant</button>
+    <button class="spatial-workspace-tab" data-view="jobs"><i class="fa-solid fa-briefcase"></i> Job Match</button>
+    <button class="spatial-workspace-tab" data-view="templates"><i class="fa-solid fa-cubes"></i> Templates</button>
   </div>
 
   <div class="health-grid">
@@ -370,9 +418,9 @@
       <h4>Total Resumes <i class="fa-solid fa-file-invoice"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthStrengthVal">0</span>
-        <span class="score-pct neutral" id="healthStrengthGrowth">0 this month</span>
+        <span class="score-pct neutral" id="healthStrengthGrowth">0 active</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthStrengthBar" style="width: 0%; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);"></div></div>
+      <div class="progress-track"><div class="progress-fill" id="healthStrengthBar" style="width: 0%;"></div></div>
       <span class="score-pct neutral" id="healthStrengthLabel">0 active resumes</span>
     </div>
     
@@ -382,7 +430,7 @@
         <span class="score-val" id="healthAtsVal">–</span>
         <span class="score-pct neutral" id="healthAtsGrowth">No scans</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthAtsBar" style="width: 0%; background: var(--score-high);"></div></div>
+      <div class="progress-track"><div class="progress-fill" id="healthAtsBar" style="width: 0%;"></div></div>
       <span class="score-pct neutral" id="healthAtsLabel">Based on scans</span>
     </div>
 
@@ -392,17 +440,17 @@
         <span class="score-val" id="healthLinkedinVal">0</span>
         <span class="score-pct neutral" id="healthLinkedinGrowth">0 this week</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthLinkedinBar" style="width: 0%; background: var(--accent);"></div></div>
+      <div class="progress-track"><div class="progress-fill" id="healthLinkedinBar" style="width: 0%;"></div></div>
       <span class="score-pct neutral" id="healthLinkedinLabel">Tracked jobs</span>
     </div>
 
     <div class="health-card">
-      <h4>Saved Templates <i class="fa-solid fa-cubes"></i></h4>
+      <h4>Active Templates <i class="fa-solid fa-cubes"></i></h4>
       <div class="score-row">
         <span class="score-val" id="healthMatchVal">1</span>
         <span class="score-pct neutral" id="healthMatchGrowth">1 template</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="healthMatchBar" style="width: 25%; background: var(--score-high);"></div></div>
+      <div class="progress-track"><div class="progress-fill" id="healthMatchBar" style="width: 25%;"></div></div>
       <span class="score-pct neutral" id="healthMatchLabel">Active templates</span>
     </div>
   </div>
@@ -415,8 +463,8 @@
       <div class="resume-list-container" id="resumeGrid">
         <div class="resume-list-item" style="border-style: dashed; background: transparent; cursor: pointer; justify-content: center; opacity: 0.75;" onclick="window.location.href='resume-builder.html'">
           <div style="display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-circle-plus" style="color: var(--primary);"></i>
-            <span style="font-size: var(--fs-xs); font-weight:600; color:var(--ink-950);">Create New Resume</span>
+            <i class="fa-solid fa-circle-plus" style="color: #0284C7;"></i>
+            <span style="font-size: 12px; font-weight:600; color:#111111;">Create New Resume</span>
           </div>
         </div>
       </div>
@@ -424,7 +472,7 @@
 
     <div class="panel">
       <div class="panel-head">
-        <h3>AI Suggestions</h3>
+        <h3>AI Career Recommendations</h3>
       </div>
       <div class="suggestions-list" id="suggestionsGrid">
         <div class="suggestion-item">
@@ -449,7 +497,7 @@
           </div>
         </div>
       </div>
-      <a href="ai-assistant.html" class="btn btn-ghost btn-sm" style="margin-top: var(--sp-4); text-align: center; justify-content: center; width: 100%;">See All Suggestions</a>
+      <a href="ai-assistant.html" class="btn btn-ghost btn-sm" style="margin-top: 16px; text-align: center; justify-content: center; width: 100%; border: 1px solid #D6D3CC; color: #111111; font-weight: 500;">See All Recommendations</a>
     </div>
   </div>
 </template>
@@ -458,10 +506,24 @@
 <script src="../js/auth-guard.js"></script>
 <script src="../js/components/app-shell.js"></script>
 <script>
-AppShell.render({ active: 'dashboard', title: 'Dashboard' });
+AppShell.render({ active: 'dashboard', title: 'AI Career Workspace' });
 
 const content = document.getElementById('appContent');
 content.appendChild(document.getElementById('dashboardTemplate').content.cloneNode(true));
+
+// Setup spatial workspace tab focus behavior
+document.querySelectorAll('.spatial-workspace-tab').forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    document.querySelectorAll('.spatial-workspace-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const view = tab.getAttribute('data-view');
+    if (view === 'resumes') window.location.href = 'resume-builder.html';
+    else if (view === 'ats') window.location.href = 'ats-checker.html';
+    else if (view === 'ai') window.location.href = 'ai-assistant.html';
+    else if (view === 'jobs') window.location.href = 'job-match.html';
+    else if (view === 'templates') window.location.href = 'templates.html';
+  });
+});
 
 async function loadDashboard() {
   const resumeGrid = document.getElementById('resumeGrid');
