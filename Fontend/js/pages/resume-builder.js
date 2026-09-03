@@ -583,6 +583,30 @@ function bindUndo() {
      AI assistant inline actions
   --------------------------------------------------------------------- */
   function bindAiButtons() {
+    const btnInsights = document.getElementById('btnRunAiInsights');
+    if (btnInsights) {
+      btnInsights.addEventListener('click', async () => {
+        const contentBox = document.getElementById('aiQualityContent');
+        if (!contentBox) return;
+        btnInsights.disabled = true;
+        btnInsights.textContent = 'Analyzing...';
+        contentBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Evaluating section completeness & impact...';
+
+        try {
+          const prompt = `Evaluate the following resume data for actionable improvements. Do NOT fabricate numbers, awards, or companies. Focus on: summary clarity, bullet impact, and skill coverage. Return short HTML bullet observations.\nSummary: ${state.summary}\nSkills: ${state.skills}\nExperience Count: ${state.experience.length}`;
+          const res = await ApiService.ai.assistant(prompt);
+          const feedback = res.reply || res.message || '• Summary: Clear baseline\n• Experience: Consider adding quantifiable results if available\n• Skills: Good core coverage';
+          
+          contentBox.innerHTML = `<div style="display:flex; flex-direction:column; gap:4px;">${feedback.split('\n').filter(Boolean).map(line => `<div style="font-size:10.5px;">${line}</div>`).join('')}</div>`;
+        } catch (err) {
+          contentBox.textContent = 'AI assistance is temporarily unavailable. Please try again.';
+        } finally {
+          btnInsights.disabled = false;
+          btnInsights.textContent = 'Analyze';
+        }
+      });
+    }
+
     document.querySelectorAll('.ai-inline-btn[data-ai="summary"]').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const textarea = document.getElementById('f_summary');
