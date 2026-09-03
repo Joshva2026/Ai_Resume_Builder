@@ -518,82 +518,208 @@ function showToast(message, type = '') {
 window.showToast = showToast;
 
 /* ─────────────────────────────────────────────────────────────
-   CINEMATIC SCROLL VIDEO
+   CINEMATIC SCROLL & 12-STAGE CAREER JOURNEY EXPERIENCE
 ───────────────────────────────────────────────────────────── */
 function initCinematicScroll() {
   const section = document.getElementById('cinematic-section');
-  const video = document.getElementById('cinematic-video');
   const contents = document.querySelectorAll('.cinematic-content');
-  
-  if (!section || !video || !contents.length) return;
+  if (!section || !contents.length) return;
 
-  // Reduced motion fallback
+  // DOM elements of the live product visualization
+  const sheet = document.getElementById('stageResumeSheet');
+  const rPartSummary = document.getElementById('rPartSummary');
+  const rPartExperience = document.getElementById('rPartExperience');
+  const rPartSkills = document.getElementById('rPartSkills');
+  const rPartEducation = document.getElementById('rPartEducation');
+  const atsBeam = document.getElementById('atsScanBeam');
+  const satAts = document.getElementById('satAtsCard');
+  const atsScoreVal = document.getElementById('atsScoreValue');
+  const atsScoreFill = document.getElementById('atsScoreBarFill');
+  const atsStatusChip = document.getElementById('atsStatusChip');
+  const satAi = document.getElementById('satAiCard');
+  const skillAi1 = document.getElementById('skillAi1');
+  const skillAi2 = document.getElementById('skillAi2');
+  const skillAi3 = document.getElementById('skillAi3');
+  const satJob = document.getElementById('satJobCard');
+  const satStrength = document.getElementById('satStrengthCard');
+  const timelineFill = document.getElementById('timelineProgressFill');
+  const timelineSteps = document.querySelectorAll('.timeline-step');
+  const glow = document.querySelector('.stage-ambient-glow');
+
+  // Reduced motion preference check
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion) {
-    video.removeAttribute('muted'); // Optional, but usually we just want to avoid autoplay/scrubbing
-    // Make first content always visible
     contents.forEach((el, index) => {
       if (index === 0) el.classList.add('active');
       else el.style.display = 'none';
     });
+    if (sheet) sheet.style.transform = 'none';
     return;
-  }
-
-  let videoDuration = 0;
-  
-  video.addEventListener('loadedmetadata', () => {
-    videoDuration = video.duration;
-  });
-
-  // Ensure metadata is loaded if it's already available
-  if (video.readyState >= 1) {
-    videoDuration = video.duration;
   }
 
   let rafId = null;
 
-  function handleScroll() {
-    if (!videoDuration) return;
+  // Helper for clamped linear interpolation
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+  }
 
+  function smoothRange(val, start, end) {
+    if (val <= start) return 0;
+    if (val >= end) return 1;
+    const t = (val - start) / (end - start);
+    // Smoothstep interpolation (3t^2 - 2t^3)
+    return t * t * (3 - 2 * t);
+  }
+
+  function handleScroll() {
     const rect = section.getBoundingClientRect();
     const sectionTop = rect.top;
     const sectionHeight = rect.height;
     const viewportHeight = window.innerHeight;
 
-    // Calculate progress (0 at top of section, 1 at bottom where sticky ends)
     const scrollableDistance = sectionHeight - viewportHeight;
     let progress = -sectionTop / scrollableDistance;
+    progress = clamp(progress, 0, 1);
 
-    // Clamp progress between 0 and 1
-    progress = Math.max(0, Math.min(1, progress));
-
-    // Update video time
-    if (progress >= 0 && progress <= 1) {
-      // Small optimization: only seek if the time has changed significantly
-      const targetTime = progress * videoDuration;
-      if (Math.abs(video.currentTime - targetTime) > 0.05) {
-        video.currentTime = targetTime;
-      }
+    // Continuous timeline progress indicator
+    if (timelineFill) {
+      timelineFill.style.width = `${Math.min(100, Math.max(8, progress * 100))}%`;
     }
 
-    // Determine which step to show based on progress
-    const totalSteps = contents.length;
-    const stepProgress = 1 / totalSteps;
-    
-    let currentStep = Math.floor(progress / stepProgress);
-    if (currentStep >= totalSteps) currentStep = totalSteps - 1;
+    // 12 Discrete Narrative and Staging Frames (0 to 11)
+    const frameFloat = progress * 11;
+    const frame = Math.min(11, Math.floor(frameFloat));
+
+    // Map 12 frames smoothly to the 6 story blocks (test assertions require 6 .cinematic-content elements)
+    const narrativeStep = Math.min(5, Math.floor(frame / 2));
 
     contents.forEach((content, index) => {
       content.classList.remove('active', 'exit-up', 'exit-down');
-      
-      if (index === currentStep) {
+      if (index === narrativeStep) {
         content.classList.add('active');
-      } else if (index < currentStep) {
+      } else if (index < narrativeStep) {
         content.classList.add('exit-up');
       } else {
         content.classList.add('exit-down');
       }
     });
+
+    // Timeline Step Highlights (Build, Analyze, Improve, Match, Apply)
+    timelineSteps.forEach(step => {
+      const stepFrame = parseInt(step.dataset.frame, 10);
+      if (frame >= stepFrame) {
+        step.classList.add('active');
+      } else {
+        step.classList.remove('active');
+      }
+    });
+
+    // Smooth continuous perspective tilt and parallax for A4 sheet
+    if (sheet) {
+      const rotY = -7 + progress * 7; // -7deg -> 0deg
+      const rotX = 5 - progress * 5;  // 5deg -> 0deg
+      const transZ = 5 + progress * 30; // 5px -> 35px
+      const scale = 0.94 + progress * 0.08; // 0.94 -> 1.02
+      sheet.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
+      
+      if (progress >= 0.92) {
+        sheet.style.boxShadow = '0 32px 80px -10px rgba(0, 0, 0, 0.92), 0 0 38px rgba(56, 189, 248, 0.38)';
+      } else {
+        sheet.style.boxShadow = '0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1)';
+      }
+    }
+
+    // Atmospheric Glow Dynamic Shift
+    if (glow) {
+      const glowX = -20 + progress * 40;
+      const glowY = -10 + progress * 20;
+      glow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0)`;
+    }
+
+    // Section Assembly Transition (Frames 0 -> 3, progress 0.0 -> 0.28)
+    const summaryRevealed = progress >= 0.08;
+    const expRevealed = progress >= 0.16;
+    const skillsRevealed = progress >= 0.22;
+    const eduRevealed = progress >= 0.28;
+
+    if (rPartSummary) rPartSummary.classList.toggle('is-pending', !summaryRevealed);
+    if (rPartExperience) rPartExperience.classList.toggle('is-pending', !expRevealed);
+    if (rPartSkills) rPartSkills.classList.toggle('is-pending', !skillsRevealed);
+    if (rPartEducation) rPartEducation.classList.toggle('is-pending', !eduRevealed);
+
+    // ATS Scanner & Score Dial (Frames 3 -> 6, progress 0.25 -> 0.55)
+    const atsActive = progress >= 0.26 && progress <= 0.85;
+    if (atsBeam) {
+      atsBeam.classList.toggle('scanning', atsActive);
+    }
+
+    // ATS Card Entry -> Hold -> Transition
+    if (satAts) {
+      const atsOpacity = smoothRange(progress, 0.22, 0.32);
+      satAts.style.opacity = atsOpacity.toFixed(2);
+      const atsSlideX = (1 - atsOpacity) * 25;
+      satAts.style.transform = `translate3d(${atsSlideX.toFixed(1)}px, 0, 40px)`;
+    }
+
+    // Progressive ATS Score Calibration (From 58 -> 76 -> 95)
+    if (atsScoreVal && atsScoreFill && atsStatusChip) {
+      if (progress < 0.30) {
+        atsScoreVal.textContent = '58';
+        atsScoreFill.style.width = '58%';
+        atsStatusChip.textContent = 'Scanning';
+        atsStatusChip.className = 'sat-status-chip';
+        atsScoreVal.classList.remove('score-excellent');
+      } else if (progress < 0.65) {
+        const scoreLerp = Math.round(58 + ((progress - 0.30) / 0.35) * 22); // 58 -> 80
+        atsScoreVal.textContent = String(scoreLerp);
+        atsScoreFill.style.width = `${scoreLerp}%`;
+        atsStatusChip.textContent = 'Passed';
+        atsStatusChip.className = 'sat-status-chip';
+        atsScoreVal.classList.remove('score-excellent');
+      } else {
+        atsScoreVal.textContent = '95';
+        atsScoreFill.style.width = '95%';
+        atsStatusChip.textContent = 'Ready';
+        atsStatusChip.className = 'sat-status-chip high';
+        atsScoreVal.classList.add('score-excellent');
+      }
+    }
+
+    // AI Recommendation Card (Frames 5 -> 8, progress 0.42 -> 0.72)
+    if (satAi) {
+      const aiOpacity = smoothRange(progress, 0.40, 0.50);
+      satAi.style.opacity = aiOpacity.toFixed(2);
+      const aiSlideX = (1 - aiOpacity) * -30;
+      satAi.style.transform = `translate3d(${aiSlideX.toFixed(1)}px, 0, 50px)`;
+    }
+
+    // AI Keyword Insertion on Resume Sheet (Frames 6 -> 11, progress >= 0.52)
+    const keywordsInjected = progress >= 0.52;
+    if (skillAi1) skillAi1.style.display = keywordsInjected ? 'inline-flex' : 'none';
+    if (skillAi2) skillAi2.style.display = keywordsInjected ? 'inline-flex' : 'none';
+    if (skillAi3) skillAi3.style.display = keywordsInjected ? 'inline-flex' : 'none';
+
+    // Target Job Description Match Card (Frames 7 -> 10, progress 0.60 -> 0.90)
+    if (satJob) {
+      const jobOpacity = smoothRange(progress, 0.58, 0.68);
+      satJob.style.opacity = jobOpacity.toFixed(2);
+      const jobSlideX = (1 - jobOpacity) * -30;
+      satJob.style.transform = `translate3d(${jobSlideX.toFixed(1)}px, 0, 35px)`;
+
+      const matchScoreBadge = document.getElementById('jobMatchScore');
+      if (matchScoreBadge) {
+        matchScoreBadge.textContent = progress >= 0.75 ? '96% Match' : '88% Match';
+      }
+    }
+
+    // Career Strength Card (Frames 9 -> 11, progress >= 0.75)
+    if (satStrength) {
+      const strengthOpacity = smoothRange(progress, 0.72, 0.82);
+      satStrength.style.opacity = strengthOpacity.toFixed(2);
+      const strSlideX = (1 - strengthOpacity) * 25;
+      satStrength.style.transform = `translate3d(${strSlideX.toFixed(1)}px, 0, 45px)`;
+    }
 
     rafId = null;
   }
@@ -603,5 +729,10 @@ function initCinematicScroll() {
       rafId = requestAnimationFrame(handleScroll);
     }
   }, { passive: true });
+
+  // Initial trigger to render frame 0 baseline
+  handleScroll();
 }
+
+
 

@@ -35,6 +35,9 @@ jest.mock('mysql2/promise', () => {
       if (sql.includes('SELECT * FROM profiles WHERE user_id')) {
         return [[{ user_id: 101, phone: '+1234567890', location: 'San Francisco, CA' }]];
       }
+      if (sql.includes('LEFT JOIN profiles')) {
+        return [[{ user_id: 101, email: 'tester@example.com', first_name: 'Test', last_name: 'User', phone: '+1234567890', location: 'San Francisco, CA' }]];
+      }
       if (sql.includes('INSERT INTO users')) {
         mockUser = {
           id: 101,

@@ -10,7 +10,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
@@ -31,7 +30,7 @@ const { generatePdfFallback } = require('./pdf-fallback');
 const mockAuditResumes = [];
 let mockAuditResumeIdCounter = 1000;
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // ==========================================
 // ENVIRONMENT & SECRETS CONFIGURATION
@@ -108,52 +107,11 @@ const PORT = process.env.PORT || 5000;
 /// Database connection initialization with resilient in-memory fallback
 const isTestEnv = process.env.NODE_ENV === 'test';
 const hasConfiguredDb = Boolean(process.env.DB_HOST) || isTestEnv;
-let realAdminPool = null;
-let realPool = null;
+const adminPool = createDatabaseProxy(null, false);
+const pool = createDatabaseProxy(null, false);
 
-if (hasConfiguredDb) {
-  try {
-    realAdminPool = mysql.createPool({
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT || 4000),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      ssl: {
-        minVersion: 'TLSv1.2',
-        rejectUnauthorized: false
-      },
-      enableKeepAlive: true,
-      keepAliveInitialDelay: 10000,
-      maxIdle: 10,
-      idleTimeout: 30000
-    });
-
-    realPool = mysql.createPool({
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT || 4000),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      ssl: {
-        minVersion: 'TLSv1.2',
-        rejectUnauthorized: false
-      },
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      enableKeepAlive: true,
-      keepAliveInitialDelay: 10000,
-      maxIdle: 10,
-      idleTimeout: 30000
-    });
-  } catch (err) {
-    console.warn('[DATABASE] Failed to initialize MySQL pool, using in-memory store:', err.message);
-  }
-}
-
-const adminPool = isTestEnv ? realAdminPool : createDatabaseProxy(realAdminPool, hasConfiguredDb);
-const pool = isTestEnv ? realPool : createDatabaseProxy(realPool, hasConfiguredDb);
+const DbRepository = require('./db-repository');
+const db = new DbRepository(pool);
 
 // ==========================================
 // MIDDLEWARE SETUP
@@ -705,16 +663,10 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
-    const connection = await pool.getConnection();
-
     // Check if user exists
-    const [existing] = await connection.query(
-      'SELECT id FROM users WHERE email = ?',
-      [email]
-    );
+    const existing = await db.getUserByEmail(email);
 
-    if (existing.length > 0) {
-      connection.release();
+    if (existing) {
       return res.status(409).json({ error: 'User already exists' });
     }
 
@@ -722,18 +674,10 @@ app.post('/api/auth/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user
-    const [result] = await connection.query(
-      'INSERT INTO users (email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?)',
-      [email, passwordHash, firstName || '', lastName || '']
-    );
-
-    const userId = result.insertId;
+    const userId = await db.createUser(email, passwordHash, firstName || '', lastName || '');
 
     // Create user profile
-    await connection.query(
-      'INSERT INTO profiles (user_id) VALUES (?)',
-      [userId]
-    );
+    await db.createProfile(userId);
 
     // Generate tokens
     const accessToken = jwt.sign(
@@ -749,12 +693,7 @@ app.post('/api/auth/register', async (req, res) => {
     );
 
     // Store refresh token
-    await connection.query(
-      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY)) ON DUPLICATE KEY UPDATE expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY)',
-      [userId, refreshToken]
-    );
-
-    connection.release();
+    await db.createRefreshToken(userId, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -776,23 +715,15 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const connection = await pool.getConnection();
+    const user = await db.getUserByEmail(email);
 
-    const [users] = await connection.query(
-      'SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = ?',
-      [email]
-    );
-
-    if (users.length === 0) {
-      connection.release();
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const user = users[0];
     const validPassword = await bcrypt.compare(password, user.password_hash);
 
     if (!validPassword) {
-      connection.release();
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -808,12 +739,7 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    await connection.query(
-      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY)) ON DUPLICATE KEY UPDATE expires_at = DATE_ADD(NOW(), INTERVAL 7 DAY)',
-      [user.id, refreshToken]
-    );
-
-    connection.release();
+    await db.createRefreshToken(user.id, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
     res.json({
       message: 'Login successful',
@@ -829,17 +755,11 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/logout', authenticateToken, async (req, res) => {
   try {
-    const connection = await pool.getConnection();
     const { token } = req.body;
 
     if (token) {
-      await connection.query(
-        'DELETE FROM refresh_tokens WHERE token = ?',
-        [token]
-      );
+      await db.deleteRefreshToken(token);
     }
-
-    connection.release();
     res.json({ message: 'Logout successful' });
   } catch (error) {
     console.error('Logout error:', error);
@@ -855,38 +775,27 @@ app.post('/api/auth/refresh', async (req, res) => {
       return res.status(400).json({ error: 'Refresh token is required' });
     }
 
-    const connection = await pool.getConnection();
-
     // Check if token exists in DB
-    const [tokens] = await connection.query(
-      'SELECT user_id, expires_at, is_revoked FROM refresh_tokens WHERE token = ?',
-      [token]
-    );
+    const tokenRecord = await db.getRefreshToken(token);
 
-    if (tokens.length === 0 || tokens[0].is_revoked || new Date(tokens[0].expires_at) < new Date()) {
-      connection.release();
+    if (!tokenRecord || tokenRecord.is_revoked || new Date(tokenRecord.expires_at) < new Date()) {
       return res.status(403).json({ error: 'Invalid or expired refresh token' });
     }
 
-    const userId = tokens[0].user_id;
+    const userId = tokenRecord.user_id;
 
     // Get user details
-    const [users] = await connection.query(
-      'SELECT email FROM users WHERE id = ?',
-      [userId]
-    );
+    const user = await db.getUserById(userId);
 
-    if (users.length === 0) {
-      connection.release();
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const userEmail = users[0].email;
+    const userEmail = user.email;
 
     // Verify token using JWT library
     jwt.verify(token, JWT_REFRESH_SECRET, (err) => {
       if (err) {
-        connection.release();
         return res.status(403).json({ error: 'Invalid refresh token' });
       }
 
@@ -896,8 +805,6 @@ app.post('/api/auth/refresh', async (req, res) => {
         JWT_SECRET,
         { expiresIn: '1h' }
       );
-
-      connection.release();
 
       res.json({
         accessToken,
@@ -917,38 +824,20 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       return res.status(400).json({ error: 'Email address is required' });
     }
 
-    const connection = await pool.getConnection();
+    const user = await db.getUserByEmail(email.trim().toLowerCase());
 
-    const [users] = await connection.query(
-      'SELECT id, email FROM users WHERE email = ?',
-      [email.trim().toLowerCase()]
-    );
-
-    if (users.length === 0) {
-      connection.release();
+    if (!user) {
       // For security, do not expose whether email exists
       return res.json({ message: 'If that email exists in our system, a password reset link has been processed.' });
     }
 
-    const userId = users[0].id;
+    const userId = user.id;
 
     // Generate cryptographically secure token
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
 
-    // Invalidate previous reset tokens for this user
-    await connection.query(
-      'UPDATE password_resets SET used = true WHERE user_id = ? AND used = false',
-      [userId]
-    );
-
-    // Insert new reset token with 30-minute expiration
-    await connection.query(
-      'INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE))',
-      [userId, tokenHash]
-    );
-
-    connection.release();
+    await db.createPasswordReset(userId, tokenHash, new Date(Date.now() + 30 * 60 * 1000));
 
     const resetLink = `${process.env.FRONTEND_URL || 'https://ai-resume-builder-puce-one.vercel.app'}/pages/reset-password.html?token=${rawToken}`;
 
@@ -983,40 +872,23 @@ app.post('/api/auth/reset-password', async (req, res) => {
     }
 
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-    const connection = await pool.getConnection();
+    const resetRecord = await db.getPasswordReset(tokenHash);
 
-    const [resets] = await connection.query(
-      'SELECT id, user_id, expires_at, used FROM password_resets WHERE token_hash = ?',
-      [tokenHash]
-    );
-
-    if (resets.length === 0 || resets[0].used || new Date(resets[0].expires_at) < new Date()) {
-      connection.release();
+    if (!resetRecord || resetRecord.used || new Date(resetRecord.expires_at) < new Date()) {
       return res.status(400).json({ error: 'Invalid or expired password reset link' });
     }
 
-    const userId = resets[0].user_id;
+    const userId = resetRecord.user_id;
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
     // Update user password
-    await connection.query(
-      'UPDATE users SET password_hash = ? WHERE id = ?',
-      [passwordHash, userId]
-    );
+    await db.updatePassword(userId, passwordHash);
 
     // Invalidate reset token to prevent reuse
-    await connection.query(
-      'UPDATE password_resets SET used = true WHERE id = ?',
-      [resets[0].id]
-    );
+    await db.markPasswordResetUsed(resetRecord.id);
 
     // Terminate existing refresh tokens for security
-    await connection.query(
-      'DELETE FROM refresh_tokens WHERE user_id = ?',
-      [userId]
-    );
-
-    connection.release();
+    await db.deleteRefreshTokens(userId);
 
     res.json({ message: 'Password reset successful. Please log in with your new password.' });
   } catch (error) {
@@ -1027,35 +899,25 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
-    const connection = await pool.getConnection();
+    const fullUser = await db.getFullUserProfile(req.user.id);
 
-    const [users] = await connection.query(
-      'SELECT id, email, first_name, last_name FROM users WHERE id = ?',
-      [req.user.id]
-    );
-
-    if (!users || users.length === 0) {
-      connection.release();
+    if (!fullUser) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const [profiles] = await connection.query(
-      'SELECT * FROM profiles WHERE user_id = ?',
-      [req.user.id]
-    );
-
-    connection.release();
-
-    const user = users[0];
-    const profile = (profiles && profiles.length > 0) ? profiles[0] : {};
-
     res.json({
       user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        ...profile,
+        id: fullUser.user_id,
+        email: fullUser.email,
+        firstName: fullUser.first_name,
+        lastName: fullUser.last_name,
+        phone: fullUser.phone,
+        location: fullUser.location,
+        bio: fullUser.bio,
+        profile_image_url: fullUser.profile_image_url,
+        linkedin_url: fullUser.linkedin_url,
+        portfolio_url: fullUser.portfolio_url,
+        github_url: fullUser.github_url
       },
     });
   } catch (error) {
@@ -2966,8 +2828,13 @@ app.delete('/api/cover-letter/:id', authenticateToken, async (req, res) => {
 // HEALTH CHECK
 // ==========================================
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'Backend is running' });
+app.get('/api/health', async (req, res) => {
+  try {
+    await db.checkHealth();
+    res.json({ status: 'Backend is running', database: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', database: 'disconnected' });
+  }
 });
 
 

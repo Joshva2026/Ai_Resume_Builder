@@ -21,7 +21,7 @@ module.exports = defineConfig({
   ],
   webServer: [
     {
-      command: 'node backend/server.js',
+      command: 'npx cross-env NODE_ENV=test PORT=5000 node backend/server.js',
       url: 'http://127.0.0.1:5000/api/download/history',
       reuseExistingServer: !process.env.CI,
       timeout: 120000,

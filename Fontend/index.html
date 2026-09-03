@@ -39,21 +39,22 @@
   background: var(--bg-ocean);
 }
 :root .navbar.is-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
 }
 .hero-mesh {
   position: absolute;
   top: -20%; left: 30%;
   width: 70%; height: 90%;
-  background: radial-gradient(circle at 70% 30%, rgba(37, 99, 235, 0.08) 0%, rgba(6, 182, 212, 0.04) 40%, rgba(139, 92, 246, 0.03) 70%, transparent 100%);
+  background: radial-gradient(circle at 70% 30%, rgba(56, 189, 248, 0.15) 0%, rgba(129, 140, 248, 0.1) 40%, transparent 70%);
   z-index: 1;
   pointer-events: none;
 }
 :root .hero-mesh {
   background-image:
-    radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(129, 140, 248, 0.2) 0px, transparent 50%);
 }
 .showcase-grid {
   display: grid;
@@ -67,12 +68,12 @@
   border-radius: var(--radius-lg);
   padding: var(--sp-6);
   box-shadow: var(--shadow-sm);
-  transition: all var(--dur-base) var(--ease-out);
+  transition: all var(--transition-base);
 }
 .showcase-card:hover {
   transform: translateY(-2px);
   border-color: var(--primary);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-glow);
 }
 .showcase-card i {
   font-size: 28px;
@@ -443,49 +444,238 @@
   </div>
 </div>
 <main>
-  <!-- ============================= HERO ============================= -->
+  <!-- ============================= CINEMATIC HERO & SCROLL EXPERIENCE ============================= -->
   <section class="cinematic-hero" id="cinematic-section">
     <div class="cinematic-sticky">
-      <video id="cinematic-video" class="cinematic-video" muted playsinline preload="metadata" poster="https://storage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg">
-        <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-      </video>
+      <!-- Background subtle animated atmospheric mesh -->
+      <div class="cinematic-ambient-grid" aria-hidden="true"></div>
+      
+      <!-- Stage Tracker / Timeline Indicator -->
+      <nav class="cinematic-timeline-nav" aria-label="Career Journey Progression">
+        <div class="timeline-step active" data-frame="0"><span>01</span> Build</div>
+        <div class="timeline-step" data-frame="3"><span>02</span> Analyze</div>
+        <div class="timeline-step" data-frame="5"><span>03</span> Improve</div>
+        <div class="timeline-step" data-frame="8"><span>04</span> Match</div>
+        <div class="timeline-step" data-frame="11"><span>05</span> Apply</div>
+        <div class="timeline-progress-bar"><div class="timeline-progress-fill" id="timelineProgressFill"></div></div>
+      </nav>
+
+      <!-- Main Layout: 2-Column Split Hero with Live Product Visualization -->
       <div class="cinematic-overlay" id="cinematic-overlay">
-        <div class="cinematic-content step-0 active">
-          <div class="eyebrow-badge"><i class="fa-solid fa-sparkles"></i> AI CAREER WORKSPACE</div>
-          <h1>Build a resume that works as hard as you do.</h1>
-          <p>Create, optimize and analyze your resume with AI-powered career intelligence.</p>
-          <div class="hero-actions">
-            <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" data-cta="hero_build_resume">Build My Resume</a>
-            <a href="pages/ats-checker.html" class="btn btn-ghost btn-lg"><i class="fa-solid fa-gauge-high" style="margin-right: 6px;"></i> Check ATS Score</a>
+        
+        <!-- Left Column: Dynamic Scrollytelling Story Cards -->
+        <div class="cinematic-narrative-column">
+          <!-- Step 0: Hero Intro -->
+          <div class="cinematic-content step-0 active" data-step="0">
+            <div class="eyebrow-badge"><i class="fa-solid fa-sparkles"></i> AI Career Intelligence</div>
+            <h1>Build a resume that works as hard as you do.</h1>
+            <p>Create, optimize and analyze your resume with AI-powered career intelligence.</p>
+            <div class="hero-actions">
+              <a href="pages/register.html" class="btn btn-primary btn-lg js-cta" data-cta="hero_build_resume">Build My Resume</a>
+              <a href="pages/ats-checker.html" class="btn btn-ghost btn-lg"><i class="fa-solid fa-gauge-high" style="margin-right: 6px;"></i> Check ATS Score</a>
+            </div>
+            <div class="cinematic-scroll-cue">
+              <span class="mouse-icon"><span class="wheel"></span></span>
+              <span>Scroll to assemble career intelligence</span>
+            </div>
+          </div>
+          
+          <!-- Step 1: Assembly & Structure -->
+          <div class="cinematic-content step-1" data-step="1">
+            <div class="badge-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stage-tag">STAGE 01 &bull; STRUCTURE</div>
+            <h2>Build &rarr; Analyze &rarr; Improve &rarr; Match &rarr; Apply</h2>
+            <p>Watch your raw experience assemble into a clean, deterministic A4 engineering layout in real time.</p>
+          </div>
+
+          <!-- Step 2: ATS Scanner & Score -->
+          <div class="cinematic-content step-2" data-step="2">
+            <div class="badge-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="stage-tag">STAGE 02 &bull; ATS ENGINE</div>
+            <h2>ATS Intelligence</h2>
+            <p>Instantly vet your resume against applicant tracking systems before a hiring manager ever sees it.</p>
+          </div>
+
+          <!-- Step 3: AI Recommendations -->
+          <div class="cinematic-content step-3" data-step="3">
+            <div class="badge-icon"><i class="fa-solid fa-robot"></i></div>
+            <div class="stage-tag">STAGE 03 &bull; AI REASONING</div>
+            <h2>AI Career Assistant</h2>
+            <p>Rewrite bullet points with measurable impact and inject high-value industry keywords on the fly.</p>
+          </div>
+
+          <!-- Step 4: Job Description Matching -->
+          <div class="cinematic-content step-4" data-step="4">
+            <div class="badge-icon"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="stage-tag">STAGE 04 &bull; ROLE MATCH</div>
+            <h2>Job Match</h2>
+            <p>Compare directly against target job descriptions to ensure you pass strict initial automated screenings.</p>
+          </div>
+
+          <!-- Step 5: Export & Apply -->
+          <div class="cinematic-content step-5" data-step="5">
+            <div class="badge-icon"><i class="fa-solid fa-file-pdf"></i></div>
+            <div class="stage-tag">STAGE 05 &bull; DEPLOYMENT</div>
+            <h2>Optimized Resume</h2>
+            <p>Export pixel-perfect, ATS-compliant documents ready to secure interviews with leading employers.</p>
+            <div class="hero-actions" style="margin-top: 16px;">
+              <a href="pages/register.html" class="btn btn-primary js-cta">Get Started Free &rarr;</a>
+            </div>
           </div>
         </div>
-        
-        <div class="cinematic-content step-1">
-          <h2>Build &rarr; Analyze &rarr; Improve &rarr; Match &rarr; Apply</h2>
-        </div>
 
-        <div class="cinematic-content step-2">
-          <div class="badge-icon"><i class="fa-solid fa-gauge-high"></i></div>
-          <h2>ATS Intelligence</h2>
-          <p>Instantly vet your resume against applicant tracking systems.</p>
-        </div>
+        <!-- Right Column: Live Interactive Product Showcase Composition -->
+        <div class="cinematic-stage-column" id="cinematicStage">
+          
+          <!-- Layer 1: Ambient Backdrop glow rings -->
+          <div class="stage-ambient-glow"></div>
+          
+          <!-- Layer 2: Real A4 Resume Document Sheet -->
+          <div class="stage-resume-sheet" id="stageResumeSheet">
+            <div class="resume-sheet-header">
+              <div class="r-sheet-status-dot"></div>
+              <span class="r-sheet-tag">A4 &bull; ATS PRO ENGINE</span>
+              <span class="r-sheet-template-name" id="sheetTemplateName">Modern Professional</span>
+            </div>
 
-        <div class="cinematic-content step-3">
-          <div class="badge-icon"><i class="fa-solid fa-robot"></i></div>
-          <h2>AI Career Assistant</h2>
-          <p>Rewrite bullet points and optimize keywords on the fly.</p>
-        </div>
+            <!-- Resume Content Sections (Progressively assemble across frames) -->
+            <div class="resume-sheet-body">
+              <!-- Header Section -->
+              <div class="resume-part r-header" id="rPartHeader">
+                <div class="r-name">Alex Morgan</div>
+                <div class="r-title">Senior Full-Stack Engineer</div>
+                <div class="r-meta">San Francisco, CA &bull; alex.morgan@dev.io &bull; github.com/alexm</div>
+              </div>
 
-        <div class="cinematic-content step-4">
-          <div class="badge-icon"><i class="fa-solid fa-bullseye"></i></div>
-          <h2>Job Match</h2>
-          <p>Compare directly against job descriptions to ensure you pass the screening.</p>
-        </div>
+              <!-- Summary Section -->
+              <div class="resume-part r-summary" id="rPartSummary">
+                <div class="r-section-title">PROFESSIONAL SUMMARY</div>
+                <p class="r-text">Full-stack software architect with 6+ years delivering distributed web applications, high-throughput microservices, and AI-enabled developer platforms.</p>
+              </div>
 
-        <div class="cinematic-content step-5">
-          <div class="badge-icon"><i class="fa-solid fa-file-pdf"></i></div>
-          <h2>Optimized Resume</h2>
-          <p>Export pixel-perfect, ATS-compliant documents ready to land interviews.</p>
+              <!-- Experience Section -->
+              <div class="resume-part r-experience" id="rPartExperience">
+                <div class="r-section-title">EXPERIENCE</div>
+                <div class="r-exp-item">
+                  <div class="r-exp-top">
+                    <strong>Lead Platform Engineer</strong> &bull; CloudScale
+                    <span class="r-date">2022 &ndash; Present</span>
+                  </div>
+                  <ul class="r-bullets">
+                    <li class="r-bullet" id="rBullet1">Architected distributed streaming pipeline reducing latency by <span class="metric-highlight">42%</span> across 12M daily events.</li>
+                    <li class="r-bullet" id="rBullet2">Spearheaded microservices migration improving uptime to <span class="metric-highlight">99.98%</span>.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Skills Section -->
+              <div class="resume-part r-skills" id="rPartSkills">
+                <div class="r-section-title">TECHNICAL SKILLS</div>
+                <div class="r-skills-list" id="rSkillsList">
+                  <span class="r-skill-tag core">TypeScript</span>
+                  <span class="r-skill-tag core">React</span>
+                  <span class="r-skill-tag core">Node.js</span>
+                  <span class="r-skill-tag core">PostgreSQL</span>
+                  <span class="r-skill-tag core">Docker</span>
+                  <span class="r-skill-tag ai-added" id="skillAi1" style="display:none;">System Design</span>
+                  <span class="r-skill-tag ai-added" id="skillAi2" style="display:none;">AWS Architecture</span>
+                  <span class="r-skill-tag ai-added" id="skillAi3" style="display:none;">Distributed Systems</span>
+                </div>
+              </div>
+
+              <!-- Education Section -->
+              <div class="resume-part r-education" id="rPartEducation">
+                <div class="r-section-title">EDUCATION</div>
+                <div class="r-exp-top">
+                  <strong>B.S. in Computer Science</strong> &bull; UC Berkeley
+                  <span class="r-date">Honors Graduate</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scanning laser beam overlay -->
+            <div class="ats-scan-beam" id="atsScanBeam"></div>
+          </div>
+
+          <!-- Layer 3: Floating Satellite Intelligence Badges & Cards -->
+
+          <!-- 3A: Live ATS Score Dial Card -->
+          <div class="satellite-card ats-score-card" id="satAtsCard">
+            <div class="sat-header">
+              <span class="sat-icon-circle"><i class="fa-solid fa-gauge-high"></i></span>
+              <span class="sat-title">ATS Readiness</span>
+              <span class="sat-status-chip" id="atsStatusChip">Scanning</span>
+            </div>
+            <div class="ats-score-display">
+              <div class="ats-score-number" id="atsScoreValue">58</div>
+              <div class="ats-score-denom">/100</div>
+              <span class="sat-demo-badge">Sample Benchmark</span>
+            </div>
+            <div class="ats-score-bar-bg">
+              <div class="ats-score-bar-fill" id="atsScoreBarFill" style="width: 58%;"></div>
+            </div>
+            <div class="ats-submetrics">
+              <div class="submetric"><span>Parsing:</span> <strong id="subParse">98%</strong></div>
+              <div class="submetric"><span>Keywords:</span> <strong id="subKeywords">64%</strong></div>
+            </div>
+          </div>
+
+          <!-- 3B: AI Recommendation Assistant Card -->
+          <div class="satellite-card ai-assistant-card" id="satAiCard">
+            <div class="sat-header">
+              <span class="sat-icon-circle ai-pulse"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+              <span class="sat-title">AI Recommendation</span>
+              <span class="ai-badge-pill">Demonstration</span>
+            </div>
+            <div class="ai-suggestion-body">
+              <div class="ai-old-text">&ldquo;Worked on platform performance and improved app speed.&rdquo;</div>
+              <div class="ai-arrow-indicator"><i class="fa-solid fa-arrow-down"></i> AI Quantified Rewrite</div>
+              <div class="ai-new-text">&ldquo;Architected distributed streaming pipeline reducing latency by <span class="highlight">42%</span>.&rdquo;</div>
+            </div>
+          </div>
+
+          <!-- 3C: Job Description Matching Ingest Card -->
+          <div class="satellite-card job-match-card" id="satJobCard">
+            <div class="sat-header">
+              <span class="sat-icon-circle job-icon"><i class="fa-solid fa-crosshairs"></i></span>
+              <span class="sat-title">Target Job Match</span>
+              <span class="match-score-badge" id="jobMatchScore">88% Match</span>
+            </div>
+            <div class="job-meta">
+              <div class="job-role-title">Staff Full-Stack Engineer <span class="demo-tag">Sample Role</span></div>
+              <div class="job-company">NextGen Tech Inc. &bull; Illustrative Match</div>
+            </div>
+            <div class="job-keywords-comparison">
+              <div class="keyword-row">
+                <span class="kw-tag matched"><i class="fa-solid fa-check"></i> Distributed Systems</span>
+                <span class="kw-tag matched"><i class="fa-solid fa-check"></i> TypeScript</span>
+              </div>
+              <div class="keyword-row">
+                <span class="kw-tag matched" id="kwSystemDesign"><i class="fa-solid fa-check"></i> System Design</span>
+                <span class="kw-tag matched"><i class="fa-solid fa-check"></i> AWS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D: Career Strength Indicator Card -->
+          <div class="satellite-card career-strength-card" id="satStrengthCard">
+            <div class="sat-header">
+              <span class="sat-icon-circle strength-icon"><i class="fa-solid fa-chart-line"></i></span>
+              <span class="sat-title">Career Strength</span>
+              <span class="sat-status-chip high">Demonstration</span>
+            </div>
+            <div class="strength-metrics">
+              <div class="strength-bar-group">
+                <div class="strength-label"><span>Impact Metrics</span> <strong>94%</strong></div>
+                <div class="strength-track"><div class="strength-fill" style="width:94%;"></div></div>
+              </div>
+              <div class="strength-bar-group">
+                <div class="strength-label"><span>Tech Density</span> <strong>92%</strong></div>
+                <div class="strength-track"><div class="strength-fill" style="width:92%;"></div></div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

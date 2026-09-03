@@ -1,0 +1,237 @@
+-- ResumeForge Supabase PostgreSQL Initialization Schema
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS profiles (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  phone VARCHAR(20),
+  location VARCHAR(255),
+  bio TEXT,
+  profile_image_url VARCHAR(500),
+  linkedin_url VARCHAR(255),
+  portfolio_url VARCHAR(255),
+  github_url VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS resumes (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  content JSONB,
+  template_id INT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  is_primary BOOLEAN DEFAULT false,
+  original_filename VARCHAR(500) NULL,
+  source TEXT CHECK (source IN ('builder', 'upload')) DEFAULT 'builder',
+  raw_text TEXT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS resume_versions (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  resume_id INT NOT NULL,
+  version_number INT NOT NULL,
+  content JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE,
+  UNIQUE (resume_id, version_number)
+);
+
+CREATE TABLE IF NOT EXISTS ats_reports (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  resume_id INT NULL,
+  overall_score INT DEFAULT 0,
+  keyword_match INT DEFAULT 0,
+  formatting_score INT DEFAULT 0,
+  grammar_score INT DEFAULT 0,
+  readability_score INT DEFAULT 0,
+  missing_keywords JSONB,
+  suggestions JSONB,
+  detailed_feedback JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  used BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS cover_letters (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  resume_id INT NULL,
+  title VARCHAR(255),
+  content TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS templates (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  thumbnail_url VARCHAR(500),
+  category VARCHAR(100),
+  structure JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS downloads (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  resume_id INT NOT NULL,
+  format VARCHAR(10),
+  file_url VARCHAR(500),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  token VARCHAR(500) NOT NULL UNIQUE,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  is_revoked BOOLEAN DEFAULT false,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  theme VARCHAR(20) DEFAULT 'light',
+  notifications_enabled BOOLEAN DEFAULT true,
+  email_notifications BOOLEAN DEFAULT true,
+  two_factor_enabled BOOLEAN DEFAULT false,
+  privacy_level VARCHAR(20) DEFAULT 'private',
+  language VARCHAR(10) DEFAULT 'en',
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS portfolios (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  title VARCHAR(255),
+  about_text TEXT,
+  theme VARCHAR(50) DEFAULT 'light',
+  accent_color VARCHAR(20) DEFAULT '#0ea5e9',
+  typography VARCHAR(50) DEFAULT 'inter',
+  is_published BOOLEAN DEFAULT false,
+  hero_image_url VARCHAR(500),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_projects (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  portfolio_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  image_url VARCHAR(500),
+  project_url VARCHAR(500),
+  github_url VARCHAR(500),
+  technologies JSONB,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_skills (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  portfolio_id INT NOT NULL,
+  category VARCHAR(100),
+  name VARCHAR(100) NOT NULL,
+  proficiency INT DEFAULT 0,
+  display_order INT DEFAULT 0,
+  FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_experience (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  portfolio_id INT NOT NULL,
+  company VARCHAR(255) NOT NULL,
+  role VARCHAR(255) NOT NULL,
+  start_date VARCHAR(50),
+  end_date VARCHAR(50),
+  description TEXT,
+  display_order INT DEFAULT 0,
+  FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS portfolio_education (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  portfolio_id INT NOT NULL,
+  institution VARCHAR(255) NOT NULL,
+  degree VARCHAR(255) NOT NULL,
+  start_date VARCHAR(50),
+  end_date VARCHAR(50),
+  description TEXT,
+  display_order INT DEFAULT 0,
+  FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS job_matches (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  resume_id INT NOT NULL,
+  job_title VARCHAR(255) NOT NULL,
+  company VARCHAR(255) NOT NULL,
+  match_percentage INT DEFAULT 0,
+  strong_matches JSONB,
+  missing_matches JSONB,
+  recommendations JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS applications (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  company VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  url VARCHAR(500),
+  status VARCHAR(100) DEFAULT 'Wishlist',
+  applied_date DATE,
+  interview_date TIMESTAMP WITH TIME ZONE,
+  notes TEXT,
+  resume_id INT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS linkedin_reviews (
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INT NOT NULL,
+  score INT DEFAULT 0,
+  suggestions JSONB,
+  details JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

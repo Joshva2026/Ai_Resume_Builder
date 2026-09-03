@@ -80,8 +80,8 @@
   width: 16px;
   text-align: center;
   font-size: 14px;
-  color: var(--ink-500);
-  transition: color var(--dur-fast) var(--ease-out);
+  color: var(--ink-600);
+  transition: color var(--transition-fast);
 }
 
 .side-nav a:hover {

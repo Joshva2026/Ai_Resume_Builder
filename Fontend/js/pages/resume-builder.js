@@ -956,6 +956,16 @@ function bindUndo() {
       if (typeof window.showToast === 'function') {
         window.showToast('Please complete Name, Email, Summary, Education, and Skills before saving.', 'error');
       }
+      
+      // Focus the first missing required field
+      if (!hasName) { document.getElementById('name')?.focus(); }
+      else if (!hasEmail) { document.getElementById('email')?.focus(); }
+      else if (!hasSummary) { document.getElementById('summary')?.focus(); }
+      else if (!hasEducation) { 
+        document.querySelector('[data-section="education"]')?.click(); 
+      }
+      else if (!hasSkills) { document.getElementById('skills')?.focus(); }
+      
       return;
     }
 
@@ -963,6 +973,7 @@ function bindUndo() {
       if (typeof window.showToast === 'function') {
         window.showToast('Professional resumes require at least one Work Experience entry.', 'error');
       }
+      document.querySelector('[data-section="experience"]')?.click();
       return;
     }
 

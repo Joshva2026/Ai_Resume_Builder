@@ -1,57 +1,57 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
 /* ==========================================================================
-   RESUMEFORGE - DESIGN TOKENS (PREMIUM BLUE + WHITE SYSTEM)
+   RESUMEFORGE - DESIGN TOKENS (CINEMATIC AI WORKSPACE SYSTEM)
    ========================================================================== */
 
 :root {
-  /* ---- Colors: Premium Blue + White Palette ---- */
-  --primary: #2563EB;
-  --primary-dark: #1D4ED8;
-  --accent: #3B82F6;
-  --accent-glow: #EFF6FF;
-  --bg-ocean: #F8FBFF;
-  --bg-ocean-fallback: #F8FBFF;
+  /* ---- Colors: Cinematic Dark Palette ---- */
+  --primary: #38BDF8; /* Neon Cyan */
+  --primary-dark: #0284C7;
+  --accent: #818CF8; /* Soft Indigo */
+  --accent-glow: rgba(56, 189, 248, 0.2);
+  --bg-ocean: #09090B; /* Deep Obsidian */
+  --bg-ocean-fallback: #09090B;
 
-  --ink-950: #0F172A; /* Main Text (Navy) */
-  --ink-900: #0F172A;
-  --ink-800: #1E293B;
-  --ink-700: #334155;
-  --ink-600: #64748B; /* Secondary Text */
-  --ink-400: #94A3B8; /* Muted Text */
-  --ink-200: #CBD5E1;
-  --ink-100: #E2E8F0; /* Borders */
-  --ink-50: #F1F5F9;
-  --ink-0: #FFFFFF; /* Pure white text/icons for primary buttons */
+  --ink-950: #FFFFFF; /* Main Text (White) */
+  --ink-900: #F8FAFC;
+  --ink-800: #E2E8F0;
+  --ink-700: #CBD5E1;
+  --ink-600: #94A3B8; /* Secondary Text */
+  --ink-400: #64748B; /* Muted Text */
+  --ink-200: #334155;
+  --ink-100: #1E293B; /* Borders */
+  --ink-50: #0F172A;
+  --ink-0: #020617; /* Darkest */
 
-  --paper-0: #FFFFFF;  /* Primary Card Surface */
-  --paper-50: #F8FBFF; /* Secondary Surface */
-  --paper-100: #EFF6FF; /* Highlight Surface */
-  --paper-200: #E0E7FF;
+  --paper-0: #111827;  /* Primary Card Surface (Dark Gray) */
+  --paper-50: #1F2937; /* Secondary Surface */
+  --paper-100: #374151; /* Highlight Surface */
+  --paper-200: #4B5563;
 
-  --signal-600: #2563EB;
-  --signal-500: #3B82F6;
-  --signal-400: #60A5FA;
-  --signal-100: rgba(37, 99, 235, 0.08);
+  --signal-600: #38BDF8;
+  --signal-500: #0EA5E9;
+  --signal-400: #7DD3FC;
+  --signal-100: rgba(56, 189, 248, 0.1);
 
-  --score-low: #EF4444;      /* Error/Low */
-  --score-mid: #F59E0B;      /* Warning/Mid */
-  --score-high: #10B981;     /* Success/High */
-  --score-high-bg: rgba(16, 185, 129, 0.08);
-  --score-low-bg: rgba(239, 68, 68, 0.08);
-  --score-mid-bg: rgba(245, 158, 11, 0.08);
+  --score-low: #F87171;      /* Error/Low */
+  --score-mid: #FBBF24;      /* Warning/Mid */
+  --score-high: #34D399;     /* Success/High */
+  --score-high-bg: rgba(52, 211, 153, 0.1);
+  --score-low-bg: rgba(248, 113, 113, 0.1);
+  --score-mid-bg: rgba(251, 191, 36, 0.1);
 
-  --line: #E2E8F0;
-  --line-strong: #CBD5E1;
+  --line: #1E293B;
+  --line-strong: #334155;
 
   /* ---- Glass/SaaS Depth Tokens ---- */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-bg-hover: rgba(255, 255, 255, 0.95);
-  --glass-border: #E2E8F0;
-  --glass-border-focus: #2563EB;
-  --glass-blur: blur(12px);
-  --glass-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  --glass-bg: rgba(17, 24, 39, 0.65);
+  --glass-bg-hover: rgba(17, 24, 39, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-focus: rgba(56, 189, 248, 0.5);
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
 
   /* ---- Typography (Cabinet-Style Satoshi System) ---- */
   --font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
@@ -91,15 +91,22 @@
   --radius-pill: 9999px;
 
   /* ---- Shadows & Glows ---- */
-  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.15);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
-  --shadow-glow-accent: 0 0 20px rgba(59, 130, 246, 0.15);
-  --shadow-glow-green: 0 0 16px rgba(16, 185, 129, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.25);
+  --shadow-glow-accent: 0 0 20px rgba(129, 140, 248, 0.25);
+  --shadow-glow-green: 0 0 16px rgba(52, 211, 153, 0.2);
+  --shadow-glow-red: 0 0 16px rgba(248, 113, 113, 0.2);
 
-  /* ---- Motion ---- */
+  /* ---- Motion & Animation Variables ---- */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Legacy aliases to prevent breakage */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-fast: 120ms;

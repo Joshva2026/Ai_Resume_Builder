@@ -16,7 +16,8 @@ body {
   font-size: var(--fs-base);
   line-height: 1.5;
   color: var(--ink-950);
-  background: var(--bg-ocean);
+  background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.05), var(--bg-ocean) 60%);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -67,10 +68,11 @@ p {
 ::-webkit-scrollbar-thumb {
   background: var(--ink-200);
   border-radius: var(--radius-pill);
-  border: 2px solid transparent;
+  border: 2px solid var(--bg-ocean);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
+  box-shadow: var(--shadow-glow);
 }
 
 /* Form Accessibility Focus */
@@ -80,7 +82,7 @@ p {
 }
 
 ::selection {
-  background: var(--signal-100);
+  background: rgba(56, 189, 248, 0.2);
   color: #FFFFFF;
 }
 
@@ -208,7 +210,7 @@ p {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  color: var(--ink-0);
+  color: var(--ink-950);
   box-shadow: var(--shadow-glow);
   border: none;
 }
@@ -223,7 +225,7 @@ p {
 
 .btn-accent {
   background: var(--accent);
-  color: var(--ink-0);
+  color: var(--ink-950);
   box-shadow: var(--shadow-glow-accent);
 }
 .btn-accent:hover {
@@ -238,9 +240,9 @@ p {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .btn-ghost:hover {
-  background: var(--signal-100);
-  color: var(--primary-dark);
-  border-color: var(--signal-400);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-950);
+  border-color: var(--primary);
   transform: translateY(-1px);
 }
 

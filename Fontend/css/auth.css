@@ -41,7 +41,7 @@
   font-size: var(--fs-xl);
   font-weight: 800;
   margin-bottom: var(--sp-1);
-  color: var(--ink-0);
+  color: var(--ink-950);
   text-align: center;
 }
 
@@ -66,7 +66,7 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--ink-0);
+  color: var(--ink-950);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +78,7 @@
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(216, 222, 233, 0.3);
+  box-shadow: var(--shadow-glow);
 }
 
 .divider {

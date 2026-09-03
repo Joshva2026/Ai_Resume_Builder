@@ -127,12 +127,10 @@ test.describe('Deep Workflows - Critical E2E Tests', () => {
     await page.click('#btnExperienced');
     await page.click('#btnStartContinue');
 
-    // Test Template Selection
-    await page.locator('.rail-item[data-section="template"]').click();
-    await page.waitForSelector('.tpl-card', { timeout: 15000 });
-    const firstTemplate = page.locator('.tpl-card').first();
-    await firstTemplate.click();
-    await expect(firstTemplate).toHaveClass(/selected/);
+    // Test Template Selection via Preview Style Bar dropdown
+    await page.waitForSelector('#selTemplate', { timeout: 15000 });
+    await page.selectOption('#selTemplate', 'modern-professional');
+    await expect(page.locator('#selTemplate')).toHaveValue('modern-professional');
 
     // Fill required fields
     await page.locator('.rail-item[data-section="personal"]').click();

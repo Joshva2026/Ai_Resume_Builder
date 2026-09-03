@@ -77,9 +77,9 @@
 
 .card-icon-wrap {
   font-size: 20px;
-  color: var(--ink-0);
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: var(--ink-950);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(129, 140, 248, 0.05) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   width: 42px;
   height: 42px;
   border-radius: 10px;
@@ -99,7 +99,7 @@
   font-family: var(--font-display);
   font-size: var(--fs-base);
   font-weight: 700;
-  color: var(--ink-0) !important;
+  color: var(--ink-950) !important;
   margin-bottom: 10px;
   z-index: 1;
 }
