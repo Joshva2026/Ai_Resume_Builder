@@ -123,9 +123,9 @@
 .hero {
   position: relative;
   padding: 160px 0 var(--sp-9);
-  background: radial-gradient(circle at 50% 30%, var(--paper-100) 0%, var(--bg-ocean) 70%);
+  background: var(--bg-editorial, #F3F1EC);
   overflow: hidden;
-  border-bottom: 1px solid var(--signal-100);
+  border-bottom: 1px solid var(--line-editorial, #D6D3CC);
 }
 
 #heroCanvas {

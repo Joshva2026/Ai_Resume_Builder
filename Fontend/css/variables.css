@@ -13,43 +13,61 @@
   --bg-ocean: #09090B; /* Deep Obsidian */
   --bg-ocean-fallback: #09090B;
 
-  /* Editorial Warm Luxury Palette */
+  /* Editorial Warm Luxury Palette & Normalized Global World Tokens */
   --bg-editorial: #F3F1EC;
   --bg-editorial-subtle: #ECEAE4;
   --ink-editorial: #111111;
   --muted-editorial: #6B6B67;
   --line-editorial: #D6D3CC;
 
-  --ink-950: #FFFFFF; /* Main Text (White) */
-  --ink-900: #F8FAFC;
-  --ink-800: #E2E8F0;
-  --ink-700: #CBD5E1;
-  --ink-600: #94A3B8; /* Secondary Text */
-  --ink-400: #64748B; /* Muted Text */
-  --ink-200: #334155;
-  --ink-100: #1E293B; /* Borders */
-  --ink-50: #0F172A;
-  --ink-0: #020617; /* Darkest */
+  /* Global Unified Landing Tokens */
+  --bg-ocean: #F3F1EC; /* Continuous Warm Ivory World */
+  --bg-ocean-fallback: #F3F1EC;
 
-  --paper-0: #111827;  /* Primary Card Surface (Dark Gray) */
-  --paper-50: #1F2937; /* Secondary Surface */
-  --paper-100: #374151; /* Highlight Surface */
-  --paper-200: #4B5563;
+  --ink-950: #111111; /* Deep Charcoal Text */
+  --ink-900: #171717;
+  --ink-800: #262626;
+  --ink-700: #404040;
+  --ink-600: #6B6B67; /* Muted Graphite Text */
+  --ink-400: #888884;
+  --ink-200: #C5C2BB;
+  --ink-100: #D6D3CC; /* Subtle Warm Borders */
+  --ink-50:  #ECEAE4;
+  --ink-0:   #FFFFFF;
 
-  --signal-600: #38BDF8;
+  --paper-0: #FFFFFF;  /* Primary Card Surface (Pure White) */
+  --paper-50: #ECEAE4; /* Secondary Surface */
+  --paper-100: #E5E3DC; /* Highlight Surface */
+  --paper-200: #D6D3CC;
+
+  --primary: #0284C7; /* Restrained Engineering Accent */
+  --primary-dark: #0369A1;
+  --accent: #0284C7; 
+  --accent-glow: rgba(2, 132, 199, 0.12);
+
+  --signal-600: #0284C7;
   --signal-500: #0EA5E9;
-  --signal-400: #7DD3FC;
-  --signal-100: rgba(56, 189, 248, 0.1);
+  --signal-400: #38BDF8;
+  --signal-100: rgba(2, 132, 199, 0.08);
 
-  --score-low: #F87171;      /* Error/Low */
-  --score-mid: #FBBF24;      /* Warning/Mid */
-  --score-high: #34D399;     /* Success/High */
-  --score-high-bg: rgba(52, 211, 153, 0.1);
-  --score-low-bg: rgba(248, 113, 113, 0.1);
-  --score-mid-bg: rgba(251, 191, 36, 0.1);
+  --score-low: #DC2626;      /* Error/Low */
+  --score-mid: #D97706;      /* Warning/Mid */
+  --score-high: #166534;     /* Success/High */
+  --score-high-bg: rgba(22, 101, 52, 0.08);
+  --score-low-bg: rgba(220, 38, 38, 0.08);
+  --score-mid-bg: rgba(217, 119, 6, 0.08);
 
-  --line: #1E293B;
-  --line-strong: #334155;
+  --line: #D6D3CC;
+  --line-strong: #C5C2BB;
+
+  /* ---- Glass/SaaS Depth Tokens ---- */
+  --glass-bg: rgba(243, 241, 236, 0.85);
+  --glass-bg-hover: rgba(243, 241, 236, 0.95);
+  --glass-border: rgba(214, 211, 204, 0.6);
+  --glass-border-focus: rgba(2, 132, 199, 0.4);
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  --glass-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.5);
 
   /* ---- Glass/SaaS Depth Tokens ---- */
   --glass-bg: rgba(17, 24, 39, 0.65);
