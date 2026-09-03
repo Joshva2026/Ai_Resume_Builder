@@ -42,6 +42,15 @@ class DbRepository {
     return data[0].id;
   }
 
+  async deleteUser(userId) {
+    if (this.isTest) {
+      await this.pool.query('DELETE FROM users WHERE id = ?', [userId]);
+      return;
+    }
+    const { error } = await supabase.from('users').delete().eq('id', userId);
+    if (error) throw error;
+  }
+
   async createProfile(userId) {
     if (this.isTest) {
       await this.pool.query('INSERT INTO profiles (user_id) VALUES (?)', [userId]);

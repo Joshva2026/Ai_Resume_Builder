@@ -54,31 +54,44 @@
 
 /* Social oauth section side by side */
 .social-auth-row {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   margin-bottom: 20px;
 }
 
 .btn-social {
-  width: 44px;
+  width: 100%;
+  min-width: 0;
   height: 44px;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--ink-950);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  gap: 8px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.25s ease;
+}
+.btn-social i {
+  font-size: 14px;
+  flex-shrink: 0;
 }
 .btn-social:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--primary);
+  color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: var(--shadow-glow);
+}
+.btn-social:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .divider {
@@ -227,8 +240,7 @@
     gap: var(--sp-3);
   }
   .social-auth-row {
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
   .form-foot-row {
     flex-direction: column;

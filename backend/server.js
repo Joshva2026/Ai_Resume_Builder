@@ -44,7 +44,9 @@ const JWT_SECRET = process.env.JWT_SECRET || (isProd ? '' : 'dev_jwt_secret_key_
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || (isProd ? '' : 'dev_jwt_refresh_secret_key_for_local_development_only');
 
 function validateEnvironmentVariables() {
-  const required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const required = isProd 
+    ? ['SUPABASE_URL', 'SUPABASE_SECRET_KEY', 'JWT_SECRET', 'JWT_REFRESH_SECRET']
+    : ['JWT_SECRET', 'JWT_REFRESH_SECRET'];
   const missing = required.filter(v => !process.env[v]);
   if (missing.length > 0) {
     if (isProd) {
@@ -263,6 +265,14 @@ const optionalAuthenticateToken = (req, res, next) => {
 
 const initializeDatabase = async () => {
   try {
+    if (!isTest) {
+      // Production / Non-test mode persistence uses Supabase PostgreSQL
+      await db.checkHealth();
+      console.log('Supabase production database connected/available');
+      return;
+    }
+
+    // Test mode MySQL / in-memory database setup
     const dbName = process.env.DB_NAME || 'resume_builder';
     const adminConnection = await adminPool.getConnection();
     await adminConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
@@ -324,24 +334,6 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Ensure columns exist (for existing tables)
-    try {
-      const [resumesCols] = await connection.query(`SHOW COLUMNS FROM resumes LIKE 'original_filename'`);
-      if (resumesCols.length === 0) {
-        await connection.query(`ALTER TABLE resumes ADD COLUMN original_filename VARCHAR(500) NULL`);
-      }
-      const [sourceCols] = await connection.query(`SHOW COLUMNS FROM resumes LIKE 'source'`);
-      if (sourceCols.length === 0) {
-        await connection.query(`ALTER TABLE resumes ADD COLUMN source ENUM('builder','upload') DEFAULT 'builder'`);
-      }
-      const [rawTextCols] = await connection.query(`SHOW COLUMNS FROM resumes LIKE 'raw_text'`);
-      if (rawTextCols.length === 0) {
-        await connection.query(`ALTER TABLE resumes ADD COLUMN raw_text LONGTEXT NULL`);
-      }
-    } catch (colErr) {
-      console.error('Error migrating resumes table columns:', colErr.message);
-    }
-
     // Create resume_versions table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS resume_versions (
@@ -375,24 +367,6 @@ const initializeDatabase = async () => {
         INDEX idx_created_at (created_at)
       )
     `);
-
-    // Ensure ats_reports columns exist
-    try {
-      const [feedbackCols] = await connection.query(`SHOW COLUMNS FROM ats_reports LIKE 'detailed_feedback'`);
-      if (feedbackCols.length === 0) {
-        await connection.query(`ALTER TABLE ats_reports ADD COLUMN detailed_feedback JSON NULL`);
-      }
-      const [grammarCols] = await connection.query(`SHOW COLUMNS FROM ats_reports LIKE 'grammar_score'`);
-      if (grammarCols.length === 0) {
-        await connection.query(`ALTER TABLE ats_reports ADD COLUMN grammar_score INT DEFAULT 0`);
-      }
-      const [readCols] = await connection.query(`SHOW COLUMNS FROM ats_reports LIKE 'readability_score'`);
-      if (readCols.length === 0) {
-        await connection.query(`ALTER TABLE ats_reports ADD COLUMN readability_score INT DEFAULT 0`);
-      }
-    } catch (colErr) {
-      console.error('Error migrating ats_reports table columns:', colErr.message);
-    }
 
     // Create password_resets table
     await connection.query(`
@@ -468,15 +442,6 @@ const initializeDatabase = async () => {
         INDEX idx_user_id (user_id)
       )
     `);
-
-    try {
-      const [revokedCols] = await connection.query(`SHOW COLUMNS FROM refresh_tokens LIKE 'is_revoked'`);
-      if (revokedCols.length === 0) {
-        await connection.query(`ALTER TABLE refresh_tokens ADD COLUMN is_revoked BOOLEAN DEFAULT false`);
-      }
-    } catch (colErr) {
-      console.error('Error migrating refresh_tokens table columns:', colErr.message);
-    }
 
     // Create settings table
     await connection.query(`
@@ -581,8 +546,6 @@ const initializeDatabase = async () => {
       )
     `);
 
-
-
     // Create job_matches table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS job_matches (
@@ -637,13 +600,10 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-
-
     connection.release();
-    console.log('Database initialized successfully');
+    console.log('test/in-memory database initialized successfully');
   } catch (error) {
     console.error('Database initialization error:', error);
-    console.warn('DATABASE UNAVAILABLE — LOCAL ENVIRONMENT');
   }
 };
 
@@ -674,35 +634,75 @@ app.post('/api/auth/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user
-    const userId = await db.createUser(email, passwordHash, firstName || '', lastName || '');
+    let userId;
+    try {
+      userId = await db.createUser(email, passwordHash, firstName || '', lastName || '');
+    } catch (err) {
+      console.error('[AUTH REGISTER ERROR]', {
+        operation: 'createUser',
+        message: err?.message,
+        code: err?.code,
+        details: err?.details,
+        hint: err?.hint
+      });
+      return res.status(500).json({ error: 'Registration failed' });
+    }
 
-    // Create user profile
-    await db.createProfile(userId);
+    // Create user profile & refresh token with automatic cleanup on failure
+    try {
+      await db.createProfile(userId);
 
-    // Generate tokens
-    const accessToken = jwt.sign(
-      { id: userId, email },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+      // Generate tokens
+      const accessToken = jwt.sign(
+        { id: userId, email },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
 
-    const refreshToken = jwt.sign(
-      { id: userId, email },
-      JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
+      const refreshToken = jwt.sign(
+        { id: userId, email },
+        JWT_REFRESH_SECRET,
+        { expiresIn: '7d' }
+      );
 
-    // Store refresh token
-    await db.createRefreshToken(userId, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      // Store refresh token
+      await db.createRefreshToken(userId, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      accessToken,
-      refreshToken,
-      user: { id: userId, email, firstName, lastName },
-    });
+      return res.status(201).json({
+        message: 'User registered successfully',
+        accessToken,
+        refreshToken,
+        user: { id: userId, email, firstName, lastName },
+      });
+    } catch (postUserErr) {
+      console.error('[AUTH REGISTER ERROR]', {
+        operation: 'createProfile_or_createRefreshToken',
+        userId,
+        message: postUserErr?.message,
+        code: postUserErr?.code,
+        details: postUserErr?.details,
+        hint: postUserErr?.hint
+      });
+
+      // Cleanup un-profiled/un-authenticated user entry
+      try {
+        await db.deleteUser(userId);
+      } catch (cleanupErr) {
+        console.error('[AUTH REGISTER CLEANUP ERROR]', {
+          userId,
+          message: cleanupErr?.message
+        });
+      }
+
+      return res.status(500).json({ error: 'Registration failed' });
+    }
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('[AUTH REGISTER UNHANDLED ERROR]', {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint
+    });
     res.status(500).json({ error: 'Registration failed' });
   }
 });
