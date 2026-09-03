@@ -521,119 +521,58 @@ window.showToast = showToast;
    CINEMATIC SCROLL & 12-STAGE CAREER JOURNEY EXPERIENCE
 ───────────────────────────────────────────────────────────── */
 function initCinematicScroll() {
-  const track = document.getElementById('cinematicJourneyTrack');
-  const anchor = document.getElementById('worldResumeAnchor');
   const heroSection = document.getElementById('cinematic-section');
   const heroContents = document.querySelectorAll('.cinematic-content');
-  
-  if (!track && !heroSection) return;
+  if (!heroSection || !heroContents.length) return;
 
-  // Handles original top hero scroll interactions
-  if (heroSection && heroContents.length) {
-    const sheet = document.getElementById('stageResumeSheet');
-    const atsBeam = document.getElementById('atsScanBeam');
-    const satAts = document.getElementById('satAtsCard');
-    const satAi = document.getElementById('satAiCard');
-    const satJob = document.getElementById('satJobCard');
-    const satStrength = document.getElementById('satStrengthCard');
+  const sheet = document.getElementById('stageResumeSheet');
+  const atsBeam = document.getElementById('atsScanBeam');
+  const satAts = document.getElementById('satAtsCard');
+  const satAi = document.getElementById('satAiCard');
+  const satJob = document.getElementById('satJobCard');
+  const satStrength = document.getElementById('satStrengthCard');
 
-    function handleHeroScroll() {
-      const rect = heroSection.getBoundingClientRect();
-      const scrollableDistance = rect.height - window.innerHeight;
-      if (scrollableDistance <= 0) return;
-      let progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
+  let rafId = null;
 
-      const frameFloat = progress * 11;
-      const frame = Math.min(11, Math.floor(frameFloat));
-      const narrativeStep = Math.min(5, Math.floor(frame / 2));
+  function handleHeroScroll() {
+    const rect = heroSection.getBoundingClientRect();
+    const scrollableDistance = rect.height - window.innerHeight;
+    if (scrollableDistance <= 0) return;
+    let progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
 
-      heroContents.forEach((content, index) => {
-        content.classList.remove('active', 'exit-up', 'exit-down');
-        if (index === narrativeStep) content.classList.add('active');
-        else if (index < narrativeStep) content.classList.add('exit-up');
-        else content.classList.add('exit-down');
-      });
+    const frameFloat = progress * 11;
+    const frame = Math.min(11, Math.floor(frameFloat));
+    const narrativeStep = Math.min(5, Math.floor(frame / 2));
 
-      if (sheet) {
-        const rotY = -18 + progress * 18;
-        const rotX = 12 - progress * 12;
-        const transZ = 10 + progress * 110;
-        const scale = 0.75 + progress * 0.40;
-        sheet.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
-      }
-    }
-    window.addEventListener('scroll', () => requestAnimationFrame(handleHeroScroll), { passive: true });
-    handleHeroScroll();
-  }
+    heroContents.forEach((content, index) => {
+      content.classList.remove('active', 'exit-up', 'exit-down');
+      if (index === narrativeStep) content.classList.add('active');
+      else if (index < narrativeStep) content.classList.add('exit-up');
+      else content.classList.add('exit-down');
+    });
 
-  // Pinned Lower Landing Spatial Camera Journey Engine
-  if (track && anchor) {
-    const atsCard = document.getElementById('worldAtsCard');
-    const aiCard = document.getElementById('worldAiCard');
-    const jobCard = document.getElementById('worldJobCard');
-    const versionBranch = document.getElementById('worldVersionBranch');
-    const intelCard = document.getElementById('worldIntelCard');
-    const laser = document.getElementById('worldScanLaser');
-    const wSkill1 = document.getElementById('wSkillAi1');
-    const wSkill2 = document.getElementById('wSkillAi2');
-
-    function handleJourneyScroll() {
-      const rect = track.getBoundingClientRect();
-      const scrollable = rect.height - window.innerHeight;
-      if (scrollable <= 0) return;
-      let progress = Math.max(0, Math.min(1, -rect.top / scrollable));
-
-      // Continuous 3D spatial transformation for main A4 anchor
-      const rotY = -22 + progress * 22; // -22deg -> 0deg
-      const rotX = 14 - progress * 14;   // 14deg -> 0deg
-      const scale = 0.70 + progress * 0.45; // 0.70 -> 1.15
-      const transZ = -50 + progress * 180; // -50px -> 130px
-      anchor.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
-
-      // Scene 02: ATS Laser Scanner (Progress 0.15 -> 0.35)
-      const atsActive = progress >= 0.15 && progress <= 0.40;
-      if (laser) laser.classList.toggle('scanning', atsActive);
-      if (atsCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.12) / 0.12));
-        atsCard.style.opacity = opacity.toFixed(2);
-        atsCard.style.transform = `translate3d(${(1 - opacity) * 40}px, 0, 40px)`;
-      }
-
-      // Scene 03 & 04: AI Assistant Transformation (Progress 0.35 -> 0.55)
-      if (aiCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.32) / 0.12));
-        aiCard.style.opacity = opacity.toFixed(2);
-        aiCard.style.transform = `translate3d(${(1 - opacity) * -40}px, 0, 50px)`;
-      }
-      const aiSkillsRevealed = progress >= 0.38;
-      if (wSkill1) wSkill1.style.display = aiSkillsRevealed ? 'inline-flex' : 'none';
-      if (wSkill2) wSkill2.style.display = aiSkillsRevealed ? 'inline-flex' : 'none';
-
-      // Scene 05: Job Match Engine (Progress 0.50 -> 0.70)
-      if (jobCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.48) / 0.12));
-        jobCard.style.opacity = opacity.toFixed(2);
-        jobCard.style.transform = `translate3d(${(1 - opacity) * -40}px, 0, 35px)`;
-      }
-
-      // Scene 06: Spatial Resume Branching (Progress 0.65 -> 0.85)
-      if (versionBranch) {
-        const branchingActive = progress >= 0.62 && progress <= 0.88;
-        versionBranch.style.opacity = branchingActive ? '1' : '0';
-        versionBranch.style.transform = branchingActive ? 'translateZ(20px)' : 'translateZ(-100px)';
-      }
-
-      // Scene 07 - 09: Career Intelligence & Workspace Resolution (Progress >= 0.80)
-      if (intelCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.78) / 0.12));
-        intelCard.style.opacity = opacity.toFixed(2);
-        intelCard.style.transform = `translate3d(${(1 - opacity) * 40}px, 0, 45px)`;
-      }
+    if (sheet) {
+      const rotY = -18 + progress * 18;
+      const rotX = 12 - progress * 12;
+      const transZ = 10 + progress * 110;
+      const scale = 0.75 + progress * 0.40;
+      sheet.style.transform = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
     }
 
-    window.addEventListener('scroll', () => requestAnimationFrame(handleJourneyScroll), { passive: true });
-    handleJourneyScroll();
+    if (atsBeam) atsBeam.classList.toggle('scanning', progress >= 0.26 && progress <= 0.85);
+    if (satAts) satAts.style.opacity = (Math.max(0, Math.min(1, (progress - 0.22) / 0.10))).toFixed(2);
+    if (satAi) satAi.style.opacity = (Math.max(0, Math.min(1, (progress - 0.40) / 0.10))).toFixed(2);
+    if (satJob) satJob.style.opacity = (Math.max(0, Math.min(1, (progress - 0.58) / 0.10))).toFixed(2);
+    if (satStrength) satStrength.style.opacity = (Math.max(0, Math.min(1, (progress - 0.72) / 0.10))).toFixed(2);
+
+    rafId = null;
   }
+
+  window.addEventListener('scroll', () => {
+    if (!rafId) rafId = requestAnimationFrame(handleHeroScroll);
+  }, { passive: true });
+
+  handleHeroScroll();
 }
 
 
