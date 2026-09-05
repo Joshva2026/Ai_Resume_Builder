@@ -597,56 +597,80 @@ function initCinematicScroll() {
         sceneBadge.textContent = scenes[sceneIndex];
       }
 
-      // Continuous 3D camera approach for main A4 anchor and hero sheet
-      const rotY = -18 + progress * 18; // -18deg -> 0deg
-      const rotX = 10 - progress * 10;   // 10deg -> 0deg
-      const scale = 0.75 + progress * 0.35; // 0.75 -> 1.10
-      const transZ = -40 + progress * 160; // -40px -> 120px
+      // Multi-Axis Spatial Camera Move derived from continuous master progress
+      // Phase 1 (0.00-0.20): Push in & level Y rotation (-18deg -> -6deg)
+      // Phase 2 (0.20-0.45): ATS close approach & level X rotation (10deg -> 2deg)
+      // Phase 3 (0.45-0.70): Pull back for Job Match & Branching (scale 0.85 -> 1.05)
+      // Phase 4 (0.70-1.00): Elevated perspective for Intelligence & Workspace resolution
+      let rotY = -18 + progress * 18;
+      let rotX = 10 - progress * 10;
+      let scale = 0.75 + progress * 0.35;
+      let transZ = -40 + progress * 160;
+
+      if (progress >= 0.20 && progress < 0.50) {
+        // Close approach & focus shift
+        rotY = -6 + (progress - 0.20) * 10;
+        rotX = 4 - (progress - 0.20) * 8;
+        scale = 0.88 + (progress - 0.20) * 0.30;
+      } else if (progress >= 0.50 && progress < 0.80) {
+        // Wide reveal & spatial branching
+        rotY = 0 + (progress - 0.50) * -12;
+        rotX = 0 + (progress - 0.50) * 6;
+        scale = 1.02 - (progress - 0.50) * 0.15;
+      } else if (progress >= 0.80) {
+        // Final Workspace resolution
+        rotY = -3.6 + (progress - 0.80) * 3.6;
+        rotX = 1.8 - (progress - 0.80) * 1.8;
+        scale = 0.97 + (progress - 0.80) * 0.13;
+      }
+
       const transformStr = `rotateY(${rotY.toFixed(2)}deg) rotateX(${rotX.toFixed(2)}deg) scale(${scale.toFixed(3)}) translateZ(${transZ.toFixed(1)}px)`;
       
       anchor.style.transform = transformStr;
       if (heroSheet) heroSheet.style.transform = transformStr;
 
-      // Scene 03: ATS Laser Scanner
-      const atsActive = progress >= 0.20 && progress <= 0.40;
+      // Overlapping Scene Transformations
+      // Scene 03: ATS Structural X-Ray (Laser sweep & Score reveal)
+      const atsActive = progress >= 0.18 && progress <= 0.42;
       if (laser) {
         laser.style.opacity = atsActive ? '1' : '0';
         if (atsActive) {
-          const yPos = ((progress - 0.20) / 0.20) * 520;
+          const yPos = ((progress - 0.18) / 0.24) * 520;
           laser.style.transform = `translateY(${yPos}px)`;
         }
       }
       if (atsCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.18) / 0.10));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.16) / 0.10 - (progress > 0.40 ? (progress - 0.40) / 0.10 : 0)));
         atsCard.style.opacity = opacity.toFixed(2);
         atsCard.style.transform = `translate3d(${(1 - opacity) * 40}px, 0, 40px)`;
       }
 
       // Scene 04: AI Quantified Rewrite
       if (aiCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.32) / 0.10));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.30) / 0.10 - (progress > 0.52 ? (progress - 0.52) / 0.10 : 0)));
         aiCard.style.opacity = opacity.toFixed(2);
         aiCard.style.transform = `translate3d(${(1 - opacity) * -40}px, 0, 50px)`;
       }
-      if (wSkill1) wSkill1.style.display = progress >= 0.36 ? 'inline-flex' : 'none';
+      if (wSkill1) wSkill1.style.display = progress >= 0.34 ? 'inline-flex' : 'none';
 
       // Scene 05: Target Job Alignment
       if (jobCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.46) / 0.10));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.44) / 0.10 - (progress > 0.65 ? (progress - 0.65) / 0.10 : 0)));
         jobCard.style.opacity = opacity.toFixed(2);
         jobCard.style.transform = `translate3d(${(1 - opacity) * -40}px, 0, 35px)`;
       }
 
       // Scene 06: Spatial Resume Branching
       if (versionBranch) {
-        const branchingActive = progress >= 0.60 && progress <= 0.82;
-        versionBranch.style.opacity = branchingActive ? '1' : '0';
-        versionBranch.style.transform = branchingActive ? 'translateZ(20px)' : 'translateZ(-100px)';
+        const branchingActive = progress >= 0.58 && progress <= 0.84;
+        const opacity = Math.max(0, Math.min(1, (progress - 0.58) / 0.10 - (progress > 0.78 ? (progress - 0.78) / 0.10 : 0)));
+        versionBranch.style.opacity = opacity.toFixed(2);
+        versionBranch.style.transform = branchingActive ? `translateZ(${(opacity * 20).toFixed(1)}px)` : 'translateZ(-100px)';
       }
 
-      // Scene 07: Career Intelligence
+      // Scene 07 & 09: Career Intelligence & Workspace Resolution
       if (intelCard) {
-        const opacity = Math.max(0, Math.min(1, (progress - 0.76) / 0.10));
+        const opacity = Math.max(0, Math.min(1, (progress - 0.74) / 0.10));
         intelCard.style.opacity = opacity.toFixed(2);
         intelCard.style.transform = `translate3d(${(1 - opacity) * 40}px, 0, 45px)`;
       }

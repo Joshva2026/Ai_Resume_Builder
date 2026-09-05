@@ -1,6 +1,17 @@
-const { GoogleGenAI } = require('@google/genai');
+const DEFAULT_CHAINS = {
+  FAST: (process.env.GEMINI_FAST_MODEL_CHAIN || 'gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-2.5-flash').split(',').map(s => s.trim()).filter(Boolean),
+  MEDIUM: (process.env.GEMINI_MEDIUM_MODEL_CHAIN || 'gemini-3.5-flash,gemini-3.6-flash,gemini-2.5-flash').split(',').map(s => s.trim()).filter(Boolean),
+  STRONG: (process.env.GEMINI_STRONG_MODEL_CHAIN || 'gemini-3.7-flash,gemini-3.6-flash,gemini-2.5-pro').split(',').map(s => s.trim()).filter(Boolean),
+};
 
-const GEMINI_MODEL = 'gemini-3.7-flash';
+const POOL_STATE = {
+  FAST: { activeIndex: 0 },
+  MEDIUM: { activeIndex: 0 },
+  STRONG: { activeIndex: 0 },
+};
+
+const EXHAUSTED_MODELS = new Map(); // modelName -> cooldownUntil timestamp
+const COOLDOWN_MS = 60 * 1000; // 60 seconds cooldown for exhausted models
 
 function getAiClient() {
   if (!process.env.GEMINI_API_KEY) {
@@ -9,40 +20,96 @@ function getAiClient() {
   try {
     return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   } catch (err) {
-    console.error('Failed to initialize GoogleGenAI client');
+    console.error('[AI SERVICE] Failed to initialize GoogleGenAI client');
     return null;
   }
 }
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+function isTransientError(error) {
+  if (!error) return false;
+  const status = error.status || error.statusCode || error.response?.status;
+  if (status === 429 || status === 503) return true;
+  
+  const msg = (error.message || '').toLowerCase();
+  if (status === 400 || status === 401 || status === 403 || status === 404) return false;
+  if (msg.includes('400') || msg.includes('401') || msg.includes('403') || msg.includes('404')) return false;
 
-async function withRetry(operation, maxRetries = 3) {
-  let attempt = 0;
-  while (attempt <= maxRetries) {
-    try {
-      return await operation(GEMINI_MODEL);
-    } catch (error) {
-      const isTransient = error.status === 503 || error.status === 429 || error.statusCode === 503 || error.statusCode === 429 || (error.message && (error.message.includes('503') || error.message.includes('429') || error.message.toLowerCase().includes('fetch failed')));
-      
-      if (!isTransient || attempt >= maxRetries) {
-        if (isTransient && attempt >= maxRetries) {
-          console.warn(`[AI SERVICE] Max retries reached for ${GEMINI_MODEL}. Attempting fallback to gemini-3.6-flash.`);
-          try {
-            return await operation('gemini-3.6-flash');
-          } catch (fallbackError) {
-            console.error(`[AI SERVICE] Fallback model also failed:`, fallbackError.message);
-            throw fallbackError;
-          }
-        }
-        throw error;
+  return (
+    msg.includes('429') ||
+    msg.includes('503') ||
+    msg.includes('quota') ||
+    msg.includes('rate limit') ||
+    msg.includes('resource_exhausted') ||
+    msg.includes('overloaded') ||
+    msg.includes('fetch failed')
+  );
+}
+
+function getAvailableModelsForPool(poolName) {
+  const chain = DEFAULT_CHAINS[poolName] || DEFAULT_CHAINS.STRONG;
+  const state = POOL_STATE[poolName] || POOL_STATE.STRONG;
+  const now = Date.now();
+
+  const ordered = [];
+  for (let i = 0; i < chain.length; i++) {
+    const idx = (state.activeIndex + i) % chain.length;
+    const model = chain[idx];
+    const cooldownUntil = EXHAUSTED_MODELS.get(model);
+
+    if (!cooldownUntil || now > cooldownUntil) {
+      if (cooldownUntil && now > cooldownUntil) {
+        EXHAUSTED_MODELS.delete(model);
       }
-      
-      attempt++;
-      const delay = Math.min(500 * Math.pow(2, attempt) + Math.random() * 200, 5000);
-      console.warn(`[AI SERVICE] Transient error (${error.status || error.message}). Retrying in ${Math.round(delay)}ms... (Attempt ${attempt}/${maxRetries})`);
-      await sleep(delay);
+      ordered.push({ model, index: idx });
     }
   }
+
+  return { ordered, chain, state };
+}
+
+async function executePoolOperation(poolName, operation) {
+  const startTime = Date.now();
+  const { ordered, chain, state } = getAvailableModelsForPool(poolName);
+
+  if (ordered.length === 0) {
+    const err = new Error(`All Gemini models in ${poolName} pool are currently rate-limited. Please try again shortly.`);
+    err.status = 429;
+    throw err;
+  }
+
+  let lastError = null;
+
+  for (let i = 0; i < ordered.length; i++) {
+    const { model, index } = ordered[i];
+    try {
+      const result = await operation(model);
+      state.activeIndex = index;
+      const duration = Date.now() - startTime;
+      console.log(`[AI SERVICE] Pool:${poolName} Model:${model} Status:SUCCESS Duration:${duration}ms`);
+      return result;
+    } catch (error) {
+      lastError = error;
+      const duration = Date.now() - startTime;
+      const transient = isTransientError(error);
+
+      if (!transient) {
+        console.error(`[AI SERVICE] Pool:${poolName} Model:${model} Status:NON_RETRYABLE_ERROR (${error.status || error.message}) Duration:${duration}ms`);
+        throw error;
+      }
+
+      EXHAUSTED_MODELS.set(model, Date.now() + COOLDOWN_MS);
+
+      const nextItem = ordered[i + 1];
+      const nextModel = nextItem ? nextItem.model : 'NONE_EXHAUSTED';
+
+      console.warn(`[AI SERVICE] Pool:${poolName} Model:${model} Status:TRANSIENT_EXHAUSTED FailoverTo:${nextModel} Duration:${duration}ms`);
+    }
+  }
+
+  if (lastError && !lastError.status) {
+    lastError.status = 429;
+  }
+  throw lastError;
 }
 
 const ACTION_VERBS = [
@@ -134,6 +201,27 @@ function getResumeContext(resumeContent, query = '') {
   return formatted;
 }
 
+function parseJsonSafely(text) {
+  if (!text) throw new Error('Empty response from AI model');
+  let clean = text.trim();
+  // Strip markdown code block fences if present
+  clean = clean.replace(/```json/gi, '').replace(/```/g, '').trim();
+  
+  // Try direct parse
+  try {
+    return JSON.parse(clean);
+  } catch (firstErr) {
+    // If prose wrapped, attempt regex search for outermost {}
+    const match = clean.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch (_) {}
+    }
+    throw new Error('Failed to parse AI output into valid JSON schema');
+  }
+}
+
 async function assistantChat(messages, userContext = null, stream = false) {
   const ai = getAiClient();
   if (!ai) {
@@ -191,7 +279,6 @@ Format your responses using clean markdown (bolding, bullet points, numbered lis
     systemInstruction += contextStr;
   }
 
-  // Convert messages to Gemini API format (role must be 'user' or 'model')
   const contents = (messages || []).map(m => {
     const role = m.role === 'assistant' ? 'model' : 'user';
     return {
@@ -200,385 +287,257 @@ Format your responses using clean markdown (bolding, bullet points, numbered lis
     };
   });
 
-  const generateOp = async (modelName) => {
+  return await executePoolOperation('STRONG', async (modelName) => {
     if (stream) {
       return await ai.models.generateContentStream({
         model: modelName,
         contents: contents,
-        config: {
-          systemInstruction: systemInstruction
-        }
+        config: { systemInstruction: systemInstruction }
       });
     } else {
       const response = await ai.models.generateContent({
         model: modelName,
         contents: contents,
-        config: {
-          systemInstruction: systemInstruction
-        }
+        config: { systemInstruction: systemInstruction }
       });
-  
       const reply = response.text ? response.text.trim() : 'I am here to help you optimize your resume, ATS score, and career strategy. How can I help you today?';
       return { reply };
     }
-  };
-
-  return await withRetry(generateOp);
+  });
 }
 
 async function rewriteText(text) {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
-  try {
-    const prompt = `You are a professional resume writer. Rewrite the following bullet point to be more professional, concise, and impactful. Ensure it starts with a strong action verb and removes any first-person pronouns (I, we). Do not make up any facts, only use what is provided. Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"original": "${text}", "rewritten": "...", "improvements": ["improvement 1", "improvement 2"]}\n\nBullet point to rewrite: "${text}"`;
+  const prompt = `You are a professional resume writer. Rewrite the following bullet point to be more professional, concise, and impactful. Ensure it starts with a strong action verb and removes any first-person pronouns (I, we). Do not make up any facts, only use what is provided. Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"original": "${text}", "rewritten": "...", "improvements": ["improvement 1", "improvement 2"]}\n\nBullet point to rewrite: "${text}"`;
+
+  return await executePoolOperation('MEDIUM', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+      config: { responseMimeType: "application/json" }
     });
-    
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error('Gemini API Error:', error.message || 'Error executing request');
-    throw new Error('Failed to rewrite text with AI');
-  }
+    return parseJsonSafely(response.text);
+  });
 }
 
 async function generateSummary(careerSummary, resumeState = null, experienceLevel = 'fresher') {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
-  try {
-    let contextStr = `Base Summary/Input: "${careerSummary}"\n\n`;
-    if (resumeState) {
-      contextStr += getResumeContext(resumeState);
-    }
+  let contextStr = `Base Summary/Input: "${careerSummary}"\n\n`;
+  if (resumeState) contextStr += getResumeContext(resumeState);
 
-    let levelInstructions = '';
-    if (experienceLevel === 'fresher') {
-      levelInstructions = 'The user is an Entry Level / Fresher. Focus on: Education, Skills, Projects, Career interests, Strengths, and Learning mindset. DO NOT invent work experience.';
-    } else {
-      levelInstructions = 'The user is an Experienced Professional. Use ONLY the information provided (Current role, Experience, Skills, Technologies, Achievements, Responsibilities). Do not invent roles or companies.';
-    }
+  let levelInstructions = experienceLevel === 'fresher'
+    ? 'The user is an Entry Level / Fresher. Focus on: Education, Skills, Projects, Career interests, Strengths, and Learning mindset. DO NOT invent work experience.'
+    : 'The user is an Experienced Professional. Use ONLY the information provided (Current role, Experience, Skills, Technologies, Achievements, Responsibilities). Do not invent roles or companies.';
 
-    const prompt = `You are an expert resume writer. Create a professional, impactful 2-3 sentence resume summary based on the following context. 
+  const prompt = `You are an expert resume writer. Create a professional, impactful 2-3 sentence resume summary based on the following context.\n\n${levelInstructions}\n\nContext:\n${contextStr}\n\nReturn ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"suggestion": "..."}`;
 
-${levelInstructions}
-
-Context:
-${contextStr}
-
-Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:
-
-{"suggestion": "..."}`;
-    
+  return await executePoolOperation('MEDIUM', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+      config: { responseMimeType: "application/json" }
     });
-    
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error('Gemini API Error:', error.message || 'Error executing request');
-    throw new Error('Failed to generate summary with AI');
-  }
+    return parseJsonSafely(response.text);
+  });
 }
 
 async function getKeywords(jobRole) {
   const role = (jobRole || '').toLowerCase();
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
-  try {
-    const prompt = `Provide a list of 10-15 key skills and ATS keywords commonly found in job descriptions for the role of "${role}". Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"keywords": ["keyword 1", "keyword 2"]}`;
+  const prompt = `Provide a list of 10-15 key skills and ATS keywords commonly found in job descriptions for the role of "${role}". Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:\n\n{"keywords": ["keyword 1", "keyword 2"]}`;
+
+  return await executePoolOperation('FAST', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+      config: { responseMimeType: "application/json" }
     });
-    
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error('Gemini API Error:', error.message || 'Error executing request');
-    throw new Error('Failed to generate keywords with AI');
-  }
+    return parseJsonSafely(response.text);
+  });
 }
 
 async function getAtsQualitativeFeedback(jobDescription, resumeText, missingKeywords) {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
-  try {
-    const missingStr = Array.isArray(missingKeywords) ? missingKeywords.join(', ') : '';
-    const prompt = `You are an expert ATS (Applicant Tracking System) analyzer and technical recruiter. 
-    Compare the provided resume against the job description.
-    
-    Missing keywords: ${missingStr}
-    
-    Provide actionable, qualitative suggestions for the candidate on how they can improve their resume for this specific job description. Explain *why* the missing keywords are important and how they could incorporate them. Provide suggestions on formatting, action verbs, and quantifying achievements.
-    
-    Do NOT provide any numeric scores.
-    
-    Job Description:
-    ${jobDescription}
-    
-    Resume Text:
-    ${resumeText}
-    
-    Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:
-    {
-      "suggestions": ["suggestion1", "suggestion2", "suggestion3"],
-      "detailed_feedback": {
-        "strengths": ["strength1", "strength2"],
-        "weaknesses": ["weakness1"]
-      }
-    }`;
-    
+  const missingStr = Array.isArray(missingKeywords) ? missingKeywords.join(', ') : '';
+  const prompt = `You are an expert ATS (Applicant Tracking System) analyzer and technical recruiter. 
+Compare the provided resume against the job description.
+Missing keywords: ${missingStr}
+Provide actionable, qualitative suggestions for the candidate on how they can improve their resume for this specific job description. Explain *why* the missing keywords are important and how they could incorporate them. Provide suggestions on formatting, action verbs, and quantifying achievements.
+Do NOT provide any numeric scores.
+Job Description:\n${jobDescription}\n
+Resume Text:\n${resumeText}\n
+Return ONLY a JSON object exactly matching this schema, with no markdown code blocks:
+{
+  "suggestions": ["suggestion1", "suggestion2", "suggestion3"],
+  "detailed_feedback": {
+    "strengths": ["strength1", "strength2"],
+    "weaknesses": ["weakness1"]
+  }
+}`;
+
+  return await executePoolOperation('STRONG', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+      config: { responseMimeType: "application/json" }
     });
-    
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error('Gemini ATS API Error:', error.message || 'Error executing request');
-    throw new Error('Failed to analyze ATS with AI');
-  }
+    return parseJsonSafely(response.text);
+  });
 }
-
 
 async function generateLinkedInReview(profileText) {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
   const trimmedText = (profileText || '').trim();
-  if (!trimmedText) {
-    throw new Error('Profile text is empty. Please paste your LinkedIn profile content.');
-  }
+  if (!trimmedText) throw new Error('Profile text is empty. Please paste your LinkedIn profile content.');
 
-  try {
-    console.log('[LINKEDIN AI] Starting analysis');
-    const prompt = `You are a professional LinkedIn optimizer and recruiter.
-    Carefully read and analyze ONLY the specific LinkedIn profile text provided below. 
-    Your analysis MUST be based entirely on what is actually written in this specific profile.
-    Do NOT use generic or template responses — every field in your response must reference specific details from THIS profile.
-    
-    If the profile is for a student/fresher (no formal employment history), evaluate their projects, internships, education, and certifications as experience evidence. Do not heavily penalize them for the lack of formal employment history. If they are experienced, carry more weight on measurable achievements.
-    
-    Check for consistency between sections (e.g. if the headline says "Java Developer" but they list only Python in experience/skills, flag this as an inconsistency/weakness/improvement).
-    
-    Profile Text to Analyze:
-    ---
-    ${trimmedText}
-    ---
-    
-    Based on the above specific profile text, evaluate these predefined scoring categories:
-    A. Headline Quality (max_score: 15): Clear target role, relevant tech/skills, recruiter keywords, professional positioning.
-    B. About Section (max_score: 15): Clarity, career direction, achievements, evidence, keywords.
-    C. Experience (max_score: 20): Responsibilities, action verbs, measurable achievements, tools. For freshers/students, evaluate projects, internships, or academic projects.
-    D. Skills (max_score: 15): Breadth, specificity, alignment with experience/headline.
-    E. Profile Completeness (max_score: 15): Presence/quality of name, headline, about, experience, education, skills, certifications, projects, contact.
-    F. Education & Certifications (max_score: 10): Specialization, technical credentials, consistency.
-    G. Recruiter/Keyword Optimization (max_score: 10): Search discoverability, terminology, consistency without keyword stuffing.
-    
-    For each category, you must return: name, score, max_score, reason (specific explanation), evidence (array of strings extracted EXACTLY from the profile supporting the score), and improvement (actionable recommendation). DO NOT invent or hallucinate strengths or evidence that do not exist.
-    
-    Return ONLY a JSON object with no markdown:
+  const prompt = `You are a professional LinkedIn optimizer and recruiter.
+Carefully read and analyze ONLY the specific LinkedIn profile text provided below. 
+Your analysis MUST be based entirely on what is actually written in this specific profile.
+Do NOT use generic or template responses — every field in your response must reference specific details from THIS profile.
+
+If the profile is for a student/fresher (no formal employment history), evaluate their projects, internships, education, and certifications as experience evidence. Do not heavily penalize them for the lack of formal employment history. If they are experienced, carry more weight on measurable achievements.
+
+Check for consistency between sections.
+
+Profile Text to Analyze:
+---
+${trimmedText}
+---
+
+Return ONLY a JSON object matching this schema:
+{
+  "categories": [
     {
-      "categories": [
-        {
-          "name": "Headline Quality",
-          "score": <integer 0-15>,
-          "max_score": 15,
-          "reason": "<specific feedback>",
-          "evidence": ["<verbatim string from profile>", "<another verbatim string>"],
-          "improvement": "<actionable recommendation>"
-        },
-        {
-          "name": "About Section",
-          "score": <integer 0-15>,
-          "max_score": 15,
-          "reason": "<specific feedback>",
-          "evidence": [],
-          "improvement": "<actionable recommendation>"
-        },
-        {
-          "name": "Experience",
-          "score": <integer 0-20>,
-          "max_score": 20,
-          "reason": "<specific feedback>",
-          "evidence": [],
-          "improvement": "<actionable recommendation>"
-        },
-        {
-          "name": "Skills",
-          "score": <integer 0-15>,
-          "max_score": 15,
-          "reason": "<specific feedback>",
-          "evidence": [],
-          "improvement": "<actionable recommendation>"
-        },
-        {
-          "name": "Profile Completeness",
-          "score": <integer 0-15>,
-          "max_score": 15,
-          "reason": "<specific feedback>",
-          "evidence": [],
-          "improvement": "<actionable recommendation>"
-        },
-        {
-          "name": "Education & Certifications",
-          "score": <integer 0-10>,
-          "max_score": 10,
-          "reason": "<specific feedback>",
-          "evidence": [],
-          "improvement": "<actionable recommendation>"
-        },
-        {
-          "name": "Recruiter/Keyword Optimization",
-          "score": <integer 0-10>,
-          "max_score": 10,
-          "reason": "<specific feedback>",
-          "evidence": [],
-          "improvement": "<actionable recommendation>"
-        }
-      ],
-      "strengths": ["<strength 1 based on evidence>", "<strength 2>"],
-      "weaknesses": ["<weakness/gap 1>", "<weakness 2>"],
-      "priority_improvements": ["<critical action item 1>", "<critical action item 2>"],
-      "overall_summary": "<professional evaluation and career-stage summary of the profile quality>"
-    }`;
+      "name": "Headline Quality",
+      "score": 12,
+      "max_score": 15,
+      "reason": "...",
+      "evidence": ["..."],
+      "improvement": "..."
+    }
+  ],
+  "strengths": ["..."],
+  "weaknesses": ["..."],
+  "priority_improvements": ["..."],
+  "overall_summary": "..."
+}`;
 
-    console.log('[LINKEDIN AI] Calling Gemini 3.6 (using configured gemini-3.6-flash)');
+  return await executePoolOperation('STRONG', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        temperature: 0.7,
-      }
+      config: { responseMimeType: 'application/json', temperature: 0.7 }
     });
-
-    console.log('[LINKEDIN AI] Gemini response received');
-    let resultText = response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
-    resultText = resultText.replace(/```json/gi, '').replace(/```/g, '').trim();
-    
-    console.log('[LINKEDIN AI] Parsing response');
-    return JSON.parse(resultText);
-  } catch (error) {
-    console.error(`[LINKEDIN AI] ERROR: ${error.message || error}`);
-    throw new Error(`Failed to analyze LinkedIn profile: ${error.message || 'Unknown AI Error'}`);
-  }
+    return parseJsonSafely(response.text);
+  });
 }
-
 
 async function generateJobMatch(resumeText, jobDescription) {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
-  try {
-    const prompt = `You are an expert recruiter and Applicant Tracking System (ATS) matching system.
-    Compare the following resume against the job description.
-    
-    Resume Text:
-    ${resumeText}
-    
-    Job Description:
-    ${jobDescription}
-    
-    Analyze the match percentage based on skills, experience level, and certifications. Identify matched keywords, missing keywords, and detailed suggestions.
-    
-    Return ONLY a JSON object matching this schema, with no markdown code blocks:
-    {
-      "match_percentage": 78,
-      "strong_matches": ["skill 1", "experience match description"],
-      "missing_matches": ["skill A", "AWS Experience"],
-      "recommendations": ["suggestion 1", "suggestion 2"]
-    }`;
+  const prompt = `You are an expert recruiter and Applicant Tracking System (ATS) matching system.
+Compare the following resume against the job description.
 
+Resume Text:
+${resumeText}
+
+Job Description:
+${jobDescription}
+
+Analyze the match percentage based on skills, experience level, and certifications. Identify matched keywords, missing keywords, and detailed suggestions.
+
+Return ONLY a JSON object matching this schema, with no markdown code blocks:
+{
+  "match_percentage": 78,
+  "strong_matches": ["skill 1", "experience match description"],
+  "missing_matches": ["skill A", "AWS Experience"],
+  "recommendations": ["suggestion 1", "suggestion 2"]
+}`;
+
+  return await executePoolOperation('MEDIUM', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+      config: { responseMimeType: "application/json" }
     });
-
-    let resultText = response.text || '';
-    resultText = resultText.replace(/```json/gi, '').replace(/```/g, '').trim();
-    
-    return JSON.parse(resultText);
-  } catch (error) {
-    console.error('Gemini Job Match API Error:', error.message || error);
-    throw new Error('Job Match AI Error: ' + (error.message || 'Failed to analyze'));
-  }
+    return parseJsonSafely(response.text);
+  });
 }
 
 async function generateOptimizationPlan(resumeText) {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
+  if (!ai) throw new Error('AI service is not configured.');
 
-  try {
-    const prompt = `You are a premium resume optimization service.
-    Analyze the following resume and return an improvement plan. Evaluate action verbs, quantifiable achievements, formatting, skills layout, and professional summary.
-    
-    Resume Text:
-    ${resumeText}
-    
-    Return ONLY a JSON object matching this schema, with no markdown code blocks:
+  const prompt = `You are a premium resume optimization service.
+Analyze the following resume and return an improvement plan. Evaluate action verbs, quantifiable achievements, formatting, skills layout, and professional summary.
+
+Resume Text:
+${resumeText}
+
+Return ONLY a JSON object matching this schema, with no markdown code blocks:
+{
+  "overall_score": 82,
+  "formatting_status": "Good",
+  "strengths": ["Strong skills section", "Good contact info"],
+  "improvements": [
     {
-      "overall_score": 82,
-      "formatting_status": "Good",
-      "strengths": ["Strong skills section", "Good contact info"],
-      "improvements": [
-        {
-          "type": "experience",
-          "severity": "Warning",
-          "message": "Too many vague verbs like 'Worked on'",
-          "details": "Action verbs capture impact much better than passive descriptions.",
-          "fix": "Rewrite to start with 'Spearheaded' or 'Orchestrated'."
-        }
-      ]
-    }`;
+      "type": "experience",
+      "severity": "Warning",
+      "message": "Too many vague verbs like 'Worked on'",
+      "details": "Action verbs capture impact much better than passive descriptions.",
+      "fix": "Rewrite to start with 'Spearheaded' or 'Orchestrated'."
+    }
+  ]
+}`;
 
+  return await executePoolOperation('STRONG', async (modelName) => {
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      model: modelName,
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      }
+      config: { responseMimeType: "application/json" }
     });
+    return parseJsonSafely(response.text);
+  });
+}
 
-    return JSON.parse(response.text);
-  } catch (error) {
-    console.error('Gemini Optimize API Error:', error.message);
-    throw new Error('Failed to generate resume optimization plan');
-  }
+async function generateCoverLetter(resumeText, jobTitle, companyName, jobDescription = '') {
+  const ai = getAiClient();
+  if (!ai) throw new Error('AI service is not configured.');
+
+  const prompt = `You are a professional cover letter writer.
+Generate a tailored cover letter for the role of "${jobTitle}" at "${companyName}".
+Use the following resume context to extract relevant achievements and skills. Only use information provided in the resume context, do not fabricate accomplishments.
+
+Resume Context:
+${resumeText}
+
+Job Description (if provided):
+${jobDescription}
+
+Return ONLY a JSON object matching this schema, with no markdown code blocks:
+{
+  "letter": "Dear Hiring Manager... \\n\\nSincerely, \\n[Name]"
+}`;
+
+  return await executePoolOperation('STRONG', async (modelName) => {
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: prompt,
+      config: { responseMimeType: "application/json" }
+    });
+    return parseJsonSafely(response.text);
+  });
 }
 
 async function generateCoverLetter(resumeText, jobTitle, companyName, jobDescription = '') {
@@ -959,19 +918,18 @@ Return ONLY a JSON object matching this exact schema:
   }
 }`;
 
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
+    return await executePoolOperation('MEDIUM', async (modelName) => {
+      const response = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: { responseMimeType: "application/json" }
+      });
+      const parsed = parseJsonSafely(response.text);
+      if (!parsed.structuredResume || !parsed.analysis || !parsed.improvements) {
+        return ruleBasedParseAndImprove(rawText, existingParsed, jobDescription);
       }
+      return parsed;
     });
-
-    const parsed = JSON.parse(response.text);
-    if (!parsed.structuredResume || !parsed.analysis || !parsed.improvements) {
-      return ruleBasedParseAndImprove(rawText, existingParsed, jobDescription);
-    }
-    return parsed;
   } catch (error) {
     console.warn('Gemini Structured Analysis Error, using rule-based engine:', error.message);
     return ruleBasedParseAndImprove(rawText, existingParsed, jobDescription);
@@ -980,14 +938,15 @@ Return ONLY a JSON object matching this exact schema:
 
 async function testConnection() {
   const ai = getAiClient();
-  if (!ai) {
-    throw new Error('AI service is not configured.');
-  }
-  const response = await ai.models.generateContent({
-    model: GEMINI_MODEL,
-    contents: 'Reply with exactly: Gemini connection successful'
+  if (!ai) throw new Error('AI service is not configured.');
+
+  return await executePoolOperation('FAST', async (modelName) => {
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: 'Reply with exactly: Gemini connection successful'
+    });
+    return response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
   });
-  return response.text || (response.candidates?.[0]?.content?.parts?.[0]?.text) || '';
 }
 
 module.exports = {
